@@ -5,7 +5,7 @@
 // 		debugFlagLink: reference to a config flag to switch logging on and off.
 // 		logToConsole: whether to also log directly to console.log()
 export class DebugLogger {
-	constructor(sourceName, eventHubLink, receiverHub = 'renderer', debugFlagLink = 1, logToConsole = 0) {
+	constructor(sourceName, eventHubLink, debugFlagLink = 1, logToConsole = 0, receiverHub = 'renderer') {
 		return async (msgs, style='log') => {
 			if (!console[style] || debugFlagLink === 0) return;
 			msgs = Array.isArray(msgs) ? msgs : [msgs];

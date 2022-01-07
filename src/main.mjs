@@ -1,20 +1,29 @@
-// Entry point
-// Dependencies
 import * as electron from 'electron';
-import * as http from 'http';
-import helpers from './shared/nodeHelpers.mjs';
-import { EventHub } from './common/EventHub.mjs';
+// import { helpers } from './shared/helpers.mjs';
+// import { helpers as nHelpers } from './shared/nodeHelpers.mjs';
+import { EventHub } from './shared/EventHub.mjs';
 import { DebugLogger } from './shared/DebugLogger.mjs';
-import { initConfig, getUserSettings, getPublicIp } from './main/initLoader.mjs';
+import { initConfig } from './main/initLoader.mjs';
 
-export const CONFIG = {};
+export const CONFIG = { DEBUG: 1 };
+export const mainHub = new EventHub('mainHub');
+export const mlog = new DebugLogger('mainLog', mainHub, 1, 1);
+
+mlog(`===Dependencies Loaded===`);
 
 // Call initLoader
-const initialLoad = (async () => {
-	let initLoad = await helpers.asyncLoader([
-		{ load: Object.assign(CONFIG, initConfig(electron.app)), success: CONFIG?.PATH?.ROOT, timeout: 5000 }
-	]);
+(async () => {
+	let initLoad = await initConfig(electron.app, CONFIG);
+	if (initLoad) {
+		mlog(`===Initialised settings===`);
+		startElectron();
+	} else {
+		console.error(new Error('Core load failed.'));
+	electron.app.exit();
+	}
 })();
 
-
-// Start Electron
+const startElectron = async () => {
+	mlog(`Starting Electron...`);
+	electron.app.exit();
+}

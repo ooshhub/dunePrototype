@@ -1,25 +1,30 @@
 // shared helper functions requiring Node imports
+import fs from 'fs/promises';
+import { helpers as browserHelpers } from './helpers.mjs';
+
 export const helpers = (() => {
 
-	const timeout = async (ms) => new Promise(res => setTimeout(() => res(null), ms));
+	/* 
+	// FILE SYSTEM
+	*/
+	// Generic file load
+	const getFile = async (filePath, json=true) => { // move to helpers later
+    let output = null;
+    let file = await fs.readFile(filePath, 'utf-8')
+      .catch(() => console.warn(`File not found ${filePath}`));
+    if (file && json) {
+      try { output = JSON.parse(file) } catch(e) { console.error(`Couldn't read file.`)}
+    } else output = file;
+    return output;
+  }
+  const saveFile = async (filePath, data, timer=10000) => {
+    let result = await Promise.race([
+      fs.writeFile(filePath, data),
+      browserHelpers.timeout(timer)
+    ]);
+    return result===undefined ? true : false;
+  }
 
-	const loadPart = async (loadPart) => {
-		const defaultTimeout = 5000;
-		return new Promise((res, rej) => {
-			Promise.race([
-				res(loadPart.load),
-				rej(timeout(loadPart.timeout ?? defaultTimeout))
-			]);
-		});
-	}
+	return { getFile, saveFile }
 
-	const asyncLoader = async (loaderArray) => {
-		// const defaultTimeout = 5000;
-		let promiseArray = loaderArray.map(part => {
-			// let timer = part.timeout ?? defaultTimeout;
-			loadPart(part)
-		});
-		console.log(`Promise array has been constructed`);
-		return await Promise.all(promiseArray);
-	}
 })();
