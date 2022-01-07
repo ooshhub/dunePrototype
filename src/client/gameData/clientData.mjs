@@ -1,0 +1,1 @@
+// Any general renderer-only game data/lists/states can go here

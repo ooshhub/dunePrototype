@@ -1,0 +1,83 @@
+:root {
+	--chatInput: #ffffff
+	--chatMsg1: #a7ac01;
+	--chatMsg2: #947900;
+}
+
+/*
+// UI
+*/
+
+main#gameui {
+	@apply fixed right-[5%] top-[5%] select-none;
+
+	& button {
+		@apply scale-150;
+	}
+}
+
+/*
+// CHAT
+*/
+
+main#chat {
+
+	@apply text-lg fixed bg-black min-h-[200px] min-w-[200px] bottom-2 right-2 opacity-80 rounded grid;
+	grid-template-rows: 0 1fr 1.8em;
+
+	& .log { @apply m-2 max-h-full overflow-auto relative bottom-0;	}
+
+	& .chat-message {
+		text-color: var(--chatMsg1);
+
+		&:nth-child(even) { text-color: var(--chatMsg2) }
+	
+		& .chat-content { @apply ml-1 }
+	}
+
+	& .input {
+		@apply relative border-t-[#afafaf];
+
+		& textarea {
+			@apply overflow-y-hidden relative resize-none w-[97%] h-6 leading-snug bg-transparent border-0 text-[#fff];
+			@apply translate-x-[-50%] translate-y-[-50%] top-2/4 left-2/4 focus:outline-none;
+		}
+	}
+
+	& .resize-handle {
+		@apply relative w-2 h-2 left-1 top-1 cursor-nwse-resize z-10;
+	}
+
+	& .arrow.up-left {
+		@apply w-0 h-0 border-[#5c5c5c] border-4 border-r-transparent border-b-transparent;
+	}
+}
+
+
+/*
+// IN-GAME MENU
+*/
+
+section#ingamemenu {
+	@apply fixed text-lg bg-dune-brown p-1 pt-0 border-dune-cyanDark border-2 rounded-sm z-50 w-2/6;
+	@apply translate-x-[-50%] translate-y-[-50%] top-2/4 left-2/4;
+	box-shadow: 0px 0px 10px 3px #04042e;
+
+	&.show { @apply block; }
+
+	& h4 {
+		@apply text-center m-1 text-dune-cyan border-b-dune-cyanDark
+	}
+
+	& .container {
+		@apply grid-cols-1 items-center;
+	}
+
+	& .section {
+		@apply w-11/12 grid grid-cols-1 items-center
+	}
+
+	& .setting {
+		@apply grid-cols-2 gap-2 my-1;
+	}
+}

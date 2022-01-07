@@ -1,0 +1,74 @@
+{
+  "name": "duneprototype",
+  "version": "0.1.0",
+  "description": "",
+  "main": "main.cjs",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "start": "electron ./src/main.cjs",
+    "buildcss": "npx tailwindcss --postcss postcss.config.cjs -c ./tailwind.config.cjs -i ./src/client/templates/styles/main_input.css -o ./src/client/templates/styles/main.css -w",
+    "build:test": "electron-builder --dir",
+    "build:dist": "electron-builder",
+    "build:unpack": "npx asar e ./dist/win-unpacked/resources/app.asar ./dist/win-unpacked/resources/unpacked"
+	},
+  "author": "oosh",
+  "license": "ISC",
+	"dependencies": {
+    "esm-wallaby": "^3.2.25",
+    "handlebars": "^4.7.7",
+    "pixi.js": "^6.2.0",
+    "socket.io": "^4.4.0",
+    "socket.io-client": "^4.4.0"
+  },
+	"devDependencies": {
+    "autoprefixer": "^10.4.1",
+    "electron": "^16.0.1",
+    "electron-builder": "^22.14.5",
+    "eslint": "^8.5.0",
+    "postcss": "^8.4.5",
+    "postcss-import": "^14.0.2",
+    "tailwindcss": "^3.0.11"
+  },
+	"build": {
+    "appId": "Oosh.Dune.PrePrototype.v030",
+    "productName": "Dune",
+    "directories": {
+      "buildResources": "build",
+      "output": "./dist"
+    },
+    "files": [
+      {
+        "from": "./src/",
+        "to": "./",
+        "filter": [
+          "**/*",
+          "!config/",
+					"!mods/"
+        ]
+      },
+      "./node_modules/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "./src/config/",
+        "to": "./config",
+        "filter": "**/*"
+      },
+			{
+				"from": "./src/mods/",
+				"to": "./mods"
+			}
+    ],
+    "win": {
+      "target": "msi",
+      "icon": "build/iconAlpha256.png"
+    },
+    "mac": {
+      "category": "Oosh.Dune.Prototype.v010",
+      "icon": "buildRes/iconAlpha256.png"
+    }
+  }
+}

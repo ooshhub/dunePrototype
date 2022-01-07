@@ -1,0 +1,84 @@
+@import './ui.css';
+@import './mainmenu.css';
+
+@font-face {
+  font-family: dune;
+  src: url("fonts/NEON CLUB MUSIC.otf") format("opentype");
+}
+@font-face {
+  font-family: dune;
+  font-weight: bold;
+  src: url("fonts/NEON CLUB MUSIC_bold.otf") format("opentype");
+}
+@font-face {
+  font-family: dune;
+  font-weight: lighter;
+  src: url("fonts/NEON CLUB MUSIC_light.otf") format("opentype");
+}
+@font-face {
+  font-family: dune;
+  font-style: italic;
+  src: url("fonts/NEON CLUB MUSIC_italic.otf") format("opentype");
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+	@apply w-screen h-screen;
+	--duneBrown: #201900;
+	--duneCyan: #0ed5d5;
+	--duneCyanBright: #03fbfb;
+	--duneCyanBrighter: #7bffff;
+	--duneCyanDark: #1c4f4f;
+	--duneGreen: #00d01c;
+	--duneGreenBright: #328600;
+	--duneGreenBrighter: #00d21d;
+	font-size: 1.5rem;
+	user-select: none;
+}
+
+input[name="activePage"][value="gamecanvas"] ~ #game,
+input[name="activePage"][value="mainmenu"] ~ #mainmenu {
+	display: block;
+	opacity: 1.0;
+}
+input[name="activePage"][value="gamecanvas"] ~ #mainmenu,
+input[name="activePage"][value="mainmenu"] ~ #game {
+	display:none;
+}
+
+/* CANVAS */
+main#gamecanvas {
+	position: absolute;
+	width: 100vw;
+	height: 100vh;
+	color: #646464;
+}
+
+/* GENERIC */
+
+.show { @apply visible opacity-100; }
+.hide { @apply invisible opacity-0; }
+.toback { z-index: -1 }
+
+.disabled { pointer-events: none; cursor: not-allowed; filter: grayscale(70%) }
+input.disabled { @apply bg-slate-400 pointer-events-auto } 
+
+.custom-scroll::-webkit-scrollbar {
+	background-color: #047360;
+	width: 0.4em;
+	border: 1px solid #025546;
+	border-radius: 5px;
+}
+.custom-scroll::-webkit-scrollbar-thumb {
+	background-color: #03977d;
+	border: 1px solid #025546;
+	border-radius: 5px;
+}
+
+body {
+	font-family: corbel;
+	font-weight: bold
+}
