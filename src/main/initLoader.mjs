@@ -1,5 +1,5 @@
 export const initConfig = async (electronApp) => {
-	let rootPath = electronApp?.app?.getAppPath();
+	let rootPath = electronApp?.getAppPath();
 	if (!rootPath) return new Error(`initConfig error: no root path to Electron found.`);
 	const CONFIG = {
 		NET: {
@@ -14,6 +14,7 @@ export const initConfig = async (electronApp) => {
 		},
 		DEBUG: 0
 	};
+	return CONFIG;
 }
 
 export const getUserSettings = async () => {}
