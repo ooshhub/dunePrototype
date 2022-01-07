@@ -1,7 +1,7 @@
 import * as http from 'http';
 import { helpers } from '../shared/helpers.mjs';
 import { helpers as nodeHelpers } from '../shared/nodeHelpers.mjs';
-import { mainHub } from '../main.mjs';
+import { mainHub, mlog } from '../main.mjs';
 
 export const initConfig = async (electronApp, configReference) => {
 	let rootPath = electronApp?.getAppPath();
@@ -25,7 +25,7 @@ export const initConfig = async (electronApp, configReference) => {
 			{ name: `netSettings`, load: getPublicIp(configReference) }
 		]);
 		if (loadResult.failures === 0) {
-			console.log(loadResult.msgs.join('\n'));
+			mlog(loadResult.msgs.join('\n'));
 			return true;
 		} else {
 			console.error(loadResult.errs.join('\n'));
@@ -58,6 +58,7 @@ const getUserSettings = async (configReference) => {
 	return outcome;
 }
 
+// Get public facing IP
 const getPublicIp = async (configReference) => {
 	return new Promise((res, rej) => {
 		let ipGrab = http.get({'host': 'api.ipify.org', 'port': 80, 'path': '/'}, (response, err) => {
