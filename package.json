@@ -1,5 +1,6 @@
 {
   "name": "duneprototype",
+	"productName": "Dune Prototype",
   "version": "0.1.0",
   "description": "",
   "main": "main.cjs",
@@ -8,7 +9,8 @@
   },
   "scripts": {
     "start": "electron ./src/main.cjs",
-    "buildcss": "npx tailwindcss --postcss postcss.config.cjs -c ./tailwind.config.cjs -i ./src/client/templates/styles/main_input.css -o ./src/client/templates/styles/main.css -w",
+    "buildcssw": "npx tailwindcss --postcss postcss.config.cjs -c ./tailwind.config.cjs -i ./src/client/templates/styles/main_input.css -o ./src/client/templates/styles/main.css -w",
+		"buildcss": "npx tailwindcss --postcss postcss.config.cjs -c ./tailwind.config.cjs -i ./src/client/templates/styles/main_input.css -o ./src/client/templates/styles/main.css",
     "build:test": "electron-builder --dir",
     "build:dist": "electron-builder",
     "build:unpack": "npx asar e ./dist/win-unpacked/resources/app.asar ./dist/win-unpacked/resources/unpacked"

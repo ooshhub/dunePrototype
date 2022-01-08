@@ -1,6 +1,13 @@
 // shared helpers for Browser environment, NO NODE IMPORTS
 const helpers = (() => {
 
+	let log;
+
+	const setLog = (loggerLink) => {
+		log = loggerLink || console.log;
+		log('Logging set');
+	}
+
 	/* 
 	// ASYNC, TIMING & PROCESS FUNCTIONS
 	*/
@@ -37,7 +44,7 @@ const helpers = (() => {
 			]).then(partResult => {
 				let result = (partResult === null) ? { err: 1, msg: `${loadPart.name}: timeout at ${timer}ms` }
 					: (/error/i.test(partResult?.constructor?.name)) ? { err: 1, msg: `${loadPart.name}: ${partResult.message}`, stack: partResult.stack }
-					: (partResult === undefined) ? { err: 1, msg: partResult || `${loadPart.name}: Unknown Error` }
+					// : (partResult === undefined) ? { err: 1, msg: partResult || `${loadPart.name}: Unknown Error` }
 					: { err: 0, msg: `${loadPart.name}: Successful load.`};
 				res(result);
 			}).catch(err => {
@@ -91,11 +98,75 @@ const helpers = (() => {
 		pid = `${pName[0]}_${pid.slice(2)}`;
 		return pid;
 	}
+	// Convert a string path to a nested object reference
+  // e.g. getObjectPath(myObj, 'config/player/playerName) returns myObj.config.player.playerName
+  // Set createPath to false to disabled creating missing keys. Will return null if path not found
+	const getObjectPath = (baseObject, pathString, createPath=true) => {
+		let parts = pathString.split(/\/+/g);
+		let objRef = (pathString) 
+			? parts.reduce((m,v) => {
+        if (!m) return;
+				if (!m[v]) {
+          if (createPath) m[v] = {};
+          else return null;
+        }
+				return m[v];}, baseObject)
+			: baseObject;
+		return objRef;
+	}
+  // Stringify an object with cyclic references
+	const stringifyCyclic = (inputObj) => {
+		const getCircularReplacer = () => {
+			const seen = new WeakSet();
+			return (key, value) => {
+				if (typeof value === "object" && value !== null) {
+					if (seen.has(value)) {
+						return;
+					}
+					seen.add(value);
+				}
+				return value;
+			};
+		};
+		let output;
+		try { output = JSON.stringify(inputObj, getCircularReplacer()) } catch(e) { console.error(e); return null }
+		return output;
+	}
 
 
-	return { 
+	/*
+	// HTML / JS / CSS FUNCTIONS
+	*/
+	const windowFade = async (targetFrame, duration, direction, timeStep=10) => {
+		let opacityStep = timeStep/duration;
+		let uOpacity = parseFloat(targetFrame.getOpacity()) ?? null;
+		if (uOpacity === null) return console.log(`No opacity found on target Electron frame.`);
+		direction = /^(in|out)/.test(`${direction}`) ? direction
+			: (uOpacity < 0.5) ? 'in'
+			: 'out';
+		// console.log(`Fading window ${direction} with a step of ${opacityStep} from initial ${uOpacity}`);
+		return new Promise(res => {
+			let opacity = uOpacity;
+			let fadeLoop = setInterval(() => {
+				if ((direction === 'in' && opacity >= 1)
+				|| (direction === 'out' && opacity <= 0)) {
+					clearInterval(fadeLoop);
+					res(1);
+				} else {
+					if (direction === 'in') opacity += opacityStep;
+					if (direction === 'out') opacity -= opacityStep;
+					targetFrame.setOpacity(opacity);
+				}
+			}, timeStep);
+		});
+	}
+
+
+	return {
+		setLog,
 		timeout, watchCondition, asyncTimedLoad, parallelLoader,
-		generatePlayerId,
+		generatePlayerId, getObjectPath, stringifyCyclic,
+		windowFade,
 	}
 
 })();

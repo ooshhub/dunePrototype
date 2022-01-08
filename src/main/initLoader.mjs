@@ -1,9 +1,10 @@
 import * as http from 'http';
 import { helpers } from '../shared/helpers.mjs';
 import { helpers as nodeHelpers } from '../shared/nodeHelpers.mjs';
-import { mainHub, mlog } from '../main.mjs';
+import { mainHub, mlog, electronRoot } from '../main.mjs';
 
-export const initConfig = async (electronApp, configReference) => {
+export const initConfig = async (/* electronApp,  */configReference) => {
+	let electronApp = electronRoot.app;
 	let rootPath = electronApp?.getAppPath();
 	if (!rootPath) return new Error(`initConfig error: no root path to Electron found.`);
 	const config = {
@@ -22,14 +23,16 @@ export const initConfig = async (electronApp, configReference) => {
 	if (configReference.PATH.ROOT) {
 		let loadResult = await helpers.parallelLoader([
 			{ name: `playerSettings`, load: getUserSettings(configReference) },
-			{ name: `netSettings`, load: getPublicIp(configReference) }
+			{ name: `netSettings`, load: getPublicIp(configReference) },
+			{ name: `electronReady`, load: electronApp.whenReady() },
+			{ name: 'mainHubInit', load: import('./mainHub.mjs') }
 		]);
 		if (loadResult.failures === 0) {
 			mlog(loadResult.msgs.join('\n'));
-			return true;
+			return 1;
 		} else {
 			console.error(loadResult.errs.join('\n'));
-			return false;
+			return 0;
 		}
 	}
 	else return new Error(`Could not initialise core CONFIG.`);

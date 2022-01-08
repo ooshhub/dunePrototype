@@ -1,5 +1,6 @@
 // shared helper functions requiring Node imports
 import fs from 'fs/promises';
+import * as handlebars from 'handlebars';
 import { helpers as browserHelpers } from './helpers.mjs';
 
 export const helpers = (() => {
@@ -25,6 +26,21 @@ export const helpers = (() => {
     return result===undefined ? true : false;
   }
 
-	return { getFile, saveFile }
+	/*
+	// HBS / HTML
+	*/
+	// Handlebars compiler
+	const compileHbs = async (inputFile, data) => {
+		let file = await getFile(inputFile, false);
+		if (file && /<.+>/.test(file)) {
+			let compiledHtml = handlebars.compile(file)(data);
+			return compiledHtml;
+		} else return null;
+	}
+
+	return {
+		getFile, saveFile,
+		compileHbs
+	}
 
 })();

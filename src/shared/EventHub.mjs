@@ -1,5 +1,5 @@
 // EventHub class
-// TODO: 
+// TODO: rewrite
 
 export class EventHub {
 

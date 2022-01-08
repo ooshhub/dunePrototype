@@ -40,7 +40,14 @@ export class DebugReceiver {
 			(console[style]||console.log)(`%cFrom ${logSource}:`, this.#logStyles[logSource]||this.#logStyles.default||'', ...msgs);
 		}
 	}
-	#registerHandlers() {
+
+	constructor(eventHubLink, sources = {}, styles) {
+		this.#logStyles = typeof(styles?.default) === 'string' ? styles : this.#duneDefaultStyles;
+		this.#hubReference = eventHubLink;
+		this.#logSources = sources;
+		// this.#registerHandlers();
+	}
+	registerHandlers() {
 		for (let src in this.#logSources) {
 			if (this.#logSources[src]) {
 				if (this.#hubReference.on) {
@@ -50,14 +57,6 @@ export class DebugReceiver {
 			}
 		}
 	}
-
-	constructor(eventHubLink, sources = {}, styles) {
-		this.#logStyles = typeof(styles?.default) === 'string' ? styles : this.#duneDefaultStyles;
-		this.#hubReference = eventHubLink,
-		this.#logSources = sources,
-		this.#registerHandlers();
-	}
-
 	listHandlers() { return this.#registeredHandlers||[] }
 	// If ever required, can add methods to add or remove handlers.
 }
