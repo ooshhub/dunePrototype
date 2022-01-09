@@ -49,7 +49,7 @@ export class SocketServer {
 			next();
 		}
 	}
-	// Blacklist an ip after too many failures to verify/upgrade connection
+	// Add a failed upgrade or connection attempt. Blacklist an ip after too many failures 
 	#addLogAttempt = (cleanIp) => {
 		this.#logAttempts[cleanIp] ?
 		this.#logAttempts[cleanIp] > this.#maxUpgradeAttempts ?
@@ -58,6 +58,37 @@ export class SocketServer {
 		: this.#logAttempts[cleanIp] = 0;
 		this.#slog(`${cleanIp} has tried to log in ${this.#logAttempts[cleanIp]} time(s).`);
 	}
+	#initDefaultMessaging() {
+		this.io.on('connection'), async (socket) => {
+			let cleanIp = socket.handshake.address.replace(/\./g, '_').replace(/[^\d_]/g, '');
+			this.#slog(`===UPGRADED CONNECTION FROM ${socket.handshake.address} ===`);
+			let playerDetails = socket.handshake.auth;
+			let rejection;
+			if (options.password && options.password !== playerDetails.password) err = new Error('Incorrect password!');
+			if (!playerDetails.playerName || !playerDetails.pid) err = new Error(`Bad player setup - missing PID or name`);
+			if (err) {
+				this.#slog(err, 'error');
+				this.#addLogAttempt(cleanIp);
+				return;
+			}
+			let playerExists = this.#check
+		}
+	}
+	// Supply playerData to check specific player, otherwise all players are checked
+	async #healthCheckAck(socket) {
+		return new Promise(res => socket.emit('healthCheck', (ack) => res(ack)));
+	}
+	// Check if player exists/is alive. If player is not in playerList, return undefined, if player socket is dead return null
+	#checkPlayerIsAlive = async (playerData) => {
+		if (!this.#playerList[playerData.pid]) return undefined;
+		this.#slog(`Checking client connection for ${playerData.playerName}...`);
+		const ackTimeout = 5000;
+		return await Promise.race([
+			helpers.timeout(ackTimeout),
+			this.#healthCheckAck(this.#playerList[playerData.pid].socket)
+		]);
+	}
+
 	// Direct server logging. TODO: change to subscription model
 	// TODO: run through cyclic reference removal, or STOP SENDING SOCKET THROUGH SOCKET DICKHEAD
 	#slog = (msgs, style='log') => {
@@ -69,12 +100,9 @@ export class SocketServer {
 		}
 	};
 
-
-
-
 	initServer(upgradeMiddleware = this.#verifyUpgrade, customMessaging = []) {
 		if (/function/i.test(typeof(upgradeMiddleware))) this.io.use(upgradeMiddleware);
-		if (!customMessaging.length) this.#initClientMessaging();
+		if (!customMessaging.length) this.#initDefaultMessaging();
 		else customMessaging.forEach(handler => {
 			this.io.on(handler.eventName, async (socket) => handler.eventHandler(socket));
 		});
