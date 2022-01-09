@@ -44,15 +44,18 @@ export const main = (() => {
 	*/
 	const renderHtml = async ({req}) => {
 		mlog(`HTML was requested`, req);
-		let hbsPath = '', hbsData = {};
-		if (req === 'canvas') hbsPath = `${CONFIG.PATH.HBS}/gameCanvas.hbs`;
-		else if (req === 'mainmenu') hbsPath = `${CONFIG.PATH.HBS}/menuBody.hbs`, hbsData = { config: CONFIG.userSettings, menuItems: getMenuItems(CONFIG.userSettings) }
-		else if (req === 'ui') hbsPath = `${CONFIG.PATH.HBS}/gameUi.hbs`;
-		else if (req === 'ingamemenu') hbsPath = `${CONFIG.PATH.HBS}/inGameMenu.hbs`, hbsData = { player: CONFIG.userSettings }
-		else if (req === 'chat') hbsPath = `${CONFIG.PATH.HBS}/chat.hbs`;
-		let resHtml = await nHelpers.compileHbs(hbsPath, hbsData);
-		if (resHtml) mainHub.trigger('renderer/responseHtml', {req: req, html: resHtml});
-		else mlog([`Error loading HTML`, resHtml], 'error');
+		req = helpers.toArray(req);
+		Promise.all(req.map(async (r) => {
+			let hbsPath = '', hbsData = {};
+			if (r === 'canvas') hbsPath = `${CONFIG.PATH.HBS}/gameCanvas.hbs`;
+			else if (r === 'mainmenu') hbsPath = `${CONFIG.PATH.HBS}/menuBody.hbs`, hbsData = { config: CONFIG.userSettings, menuItems: getMenuItems(CONFIG.userSettings) }
+			else if (r === 'ui') hbsPath = `${CONFIG.PATH.HBS}/gameUi.hbs`;
+			else if (r === 'ingamemenu') hbsPath = `${CONFIG.PATH.HBS}/inGameMenu.hbs`, hbsData = { player: CONFIG.userSettings }
+			else if (r === 'chat') hbsPath = `${CONFIG.PATH.HBS}/chat.hbs`;
+			let resHtml = await nHelpers.compileHbs(hbsPath, hbsData);
+			if (resHtml) mainHub.trigger('renderer/responseHtml', {req: r, html: resHtml});
+			else mlog([`Error loading HTML`, resHtml], 'error');
+		}));
 	}
 
 	/*

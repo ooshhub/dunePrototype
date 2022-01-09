@@ -1,17 +1,19 @@
 // Renderer entry point
 // Dependencies
-
+import { helpers } from '../shared/helpers.mjs';
 
 const Dune = {
 	Houses: {},
-  LocalHub: null,
+  RenHub: null,
 	Players: {},
 	Layers: {},
-	Utils: {},
+	Helpers: helpers,
 	Client: {},
 	CONFIG: {},
 }
 window.Dune = Dune;
+window.$ = (selector) => document.querySelector(selector);
+window.$$ = (selector) => document.querySelectorAll(selector);
 
 let renHub, rlog;
 
@@ -21,22 +23,39 @@ let renHub, rlog;
 		.then(imp => {
 			rlog = imp.rlog;
 			renHub = imp.renHub;
+			window.Dune.RenHub = renHub;
+			window.Dune.Helpers.rlog = rlog
 		})
 		.catch(e => {
 			console.error(e);
 			err = e;
 		});
 	if (!err) {
-		rlog('===Client load started===');
-		// Request initial game data
-		renHub.trigger('main/requestHtml', {req: 'canvas'});
-		renHub.trigger('main/requestHtml', {req: 'ui'});
-		renHub.trigger('main/requestHtml', {req: 'chat'});
-		renHub.trigger('main/requestHtml', {req: 'mainmenu'});
+		rlog('===Client load starting===');
+		// Request intial HTML & Config
+		renHub.trigger('main/requestHtml', {req: ['canvas', 'ui', 'chat', 'mainmenu']});
 		renHub.trigger('main/requestConfig');
-	} else return console.error('Exiting client load due to errors.');
+	} else return console.error('Aborting client load due to errors.');
 
-	// Await load of initial scripts
-	// Initialise canvas & audio
+	// Load core modules
+	await helpers.parallelLoader([
+		{ name: 'initCanvas', load: (await import('./canvas/stageManager.mjs')).initCanvas() },
+		{ name: 'initMainMenu', load: (await import('./mainMenu/mainMenu.mjs')).initMainMenu() }
+	]).then(res => {
+		if (res.failures > 0) throw new Error(res.errs.join('\n'));
+		// If successful, bring up main window
+		rlog('===Core modules completed===');
+		renHub.trigger('main/coreLoadComplete');
+	}).catch(e => err = e);
+	if (err) return rlog('Aborting client load due to errors.', 'error');
+
+	// Load other modules
+	await helpers.parallelLoader([
+		{ name: 'howlerAudio', load: await (await import('./audio/audio.mjs')).initAudio() }
+	]).then(res => {
+		if (res.failures === 0) rlog(res.msgs.join('\n'));
+		else rlog(res.errs.join('\n'), 'error');
+	});
+
 
 })();

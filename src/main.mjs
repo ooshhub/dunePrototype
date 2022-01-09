@@ -86,16 +86,19 @@ const startElectron = async () => {
 	});
 	mainHub.trigger('mainWindowReady', { win: mainFrame, app: electron.app });
 
+	let coreLoad = 0;
+	mainHub.once('coreLoadComplete', () => coreLoad = 1);
+
 	mainFrame.once('ready-to-show', async () => {
-		// Simulate main window load
-		await Promise.all([
-			helpers.timeout(2000)
-		]);
-		mainFrame.show();
-		mainFrame.focus();
-		await helpers.windowFade(mainFrame, 1000);
-		loadingFrame.destroy();
-		await helpers.timeout(1000);
-		electron.app.exit();
+		await helpers.watchCondition(() => coreLoad, '', 10000).then(async (res) => {
+			if (res) {
+				mainFrame.show();
+				mainFrame.focus();
+				await helpers.windowFade(mainFrame, 1000);
+				loadingFrame.destroy();
+			} else {
+				throw new Error('Core load failed. Exiting.');
+			}
+		});
 	});
 }

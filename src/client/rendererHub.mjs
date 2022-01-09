@@ -15,15 +15,20 @@ export const rlog = new DebugLogger('renderer', renHub, debugSources, 0);
 const debugRec = new DebugReceiver(renHub, debugSources);
 debugRec.registerHandlers();
 
-(async () => {
-	// Main process event route
+(() => {
+	// Event messaging
+	// Main process
 	window.rendererToHub.receive('sendToRenderer', async (event, data) => renHub.trigger(event, data));
 	renHub.for('main', async (event, ...args) => window.rendererToHub.send('sendToMain', event, ...args));
-	// Server event route
+	// Server
 	renHub.for('server', (event, ...args) => window.Dune?.Client?.sendToServer?.(event, ...args));
-	// Self-routing in case event is sent with "renderer/" routing from within window
+	// Self-routing
 	renHub.for('renderer', (event, ...args) => renHub.trigger(event, ...args));
+
 	// Game Init listeners
 	renHub.on('responseHtml', ren.insertHtml);
 	renHub.on('responseConfig', ren.updateConfig);
-})();
+
+	// Other handlers
+
+	})();

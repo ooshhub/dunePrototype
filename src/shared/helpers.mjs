@@ -1,6 +1,6 @@
 // shared helpers for Browser environment, NO NODE IMPORTS
 const helpers = (() => {
-
+	
 	let log;
 
 	const setLog = (loggerLink) => {
@@ -74,7 +74,7 @@ const helpers = (() => {
 	/* 
 	// DATA FUNCTIONS
 	*/
-
+	const toArray = (inp) => Array.isArray(inp) ? inp : [inp];
 	// Generate a player ID
 	// Format is 
 	//  -first letter of process.env.USERNAME (or random letter if not found)
@@ -165,7 +165,7 @@ const helpers = (() => {
 	return {
 		setLog,
 		timeout, watchCondition, asyncTimedLoad, parallelLoader,
-		generatePlayerId, getObjectPath, stringifyCyclic,
+		toArray, generatePlayerId, getObjectPath, stringifyCyclic,
 		windowFade,
 	}
 
