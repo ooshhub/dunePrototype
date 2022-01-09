@@ -3,7 +3,7 @@ import { helpers } from '../shared/helpers.mjs';
 import { helpers as nodeHelpers } from '../shared/nodeHelpers.mjs';
 import { mainHub, mlog, electronRoot } from '../main.mjs';
 
-export const initConfig = async (/* electronApp,  */configReference) => {
+export const initConfig = async (configReference) => {
 	let electronApp = electronRoot.app;
 	let rootPath = electronApp?.getAppPath();
 	if (!rootPath) return new Error(`initConfig error: no root path to Electron found.`);
@@ -48,10 +48,13 @@ const getUserSettings = async (configReference) => {
 			settings = await nodeHelpers.getFile(`${configReference.PATH.ROOT}/config/defaultUserSettings.json`);
 			await nodeHelpers.saveFile(settingsPath, JSON.stringify(settings));
 		}
-		if (!/^[A-Za-z]_/.test(`${settings?.player?.id}`)) {
-			settings.player.id = helpers.generatePlayerId(process?.env?.USERNAME);
+		if (!/^[A-Za-z]_/.test(`${settings?.player?.pid}`)) {
+			settings.player.pid = helpers.generatePlayerId(process?.env?.USERNAME);
 			console.log(`New player ID generated: ${settings.player.id}`);
 			mainHub.trigger('saveConfig', settings);
+		}
+		if (!settings?.player?.playerName) {
+			settings.player.playerName = process.env?.USERNAME || `newPlayer_${Math.floor(Math.random()*999)}`;
 		}
 		configReference.userSettings = settings;
 	} catch(e) {

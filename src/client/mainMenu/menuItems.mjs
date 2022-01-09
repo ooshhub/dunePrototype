@@ -136,8 +136,8 @@ export const getMenuItems = (config={}) => {
 					class: 'double-item',
 					subClass: 'disabled',
 					id: '',
-					name: 'playerId',
-					setting: config.player?.id||'',
+					name: 'pid',
+					setting: config.player?.pid||'',
 				},
 			]
 		},

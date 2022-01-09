@@ -1,7 +1,7 @@
 {
 	"player": {
-		"name": "",
-		"id": null,
+		"playerName": "",
+		"pid": null,
 		"color": "#ffffff"
 	},
 	"ui": {
