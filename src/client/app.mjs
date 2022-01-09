@@ -44,6 +44,7 @@ let renHub, rlog;
 	]).then(res => {
 		if (res.failures > 0) throw new Error(res.errs.join('\n'));
 		// If successful, bring up main window
+		rlog(res.msgs.join('\n'));
 		rlog('===Core modules completed===');
 		renHub.trigger('main/coreLoadComplete');
 	}).catch(e => err = e);

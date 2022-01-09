@@ -29,6 +29,13 @@ debugRec.registerHandlers();
 	renHub.on('responseHtml', ren.insertHtml);
 	renHub.on('responseConfig', ren.updateConfig);
 
-	// Other handlers
+	/* External handlers
+	./audio/audio.mjs
+		renHub.on('playSound')
+		renHub.on('playMusic')
+	./canvas/stageManager.mjs
+		renHub.on()
+
+	*/
 
 	})();
