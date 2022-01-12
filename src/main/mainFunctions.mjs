@@ -60,15 +60,14 @@ export const main = (() => {
 	/*
 	// CONFIG & SETTINGS
 	*/
-	const modifyConfig = async ({ path, data, options } ) => {
+	const modifyConfig = async ( { path, data, options } ) => {
 		if (!data || !path) return mlog(`modifyConfig: no data received with request`, data);
-		console.log(`modifying config for key ${path}...`);
 		let target = nHelpers.getObjectPath(CONFIG, path, options?.createPath||true);
 		Object.assign(target, data);
 		mlog(CONFIG.userSettings);
 		if (!options?.noSave) saveConfig();
 	}
-	const getConfig = async () => mainHub.trigger('renderer/responseConfig', { CONFIG });
+	const getConfig = async () => mainHub.trigger('renderer/responseConfig', CONFIG);
 	const saveConfig = async () => nHelpers.saveFile(`${CONFIG.PATH.USERDATA}/userSettings.json`, JSON.stringify(CONFIG.userSettings||CONFIG.USERSETTINGS));
 
 	const exitAndSave = async () => { // erm.... saveAndExit would be a more sensible name
