@@ -29,7 +29,7 @@ export const main = (() => {
 		await helpers.timeout(500);
 		//// Use localhost for testing ////
 		serverOptions.hostIp = 'localhost';
-		mainHub.trigger('renderer/joinServer', { serverOptions: serverOptions });
+		mainHub.trigger('renderer/joinServer', serverOptions);
 	}
 
 	const killServer = async () => {

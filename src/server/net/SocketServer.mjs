@@ -52,23 +52,7 @@ export class SocketServer {
 		};
 		this.#serverState = states[newState] ?? this.#serverState;
 	}
-	// Immediate middleware to upgrade http request ==> websocket
-	async #verifyUpgrade(socket, next) {
-		console.log('Connection attempt...');
-		if (this.#serverState !== 'INITIALIZING' || this.#serverState !== 'OPEN') return this.#slog('Refused connection attempt, server is busy/closed.');
-		if (this.#serverState === 'INITIALIZING' && socket.handshake.auth.pid !== this.host.pid) return this.#slog('Refused connection attempt: Host must connect before players.' ,'warn');
-		if (!socket.handshake?.auth || !socket.handshake?.headers) return this.#slog(`socketServer: refused upgrade attempt - no headers present`);
-		let cleanIp = socket.handshake.address.replace(/\./g, '_').replace(/[^\d_]/g, '');
-		if (this.#blackList[cleanIp] && this.#blackList[cleanIp] > this.#maxUpgradeAttempts) return this.#slog(`Blacklisted cunt was told to fuck off: ${cleanIp}`)
-		console.log(`===UPGRADE REQUEST FROM ${/1/.test(cleanIp) ? 'localhost' : cleanIp}===`);
-		if (!socket.handshake.headers.game === 'dune' || !socket.handshake.auth?.playerName) {
-			socket.disconnect(true);
-			console.log(`Connection from ${cleanIp} was rejected.`, 'warn');
-			this.#addLogAttempt(cleanIp);
-		} else {
-			next();
-		}
-	}
+
 	// Add a failed upgrade or connection attempt. Blacklist an ip after too many failures 
 	#addLogAttempt = (cleanIp) => {
 		this.#logAttempts[cleanIp] ?
@@ -104,7 +88,7 @@ export class SocketServer {
 			socket.emit('auth', playerDetails.pid);
 			playerDetails.isHost = this.#checkPlayerIsHost(playerDetails.pid);
 			playerDetails.socket = socket;
-			if (playerDetails.isHost) this.#serverState('open');
+			if (playerDetails.isHost) this.#setServerState('open');
 			// Add player to server, init handlers
 			this.#playerList[playerDetails.pid] = playerDetails;
 			// Check number of players in lobby
@@ -112,21 +96,23 @@ export class SocketServer {
 			// Update clients with new player list
 			this.io.emit('updatePlayerList', this.getPlayerList());
 			socket.on('disconnect', this.#handlePlayerDisconnect);
-			socket.on('message', (event, data, ...args) => this.#receiveFromClient(socket, event, data, ...args));
+			socket.on('message', (...args) => this.#receiveFromClient(socket, ...args));
+			this.#slog(`New player joined: ${playerDetails.playerName}${playerDetails.isHost ? ' (HOST)' : ''}`);
 		});
 	}
 	// Set up event hub link
 	#eventHub = [];
-	registerEventHub(eventHubLink) { if (/function/i.test(typeof(eventHubLink))) this.#eventHub.push(eventHubLink); }
+	registerEventHub(eventHubLink) {
+		if (/eventhub/i.test(eventHubLink.constructor?.name) && eventHubLink.trigger)	this.#eventHub.push(eventHubLink);
+		else this.#slog(`Bad Event Hub supplied to server!`, 'error');
+	}
 	// async sendToClient
-	async #receiveFromClient(socket, event, data, ...args) {
+	async #receiveFromClient(socket, data, ...args) {
 		try { Object.assign(data, { sid: socket.id }) }
 		catch(e) { this.#slog(`Bad event received from client, data was not an Object`, 'warn') }
-		this.#triggerHub(event, data, ...args);
+		this.#triggerHub(data, ...args);
 	}
-	async #triggerHub(event, data, ...args) {
-		this.#eventHub.forEach(async (hub) => hub(event, data, ...args));
-	}
+	async #triggerHub(...args) {	this.#eventHub.forEach(async (hub) => hub.trigger(...args));	}
 	// TODO: Error handling
 	#handlePlayerDisconnect(reason) {
 		this.#slog([`Client disconnected:`, reason], 'warn');
@@ -191,13 +177,28 @@ export class SocketServer {
 		return output;
 	}
 
-	initServer(upgradeMiddleware = this.#verifyUpgrade, customMessaging = []) {
-		if (/function/i.test(typeof(upgradeMiddleware))) this.io.use(upgradeMiddleware);
+	initServer(customUpgradeMiddleware, customMessaging = []) {
+		// Immediate middleware to upgrade http request ==> websocket
+		const verifyUpgrade = async (socket, next) => {
+			if (this.#serverState !== 'INITIALIZING' && this.#serverState !== 'OPEN') return this.#slog(`Refused connection attempt, server state is "${this.#serverState}"`);
+			if (this.#serverState === 'INITIALIZING' && socket.handshake.auth.pid !== this.host.pid) return this.#slog('Refused connection attempt: Host must connect before players.' ,'warn');
+			if (!socket.handshake?.auth || !socket.handshake?.headers) return this.#slog(`socketServer: refused upgrade attempt - no headers present`);
+			let cleanIp = socket.handshake.address.replace(/\./g, '_').replace(/[^\d_]/g, '');
+			if (this.#blackList[cleanIp] && this.#blackList[cleanIp] > this.#maxUpgradeAttempts) return this.#slog(`Blacklisted cunt was told to fuck off: ${cleanIp}`)
+			this.#slog(`===UPGRADE REQUEST FROM ${/1/.test(cleanIp) ? 'localhost' : cleanIp}===`);
+			if (!socket.handshake.headers.game === 'dune' || !socket.handshake.auth?.playerName) {
+				socket.disconnect(true);
+				this.#slog(`Connection from ${cleanIp} was rejected.`, 'warn');
+				this.#addLogAttempt(cleanIp);
+			} else {
+				next();
+			}
+		}
+		if (/function/i.test(typeof(upgradeMiddleware))) this.io.use(customUpgradeMiddleware);
+		else this.io.use(verifyUpgrade);
 		if (!customMessaging.length) this.#initDefaultMessaging();
 		else customMessaging.forEach(handler => {
 			this.io.on(handler.eventName, async (socket) => handler.eventHandler(socket));
 		});
 	}
-
-
 }

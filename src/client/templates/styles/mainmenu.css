@@ -69,15 +69,15 @@ main#mainmenu {
 		@apply block invisible opacity-0;
 		transition: opacity 0.3s;
 	
-		& input[name="modalup"][value="1"] ~ #loading-modal {
-			@apply top-1/4 bg-[color:#f1f1f1] text-2xl font-bold opacity-90 visible rounded-md;
-			transition: opacity 0.3s;
-		}
 		& .loading-spinner { @apply mx-auto text-center }
-		& .loading-spinner img { height: 100px; }
+		& .loading-spinner img { height: 100px; margin: auto; }
 
 		&#loading-modal button {
 			@apply text-red-700 border-2 border-[color:#a40000] px-4 py-1 rounded-md;
 		}
+	}
+	& input[name="modalup"][value="1"] ~ dialog#loading-modal {
+		@apply top-1/4 bg-[color:#f1f1f1] text-2xl font-bold opacity-90 visible rounded-md;
+		transition: opacity 0.3s;
 	}
 }

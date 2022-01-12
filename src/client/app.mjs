@@ -40,7 +40,7 @@ let renHub, rlog;
 	// Load core modules
 	await helpers.parallelLoader([
 		{ name: 'initCanvas', load: (await import('./canvas/stageManager.mjs')).initCanvas() },
-		{ name: 'initMainMenu', load: (await import('./mainMenu/mainMenu.mjs')).initMainMenu() }
+		{ name: 'initMainMenu', load: (await import('./mainMenu/mainMenu.mjs')).initMainMenu(), },
 	]).then(res => {
 		if (res.failures > 0) throw new Error(res.errs.join('\n'));
 		// If successful, bring up main window
@@ -48,7 +48,7 @@ let renHub, rlog;
 		rlog('===Core modules completed===');
 		renHub.trigger('main/coreLoadComplete');
 	}).catch(e => err = e);
-	if (err) return rlog('Aborting client load due to errors.', 'error');
+	if (err) return rlog(['Client load had errors.', err], 'error');
 
 	// Load other modules
 	await helpers.parallelLoader([

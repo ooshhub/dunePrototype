@@ -31,6 +31,7 @@ export const ren = (() => {
 	// LOBBY AND GAME START
 	*/
 	const joinLobby = async (joinOptions) => {
+		rlog(joinOptions);
 		const DuneClient = new SocketClient(joinOptions);
 		window.Dune.Client = DuneClient;
 		DuneClient.registerEventHub(renHub);

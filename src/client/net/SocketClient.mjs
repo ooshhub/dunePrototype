@@ -35,7 +35,10 @@ export class SocketClient {
 			}
 		});
 
-		this.socket.on('message', (event, ...args) => this.#triggerHub(event, ...args));
+		this.socket.on('message', (...args) => {
+			this.#socklog(['Received server message', ...args]);
+			this.#triggerHub(...args);
+		});
 
 		// TODO: Connection handling
 		// Dunno what's needed
@@ -83,20 +86,19 @@ export class SocketClient {
 			this.socket.close();
 			this.#connecting = 0;
 			this.#socklog(`Connection timeout, server not found or connection upgrade refused`);
-		}
+		} else return 1;
 	}
 
 	// Link to event hub
 	#eventHub = [];
-	registerEventHub(hubLink) {
-		// if (typeof(hubLink) === 'function') this.#eventHub.push(hubLink) }
-		this.#socklog(hubLink.constructor?.name);
-		this.#eventHub.push(hubLink);
+	registerEventHub(eventHubLink) {
+		if (/eventhub/i.test(eventHubLink.constructor?.name) && eventHubLink.trigger)	this.#eventHub.push(eventHubLink);
+		else this.#socklog(`Bad Event Hub supplied to server!`, 'error');
 	}
 	// Messages to hub
-	async #triggerHub(event, ...args) {
+	async #triggerHub(...args) {
 		this.#eventHub.forEach(async (hubLink) => {
-			hubLink.trigger?.(event, ...args);
+			hubLink.trigger?.(...args);
 		});
 	}
 	// Messages from hub

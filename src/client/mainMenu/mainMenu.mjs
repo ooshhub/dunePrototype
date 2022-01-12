@@ -7,7 +7,7 @@ const $ = window.$;
 
 
 export const initMainMenu = async () => {
-	await window.Dune.Helpers.watchCondition(() => document.ready);
+	await window.Dune.Helpers.watchCondition(() => document.readyState);
 	// Menu buttons
 	$$('button.expandable').forEach(b => b.addEventListener('click', menu.toggleMenuItem));
 	$$('input.toggle').forEach(t => t.value = 0);
