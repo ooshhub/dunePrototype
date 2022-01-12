@@ -38,7 +38,7 @@ const menu = (() => {
 				path, msg, cancelAction,
 				options = {
 					playerName: $('[name="playerName"]').value,
-					pid: $('[name="playerId"]').value
+					pid: $('[name="pid"]').value
 				};
 		if (type === 'host') {
 			Object.assign(options, {

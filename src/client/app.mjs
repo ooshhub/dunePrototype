@@ -8,7 +8,7 @@ const Dune = {
 	Players: {},
 	Layers: {},
 	Helpers: helpers,
-	Client: {},
+	Client: null,
 	CONFIG: {},
 }
 window.Dune = Dune;

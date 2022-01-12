@@ -2,6 +2,7 @@ import { mainHub, mlog, CONFIG, electronRoot } from '../main.mjs';
 import { helpers } from '../shared/helpers.mjs';
 import { helpers as nHelpers } from '../shared/nodeHelpers.mjs';
 import { getMenuItems } from '../client/mainMenu/menuItems.mjs';
+import { startLocalServer } from '../server/net/localServer.mjs';
 
 const server = {};
 
@@ -20,14 +21,12 @@ export const main = (() => {
 		}
 		mlog([`Starting server with options`, serverOptions], 'info');
 		try {
-			// server.local = await startLocalServer(serverOptions);
+			server.local = await startLocalServer(serverOptions);
 			if (!server.local) throw new Error(`Server shit the bed!`);
 		} catch(e) { err = e; }
 		if (err) { mlog(err, 'error'); return false }
 		mlog(`Server started on ${serverOptions.hostPort}...`);
-		await helpers.timeout(1000);
-		// Once server is started, join game
-		mlog(`Sending join request to rendererHub...`);
+		await helpers.timeout(500);
 		//// Use localhost for testing ////
 		serverOptions.hostIp = 'localhost';
 		mainHub.trigger('renderer/joinServer', { serverOptions: serverOptions });

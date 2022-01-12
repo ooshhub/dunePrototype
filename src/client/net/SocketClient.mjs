@@ -1,7 +1,7 @@
 // socket.io client Class
 // TODO: rewrite
 import { io } from '../lib/socket.io.esm.min.js';
-import helpers from './clientHelpers.mjs';
+import { helpers } from '../../shared/helpers.mjs';
 
 export class SocketClient {
 
@@ -12,7 +12,7 @@ export class SocketClient {
 		Object.assign(this, {
 			player: {
 				playerName: clientOptions.playerName || `newPlayer_${Math.floor(Math.random()*99)}`,
-				pid: clientOptions.playerId
+				pid: clientOptions.pid
 			},
 			serverOptions: {
 				url: `http://${clientOptions.hostIp||'localhost'}:${clientOptions.hostPort||8080}`,
@@ -27,7 +27,7 @@ export class SocketClient {
 			auth: {
 				game: 'dune',
 				playerName: this.player.playerName,
-				pid: this.player.id,
+				pid: this.player.pid,
 				password: clientOptions.password||'',
 			},
 			extraHeaders: {
@@ -35,7 +35,7 @@ export class SocketClient {
 			}
 		});
 
-		this.socket.on('message', (event, ...args) => this.triggerHub(event, ...args));
+		this.socket.on('message', (event, ...args) => this.#triggerHub(event, ...args));
 
 		// TODO: Connection handling
 		// Dunno what's needed
@@ -46,7 +46,7 @@ export class SocketClient {
 		this.socket.on('reconnect_failed', msg => this.#socklog(msg));
 
 		// Connection destroyed by angry server
-		this.socket.on('deathnote', ({ msg }) => this.triggerHub('serverKick', msg));
+		this.socket.on('deathnote', ({ msg }) => this.#triggerHub('serverKick', msg));
 
 		// Successful socket upgrade
 		this.socket.on('connect', () => this.#socklog(`Connection Upgraded`));
@@ -64,11 +64,11 @@ export class SocketClient {
 				let err = data?.err || `Unknown Error`;
 				this.#socklog(`Auth rejected by server: ${err}`, 'error');
 				this.socket.close();
-				this.triggerHub('authReject', err);
+				this.#triggerHub('authReject', err);
 			} else {
 				this.#socklog([`Authenticated with server, playerId is ${data}`]);
 				this.player.id = data;
-				this.triggerHub('authSuccess');
+				this.#triggerHub('authSuccess');
 			}
 		});
 	}
@@ -88,11 +88,15 @@ export class SocketClient {
 
 	// Link to event hub
 	#eventHub = [];
-	registerEventHub(hubLink) { if (typeof(hubLink) === 'function') this.#eventHub.push(hubLink) }
+	registerEventHub(hubLink) {
+		// if (typeof(hubLink) === 'function') this.#eventHub.push(hubLink) }
+		this.#socklog(hubLink.constructor?.name);
+		this.#eventHub.push(hubLink);
+	}
 	// Messages to hub
-	async triggerHub(event, ...args) {
+	async #triggerHub(event, ...args) {
 		this.#eventHub.forEach(async (hubLink) => {
-			hubLink(event, ...args);
+			hubLink.trigger?.(event, ...args);
 		});
 	}
 	// Messages from hub
@@ -105,7 +109,7 @@ export class SocketClient {
 		msgs = Array.isArray(msgs) ? msgs : [msgs];
 		if (this.#debug && console[style]) {
 			// console[style](...msgs);
-			this.#eventHub.forEach(hubLink => hubLink('socketLog', { msgs: msgs, style: style }));
+			this.#triggerHub('socketLog', { msgs: msgs, style: style });
 		}
 	};	
 }

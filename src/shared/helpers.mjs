@@ -114,8 +114,8 @@ const helpers = (() => {
 			: baseObject;
 		return objRef;
 	}
-  // Stringify an object with cyclic references
-	const stringifyCyclic = (inputObj) => {
+  // Remove cyclic references from an object, supply stringify flag if required
+	const removeCyclicReferences = (inputObj, stringify) => {
 		const getCircularReplacer = () => {
 			const seen = new WeakSet();
 			return (key, value) => {
@@ -129,7 +129,7 @@ const helpers = (() => {
 			};
 		};
 		let output;
-		try { output = JSON.stringify(inputObj, getCircularReplacer()) } catch(e) { console.error(e); return null }
+		if (stringify) try { output = JSON.stringify(inputObj, getCircularReplacer()) } catch(e) { console.error(e); return null }
 		return output;
 	}
 
@@ -165,7 +165,7 @@ const helpers = (() => {
 	return {
 		setLog,
 		timeout, watchCondition, asyncTimedLoad, parallelLoader,
-		toArray, generatePlayerId, getObjectPath, stringifyCyclic,
+		toArray, generatePlayerId, getObjectPath, removeCyclicReferences,
 		windowFade,
 	}
 
