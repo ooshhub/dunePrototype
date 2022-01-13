@@ -67,7 +67,7 @@ export const main = (() => {
 		mlog(CONFIG.userSettings);
 		if (!options?.noSave) saveConfig();
 	}
-	const getConfig = async () => mainHub.trigger('renderer/responseConfig', CONFIG);
+	const getConfig = async () => mainHub.trigger('renderer/responseConfig', { CONFIG });
 	const saveConfig = async () => nHelpers.saveFile(`${CONFIG.PATH.USERDATA}/userSettings.json`, JSON.stringify(CONFIG.userSettings||CONFIG.USERSETTINGS));
 
 	const exitAndSave = async () => { // erm.... saveAndExit would be a more sensible name

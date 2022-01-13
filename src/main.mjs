@@ -91,14 +91,14 @@ const startElectron = async () => {
 
 	mainFrame.once('ready-to-show', async () => {
 		await helpers.watchCondition(() => coreLoad, '', 10000).then(async (res) => {
-			// if (res) {
+			if (res) {
 				mainFrame.show();
 				mainFrame.focus();
 				await helpers.windowFade(mainFrame, 1000);
 				loadingFrame.destroy();
-			// } else {
-			// 	throw new Error('Core load failed.');
-			// }
+			} else {
+				throw new Error('Core load failed.');
+			}
 		}).catch(e => {
 			// Try to bring up main window on error
 			console.error(e);

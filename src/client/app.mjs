@@ -49,7 +49,7 @@ let renHub, rlog;
 		renHub.trigger('main/coreLoadComplete');
 	}).catch(e => err = e);
 	if (err) return rlog(['Client load had errors.', err], 'error');
-
+	rlog(Dune.CONFIG);
 	// Load other modules
 	await helpers.parallelLoader([
 		{ name: 'howlerAudio', load: (await import('./audio/audio.mjs')).initAudio() }

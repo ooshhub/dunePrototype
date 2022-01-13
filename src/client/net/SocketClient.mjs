@@ -36,7 +36,6 @@ export class SocketClient {
 		});
 
 		this.socket.on('message', (...args) => {
-			this.#socklog(['Received server message', ...args]);
 			this.#triggerHub(...args);
 		});
 
@@ -76,12 +75,17 @@ export class SocketClient {
 		});
 	}
 
+	// TODO: replace this.#connecting with #clientState => enum
 	async connectToGame(maxAttemptTime=8000) {
 		if (this.#connecting === 1 || this.socket.connected) return this.#socklog(`Already connected/connecting!`, 'warn');
 		this.#connecting = 1;
 		this.#socklog(`Connecting...`);
 		this.socket.connect();
-		await helpers.timeout(maxAttemptTime);
+		await Promise.race([
+			helpers.timeout(maxAttemptTime),
+			helpers.watchCondition(() => this.socket.connected)
+		]);
+		this.#connecting = 0;
 		if (!this.socket.connected) {
 			this.socket.close();
 			this.#connecting = 0;

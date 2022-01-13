@@ -129,8 +129,8 @@ const helpers = (() => {
 			};
 		};
 		let output;
-		if (stringify) try { output = JSON.stringify(inputObj, getCircularReplacer()) } catch(e) { console.error(e); return null }
-		return output;
+		try { output = JSON.stringify(inputObj, getCircularReplacer()) } catch(e) { console.error(e); return null }
+		return stringify ? output : JSON.parse(output);
 	}
 
 

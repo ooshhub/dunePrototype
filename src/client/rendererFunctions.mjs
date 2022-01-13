@@ -25,7 +25,7 @@ export const ren = (() => {
 		rlog([`Received game data: `, CONFIG]);
 		window.Dune.CONFIG = CONFIG;
 	}
-	const updatePlayerList = (playerData) => window.CONFIG.Players = playerData;
+	const updatePlayerList = (playerData) => window.Dune.Players = playerData;
 
 	/*
 	// LOBBY AND GAME START
@@ -40,8 +40,9 @@ export const ren = (() => {
 		if (!connected) {
 			rlog(['Connection to server failed', joinOptions], 'warn');
 		} else {
-			rlog('Connected to server, joining lobbby...');
+			rlog('Connected to server, joining lobby...');
 			// Request Lobby info from server
+			renHub.trigger('server/getLobby');
 		}
 	}
 

@@ -48,7 +48,7 @@ export class SocketServer {
 			busy: 'BUSY',
 			open: 'OPEN',
 			full: 'FULL',
-			closed: 'CLOSED'
+			destroy: 'DESTROYING'
 		};
 		this.#serverState = states[newState] ?? this.#serverState;
 	}
@@ -94,9 +94,11 @@ export class SocketServer {
 			// Check number of players in lobby
 			if (Object.keys(this.#playerList).length >= this.config.maxPlayers) this.#setServerState('full');
 			// Update clients with new player list
-			this.io.emit('updatePlayerList', this.getPlayerList());
+			this.sendToClient('updatePlayerList', this.getPlayerList());
 			socket.on('disconnect', this.#handlePlayerDisconnect);
-			socket.on('message', (...args) => this.#receiveFromClient(socket, ...args));
+			socket.on('message', (...args) => {
+				console.log(...args);
+				this.#receiveFromClient(socket, ...args)})
 			this.#slog(`New player joined: ${playerDetails.playerName}${playerDetails.isHost ? ' (HOST)' : ''}`);
 		});
 	}
@@ -106,7 +108,6 @@ export class SocketServer {
 		if (/eventhub/i.test(eventHubLink.constructor?.name) && eventHubLink.trigger)	this.#eventHub.push(eventHubLink);
 		else this.#slog(`Bad Event Hub supplied to server!`, 'error');
 	}
-	// async sendToClient
 	async #receiveFromClient(socket, data, ...args) {
 		try { Object.assign(data, { sid: socket.id }) }
 		catch(e) { this.#slog(`Bad event received from client, data was not an Object`, 'warn') }
@@ -114,16 +115,20 @@ export class SocketServer {
 	}
 	async #triggerHub(...args) {	this.#eventHub.forEach(async (hub) => hub.trigger(...args));	}
 	// TODO: Error handling
-	#handlePlayerDisconnect(reason) {
+	async #handlePlayerDisconnect(reason) {
+		if (!this.getServerState || this.getServerState() === 'DESTROYING') return;
+		// TODO: revisit this. Private fields & methods causing crash on server destruction
+		// if (!this.#serverState || this.#serverState === 'DESTROYING') return;
 		this.#slog([`Client disconnected:`, reason], 'warn');
-		// Fire a timer, if no reconnect, destroy player???
 	}
 	#handleGeneralConnectionError(details) {
 		this.#slog([`Connection error: `, details], 'warn');
 		// NFI what to do with this yet
 	}
 
+	// TODO: grab the socket id and look it up in the playerList
 	#checkPlayerIsHost(playerId) { return (playerId === this.host.pid) ? true : false; }
+
 	// Supply playerData to check specific player, otherwise all players are checked
 	async #healthCheckAck(socket) {
 		return new Promise(res => socket.emit('healthCheck', (ack) => res(ack)));
@@ -147,6 +152,7 @@ export class SocketServer {
 		delete this.#playerList[pid];
 		/* TODO: Scrub player reference from this.#houseList */
 	}
+
 	// Direct server logging. TODO: change to subscription model
 	// TODO: run through cyclic reference removal, or STOP SENDING SOCKET THROUGH SOCKET DICKHEAD
 	#slog = (msgs, style='log') => {
@@ -160,25 +166,39 @@ export class SocketServer {
 
 	async sendToClient(event, data={}, ...args) {
 		let targetIds = data.targets;
-		if (!targetIds) this.io.emit(event, data, ...args);
+		console.log(`Sending to client`, event, data);
+		if (!targetIds) this.io.send(event, data, ...args);
 		else {
 			targetIds.forEach(id => {
-				this.#houseList[id]?.currentPlayer.socket?.emit(event, data, ...args)
-					?? this.#playerList[id]?.socket?.emit(event, data, ...args)
+				this.#houseList[id]?.currentPlayer.socket?.send(event, data, ...args)
+					?? this.#playerList[id]?.socket?.send(event, data, ...args)
 					?? this.#slog(`Error sending "${event}" event to id "${id}`, 'warn');
 			});
 		}
-	} 
+	}
+	async destroy() {
+		return new Promise(res => {
+			this.#setServerState('destroy');
+			this.io.emit('deathnote', { msg: `Server destroyed.` });
+			for (let player in this.#playerList) { this.#playerList[player].socket?.disconnect(true); }
+			this.io.close(() => res(1));
+		});
+	}
 
 	getPlayerList(playerId) {
+		console.log(this.#playerList);
 		let output = {};
 		if (this.#playerList[playerId]) output = helpers.removeCyclicReferences(this.#playerList[playerId]);
-		else for (let p in this.#playerList) { output[p] = helpers.removeCyclicReferences(this.#playerList[p]);	}
+		else output = helpers.removeCyclicReferences(this.#playerList);
+		console.log(output);
 		return output;
 	}
 
+	getServerState() { return this.#serverState }
+
 	initServer(customUpgradeMiddleware, customMessaging = []) {
 		// Immediate middleware to upgrade http request ==> websocket
+		// Cannot attach as private method, causes crashes
 		const verifyUpgrade = async (socket, next) => {
 			if (this.#serverState !== 'INITIALIZING' && this.#serverState !== 'OPEN') return this.#slog(`Refused connection attempt, server state is "${this.#serverState}"`);
 			if (this.#serverState === 'INITIALIZING' && socket.handshake.auth.pid !== this.host.pid) return this.#slog('Refused connection attempt: Host must connect before players.' ,'warn');

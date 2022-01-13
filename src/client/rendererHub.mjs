@@ -41,6 +41,7 @@ const ids = {
 	renHub.on('auth', (data) => ids.pid = data);
 	renHub.on('joinServer', ren.joinLobby);
 	renHub.on('updatePlayerList', ren.updatePlayerList);
+	renHub.on('serverKick', (reason) => rlog([`Kicked from server: ${reason}`]));
 
 	/* External handlers
 
