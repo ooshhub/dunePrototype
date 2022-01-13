@@ -12,6 +12,7 @@ export class SocketServer {
 	#logAttempts = {};
 	#blackList = [];
 	#debug = 1;
+	#maxPlayers = 1;
 
 	#playerList = {};
 	#houseList = {};
@@ -19,6 +20,7 @@ export class SocketServer {
 	constructor(serverOptions) {
 		this.#setServerState('init');
 		let options = {
+			name: serverOptions.gameName,
 			config: {
 				port: serverOptions.hostPort || 8080,
 				path: serverOptions.path || '/',
@@ -88,7 +90,6 @@ export class SocketServer {
 			socket.emit('auth', playerDetails.pid);
 			playerDetails.isHost = this.#checkPlayerIsHost(playerDetails.pid);
 			playerDetails.socket = socket;
-			if (playerDetails.isHost) this.#setServerState('open');
 			// Add player to server, init handlers
 			this.#playerList[playerDetails.pid] = playerDetails;
 			// Check number of players in lobby
@@ -100,6 +101,12 @@ export class SocketServer {
 				console.log(...args);
 				this.#receiveFromClient(socket, ...args)})
 			this.#slog(`New player joined: ${playerDetails.playerName}${playerDetails.isHost ? ' (HOST)' : ''}`);
+			if (playerDetails.isHost) {
+				this.#triggerHub('initLobby', {
+					name: this.name,
+					host: this.host
+				});
+			} else this.#triggerHub('playerJoinedLobby', { player: this.getPlayerList(playerDetails.pid) });
 		});
 	}
 	// Set up event hub link
@@ -143,6 +150,15 @@ export class SocketServer {
 			this.#healthCheckAck(this.#playerList[playerData.pid].socket)
 		]);
 	}
+	#checkPlayerCount() {
+		if (Object.keys(this.#playerList).length === this.#maxPlayers) this.#setServerState('full');
+		else if (Object.keys(this.#playerList).length < this.#maxPlayers) this.#setServerState('open');
+		else {
+			this.#setServerState('full');
+			// Server is somehow over capacity: deal with that
+		}
+	}
+
 	#destroyPlayer = async (pid, reasonForDestroy) => {
 		if (!this.#playerList[pid]) return this.#slog(`destroyPlayer: bad id "${pid}"`);
 		if (this.#playerList[pid].socket) {
@@ -195,6 +211,14 @@ export class SocketServer {
 	}
 
 	getServerState() { return this.#serverState }
+
+	setMaxPlayers(newMax) {
+		const allowed = [2,3,4,5,6,7,8];
+		if (allowed.includes(newMax)) {
+			this.#maxPlayers = allowed[newMax];
+			this.#checkPlayerCount();
+		} else this.#slog(`Illegal maxPlayer value supplied`, 'error');
+	}
 
 	initServer(customUpgradeMiddleware, customMessaging = []) {
 		// Immediate middleware to upgrade http request ==> websocket

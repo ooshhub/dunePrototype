@@ -42,8 +42,8 @@ const menu = (() => {
 				};
 		if (type === 'host') {
 			Object.assign(options, {
-				gameName: $('[name="gameName"]').value,
-				hostPort: $('[name="hostPort"]').value,
+				gameName: $('[name="gameName"]').value ?? '',
+				hostPort: $('[name="hostPort"]').value ?? 8080,
 				hostIp: window.Game?.CONFIG?.NET?.PUBLIC_IP || '127.0.0.1',
 				isHost: true
 			});
