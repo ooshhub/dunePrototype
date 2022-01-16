@@ -17,8 +17,20 @@ export class SocketServer {
 	#playerList = {};
 	#houseList = {};
 
+	#setServerState(newState) {
+		const states = {
+			INIT: 'INIT',
+			INIT_LOBBY: 'INIT_LOBBY',
+			BUSY: 'BUSY',
+			OPEN: 'OPEN',
+			FULL: 'FULL',
+			DESTROYING: 'DESTROYING'
+		};
+		this.#serverState = states[newState] ?? this.#serverState;
+	}
+
 	constructor(serverOptions) {
-		this.#setServerState('init');
+		this.#setServerState('INIT');
 		let options = {
 			name: serverOptions.gameName,
 			config: {
@@ -43,16 +55,8 @@ export class SocketServer {
 		this.io.engine.on('connection_error', this.#handleGeneralConnectionError);
 		if (serverOptions.autoInitialize) this.initServer();
 		this.#slog(`Server state: ${this.#serverState}`);
-	}
-	#setServerState(newState) {
-		const states = {
-			init: 'INITIALIZING',
-			busy: 'BUSY',
-			open: 'OPEN',
-			full: 'FULL',
-			destroy: 'DESTROYING'
-		};
-		this.#serverState = states[newState] ?? this.#serverState;
+
+		this.sendToClient = this.sendToClient.bind(this);
 	}
 
 	// Add a failed upgrade or connection attempt. Blacklist an ip after too many failures 
@@ -87,35 +91,35 @@ export class SocketServer {
 					await this.#destroyPlayer(this.#playerList[playerDetails.pid], 'Failed to respond to ack request');
 				}
 			}
-			socket.emit('auth', playerDetails.pid);
 			playerDetails.isHost = this.#checkPlayerIsHost(playerDetails.pid);
+			socket.emit('auth', playerDetails);
 			playerDetails.socket = socket;
 			// Add player to server, init handlers
 			this.#playerList[playerDetails.pid] = playerDetails;
 			// Check number of players in lobby
-			if (Object.keys(this.#playerList).length >= this.config.maxPlayers) this.#setServerState('full');
+			if (Object.keys(this.#playerList).length >= this.config.maxPlayers) this.#setServerState('FULL');
 			// Update clients with new player list
 			this.sendToClient('updatePlayerList', this.getPlayerList());
 			socket.on('disconnect', this.#handlePlayerDisconnect);
 			socket.on('message', (...args) => {
-				console.log(...args);
+				// console.log(...args);
 				this.#receiveFromClient(socket, ...args)})
 			this.#slog(`New player joined: ${playerDetails.playerName}${playerDetails.isHost ? ' (HOST)' : ''}`);
 			if (playerDetails.isHost) {
-				this.#triggerHub('initLobby', {
-					name: this.name,
-					host: this.host
-				});
+				this.#setServerState('INIT_LOBBY');
 			} else this.#triggerHub('playerJoinedLobby', { player: this.getPlayerList(playerDetails.pid) });
 		});
 	}
 	// Set up event hub link
 	#eventHub = [];
 	registerEventHub(eventHubLink) {
-		if (/eventhub/i.test(eventHubLink.constructor?.name) && eventHubLink.trigger)	this.#eventHub.push(eventHubLink);
-		else this.#slog(`Bad Event Hub supplied to server!`, 'error');
+		if (/eventhub/i.test(eventHubLink.constructor?.name) && eventHubLink.trigger)	{
+			this.#eventHub.push(eventHubLink);
+			this.#slog(`Registered EventHub: ${eventHubLink.name}`);
+		} else this.#slog(`Bad Event Hub supplied to server!`, 'error');
 	}
 	async #receiveFromClient(socket, data, ...args) {
+		console.log(`Rec'd from client: ${socket.id}:`, data, `Hub length: ${this.#eventHub.length}`);
 		try { Object.assign(data, { sid: socket.id }) }
 		catch(e) { this.#slog(`Bad event received from client, data was not an Object`, 'warn') }
 		this.#triggerHub(data, ...args);
@@ -151,11 +155,11 @@ export class SocketServer {
 		]);
 	}
 	#checkPlayerCount() {
-		if (Object.keys(this.#playerList).length === this.#maxPlayers) this.#setServerState('full');
-		else if (Object.keys(this.#playerList).length < this.#maxPlayers) this.#setServerState('open');
+		if (Object.keys(this.#playerList).length === this.#maxPlayers) this.#setServerState('FULL');
+		else if (Object.keys(this.#playerList).length < this.#maxPlayers) this.#setServerState('OPEN');
 		else {
-			this.#setServerState('full');
-			// Server is somehow over capacity: deal with that
+			this.#setServerState('FULL');
+			// TODO: Server is somehow over capacity: deal with that
 		}
 	}
 
@@ -181,32 +185,35 @@ export class SocketServer {
 	};
 
 	async sendToClient(event, data={}, ...args) {
-		let targetIds = data.targets;
-		console.log(`Sending to client`, event, data);
-		if (!targetIds) this.io.send(event, data, ...args);
+		// console.log(`Sending to client`, event, data);
+		if (!data.targets) this.io.emit('message', event, data, ...args);
 		else {
+			let targetIds = helpers.toArray(data.targets);
+			if (targetIds[0] === 'host') targetIds[0] = this.host.hid ?? this.host.pid;
 			targetIds.forEach(id => {
 				this.#houseList[id]?.currentPlayer.socket?.send(event, data, ...args)
 					?? this.#playerList[id]?.socket?.send(event, data, ...args)
-					?? this.#slog(`Error sending "${event}" event to id "${id}`, 'warn');
+					?? console.log(`Error sending "${event}" event to id "${id}"`, 'warn');
 			});
 		}
 	}
 	async destroy() {
+		// TODO: send any required destruct events to the EventHub
 		return new Promise(res => {
-			this.#setServerState('destroy');
+			this.#setServerState('DESTROYING');
 			this.io.emit('deathnote', { msg: `Server destroyed.` });
+			this.#eventHub = null;
 			for (let player in this.#playerList) { this.#playerList[player].socket?.disconnect(true); }
 			this.io.close(() => res(1));
 		});
 	}
 
 	getPlayerList(playerId) {
-		console.log(this.#playerList);
+		// console.log(this.#playerList);
 		let output = {};
 		if (this.#playerList[playerId]) output = helpers.removeCyclicReferences(this.#playerList[playerId]);
 		else output = helpers.removeCyclicReferences(this.#playerList);
-		console.log(output);
+		// console.log(output);
 		return output;
 	}
 
@@ -224,8 +231,8 @@ export class SocketServer {
 		// Immediate middleware to upgrade http request ==> websocket
 		// Cannot attach as private method, causes crashes
 		const verifyUpgrade = async (socket, next) => {
-			if (this.#serverState !== 'INITIALIZING' && this.#serverState !== 'OPEN') return this.#slog(`Refused connection attempt, server state is "${this.#serverState}"`);
-			if (this.#serverState === 'INITIALIZING' && socket.handshake.auth.pid !== this.host.pid) return this.#slog('Refused connection attempt: Host must connect before players.' ,'warn');
+			if (this.#serverState !== 'INIT' && this.#serverState !== 'OPEN') return this.#slog(`Refused connection attempt, server state is "${this.#serverState}"`);
+			if (this.#serverState === 'INIT' && socket.handshake.auth.pid !== this.host.pid) return this.#slog('Refused connection attempt: Host must connect before players.' ,'warn');
 			if (!socket.handshake?.auth || !socket.handshake?.headers) return this.#slog(`socketServer: refused upgrade attempt - no headers present`);
 			let cleanIp = socket.handshake.address.replace(/\./g, '_').replace(/[^\d_]/g, '');
 			if (this.#blackList[cleanIp] && this.#blackList[cleanIp] > this.#maxUpgradeAttempts) return this.#slog(`Blacklisted cunt was told to fuck off: ${cleanIp}`)

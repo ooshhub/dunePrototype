@@ -26,8 +26,10 @@ const ids = {
 	renHub.for('main', async (event, ...args) => window.rendererToHub.send('sendToMain', event, ...args));
 	// Server messaging. Attach ids to data
 	renHub.for('server', (event, data, ...args) => {
-		data.pid = ids.pid;
-		data.hid = ids.hid;
+		try {	Object.assign(data, {
+				pid: ids.pid,
+				hid: ids.hid });
+		} catch(e) { rlog(`Bad data object sent to server, could not attach ids`, 'warn') }
 		window.Dune?.Client?.sendToServer?.(event, data, ...args);
 	});
 	// Self-routing
@@ -37,11 +39,17 @@ const ids = {
 	renHub.on('responseHtml', ren.insertHtml);
 	renHub.on('responseConfig', ren.updateConfig);
 
-	// Server communication
+	// Server connection
 	renHub.on('auth', (data) => ids.pid = data);
 	renHub.on('joinServer', ren.joinLobby);
-	renHub.on('updatePlayerList', ren.updatePlayerList);
 	renHub.on('serverKick', (reason) => rlog([`Kicked from server: ${reason}`]));
+	renHub.on('authSuccess', (isHost) => renHub.trigger('server/requestLobby', isHost));
+	
+	// Lobby
+	renHub.on('responseLobbySetup', ren.setupLobby);
+
+	// Game Updates
+	renHub.on('updatePlayerList', ren.updatePlayerList);
 
 	/* External handlers
 

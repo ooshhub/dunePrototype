@@ -5,14 +5,27 @@ import { helpers } from '../../shared/helpers.mjs';
 
 export class SocketClient {
 
-	#connecting = 0;
+	#clientState;
 	#debug = 1;
+
+	#setClientState(newState) {
+		const states = {
+			INIT: 'INIT',
+			INIT_LOBBY: 'INIT_LOBBY',
+			CONNECTING: 'CONNECTING',
+			CONNECTED: 'CONNECTED',
+			CLOSING: 'CLOSING',
+			ERROR: 'ERROR'
+		}
+		this.#clientState = states[newState] ?? this.#clientState;
+	}
+	getClientState() { return this.#clientState }
 
 	constructor(clientOptions={}) {
 		Object.assign(this, {
 			player: {
 				playerName: clientOptions.playerName || `newPlayer_${Math.floor(Math.random()*99)}`,
-				pid: clientOptions.pid
+				pid: clientOptions.pid,
 			},
 			serverOptions: {
 				url: `http://${clientOptions.hostIp||'localhost'}:${clientOptions.hostPort||8080}`,
@@ -34,6 +47,8 @@ export class SocketClient {
 				game: 'dune',
 			}
 		});
+
+		this.#setClientState('INIT');
 
 		this.socket.on('message', (...args) => {
 			this.#triggerHub(...args);
@@ -60,36 +75,37 @@ export class SocketClient {
 		});
 
 		// Auth reply from server
-		this.socket.on('auth', (data) => {
+		this.socket.on('auth', ({ isHost }) => {
 			// this.#socklog(`Auth received: ${data}`);
-			if (!data || data.err) {
-				let err = data?.err || `Unknown Error`;
-				this.#socklog(`Auth rejected by server: ${err}`, 'error');
+			if (isHost == null) {
+				let err = `Bad auth reply from server`;
+				this.#socklog(err, 'error');
 				this.socket.close();
 				this.#triggerHub('authReject', err);
 			} else {
-				this.#socklog([`Authenticated with server, playerId is ${data}`]);
-				this.player.id = data;
-				this.#triggerHub('authSuccess');
+				this.player.isHost = isHost;
+				this.#setClientState('INIT_LOBBY');
+				this.#socklog([`Authenticated ${isHost ? 'HOST' : 'PLAYER'} with server`]);
+				// Start Lobby init event
+				this.#triggerHub('authSuccess', { isHost: isHost });
 			}
 		});
 	}
 
-	// TODO: replace this.#connecting with #clientState => enum
 	async connectToGame(maxAttemptTime=8000) {
-		if (this.#connecting === 1 || this.socket.connected) return this.#socklog(`Already connected/connecting!`, 'warn');
-		this.#connecting = 1;
+		if (this.getClientState() === 'CONNECTING' || this.socket.connected) return this.#socklog(`Already connected/connecting!`, 'warn');
+		this.#setClientState('CONNECTING');
 		this.#socklog(`Connecting...`);
 		this.socket.connect();
 		await Promise.race([
 			helpers.timeout(maxAttemptTime),
 			helpers.watchCondition(() => this.socket.connected)
 		]);
-		this.#connecting = 0;
 		if (!this.socket.connected) {
 			this.socket.close();
-			this.#connecting = 0;
+			this.#setClientState('ERROR');
 			this.#socklog(`Connection timeout, server not found or connection upgrade refused`);
+			return 0;
 		} else return 1;
 	}
 

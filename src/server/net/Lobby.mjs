@@ -1,13 +1,32 @@
+import { createRulesetList } from '../core/rulesets/list.mjs';
+
 export class Lobby {
 
 	#maxPlayers = 1;
 	#ruleset = null;
 	#rulesetOptions = {};
+	#lobbyState;
 
+	#setLobbyState(newState) {
+		const states = {
+			INIT: 'INIT',
+			OPEN: 'OPEN',
+			FULL: 'FULL',
+			SUBMIT: 'SUBMIT'
+		}
+		this.#lobbyState = states[newState] ?? this.#lobbyState;
+	}
+	getLobbyState() { return this.#lobbyState }
 
-	constructor(name, host) {
-		this.name = name;
-		this.host = host;
+	async getRulesetList() { this.rulesetList = createRulesetList(); }
+
+	constructor(parentServer) {
+		this.name = parentServer.name;
+		this.host = parentServer.host;
+		this.ruleset = null;
+		this.maxPlayers = null;
+		this.rulesetList = [];
+		this.#setLobbyState('INIT');
 	}
 
 	#setMaxPlayers(newMax) {

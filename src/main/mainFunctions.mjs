@@ -2,7 +2,7 @@ import { mainHub, mlog, CONFIG, electronRoot } from '../main.mjs';
 import { helpers } from '../shared/helpers.mjs';
 import { helpers as nHelpers } from '../shared/nodeHelpers.mjs';
 import { getMenuItems } from '../client/mainMenu/menuItems.mjs';
-import { startLocalServer } from '../server/net/localServer.mjs';
+// import { startLocalServer } from '../server/net/localServer.mjs';
 
 const server = {};
 
@@ -11,13 +11,16 @@ export const main = (() => {
 	// NET
 	*/
 	const startServer = async ({ serverOptions }) => {
+		let startLocalServer = (await import('../server/net/localServer.mjs')).startLocalServer;
+		// mlog(startLocalServer);
 		let err;
 		// Kill old server if still there
-		if (server.host) {
+		if (server.local) {
 			mlog('Server is already up', 'warn');
 			mainHub.trigger('rendererHub/killSocket');
 			await killServer();
-			helpers.timeout(500);
+			server.local = null;
+			helpers.timeout(2000);
 		}
 		mlog([`Starting server with options`, serverOptions], 'info');
 		try {

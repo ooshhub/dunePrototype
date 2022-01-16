@@ -7,8 +7,21 @@ export class EventHub {
   #registeredOneTimeEvents = {};
   #registeredDestinations = {};
 
+	#hubState;
+
+	#setHubState(newState) {
+		const states = {
+			INIT: 'INIT',
+		}
+		this.#hubState = states[newState] ?? null;
+	}
+	getHubState() { return this.#hubState }
+	hubInitDone() { this.#hubState = 'INIT' }
+
   constructor(name) {
     this.name = name;
+		this.hubInitDone = this.hubInitDone.bind(this);
+		this.getHubState = this.getHubState.bind(this);
   }
 
   async once(event, callback, priority) {

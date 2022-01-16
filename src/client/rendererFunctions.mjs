@@ -1,6 +1,7 @@
 import { rlog } from './rendererHub.mjs';
 import { SocketClient } from './net/SocketClient.mjs';
 import { renHub } from './rendererHub.mjs';
+import { helpers } from '../shared/helpers.mjs';
 
 export const ren = (() => {
 	const $ = (selector) => window.document.querySelector(selector);
@@ -32,23 +33,30 @@ export const ren = (() => {
 	*/
 	const joinLobby = async (joinOptions) => {
 		rlog(joinOptions);
+		if (window.Dune.Client?.io) {
+			rlog(`Closing old Client...`);
+			window.Dune.Client.close()
+			window.Dune.Client = null;
+			await helpers.timeout(200);
+		}
 		const DuneClient = new SocketClient(joinOptions);
 		window.Dune.Client = DuneClient;
 		DuneClient.registerEventHub(renHub);
 		rlog([`Created socket Client`, DuneClient]);
 		let connected = await DuneClient.connectToGame();
-		if (!connected) {
-			rlog(['Connection to server failed', joinOptions], 'warn');
-		} else {
-			rlog('Connected to server, joining lobby...');
-			// Request Lobby info from server
-			renHub.trigger('server/getLobby');
-		}
+		if (!connected) rlog(['Connection to server failed', joinOptions], 'warn');
+	}
+
+	const setupLobby = (newLobby) => {
+		if (window.Dune.Client.getClientState() === 'INIT_LOBBY') {
+			rlog([`Received fresh Lobby for setup`, newLobby], 'info');
+			// Update UI with Lobby window
+		} else rlog('Error in host Client state, not ready for Lobby setup', 'error');
 	}
 
 	return {
 		insertHtml, updateConfig, updatePlayerList,
-		joinLobby
+		joinLobby, setupLobby
 	}
 	
 })();
