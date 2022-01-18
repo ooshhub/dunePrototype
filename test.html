@@ -12,8 +12,7 @@
 	<dialog id="lobby">
 		<header class="titlebar">Lobby Title</header>
 		<section class="player-list">
-			<div class="player" data-pid="">
-				<div class="host-icon">H</div>
+			<div class="player" data-pid="" data-ishost="1">
 				<div class="player-name">Ooshp</div>
 				<div class="house-select">
 					<select name="house">
@@ -28,8 +27,7 @@
 					<input type="checkbox" name="ready" value="1"/>
 				</div>
 			</div>
-			<div class="player" data-pid="">
-				<div class="host-icon"></div>
+			<div class="player" data-pid="" data-ishost="0">
 				<div class="player-name">Drew</div>
 				<div class="house-select">
 					<select name="house" disabled>
@@ -40,7 +38,7 @@
 				<div class="house-color">
 					<input name="color" type="color" value="#bb3333"/>
 				</div>
-				<label class="player-ready">
+				<label class="player-ready clickable">
 					<span>Ready</span>
 					<input type="checkbox" name="ready" value="1"/>
 				</label>
@@ -51,10 +49,150 @@
 				<span>Allow duplicate Houses</span>
 				<input type="checkbox" name="duplicate-houses"/>
 			</label>
+			<label class="server-option dune-slider">
+				<span>Host assigns houses:</span>
+				<input type="checkbox" name="assigned-houses"/>
+				<span class="slider"></span>
+			</label>
 		</section>
 		<footer class="lobby-buttons">
-			<button>Continue</button>
+			<label class="label-button">Continue</label>
 		</footer>
 	</dialog>	
 </body>
 </html>
+
+.clickable {
+	cursor: pointer;	
+}
+
+.label-button {
+	border: 1px solid green;
+	padding: 5px;
+	display: inline-block;
+	margin: 0.25rem;
+}
+
+
+
+
+#lobby {
+	display: grid;
+	width: 50vw;
+	grid-template-columns: 66% 33%;
+	grid-auto-flow: dense;
+	font-size: 1.25rem;
+	margin: 20px
+}
+
+#lobby header {
+	text-align: center;
+	font-size: 1.75rem;
+	grid-column: 1 / 3;
+	border: 1px solid black;
+	margin-bottom: 1rem;
+	height: 2rem;
+}
+
+#lobby .player-list {
+	min-height: 20vh;
+	border-right: 1px solid black;
+	width: 95%;
+	margin: auto;
+}
+#lobby .player-list select {
+	font-size: 1rem;
+	width: 100%;
+}
+
+#lobby .player {
+	display: grid;
+	grid-template-columns: 30% 20% 20% 20%;
+	column-gap: 1%;
+	align-items: center;
+	margin: 0.25rem;
+}
+
+#lobby .player[data-ishost="1"] .player-name::after {
+	color: #e69c15;
+	content: 'H';
+	margin-left: 0.5rem;
+}
+
+#lobby .player .player-ready {
+	border: 1px solid black;
+	text-align: center;
+	padding: 0.125rem;
+	border-radius: 5px;
+}
+
+#lobby .server-options {
+	width: 95%;
+	margin: 0px auto auto auto;
+	border: 1px solid red;
+}
+
+#lobby .server-option {
+	display: grid;
+	grid-template-columns: 80% 20%;
+	cursor: pointer;
+	align-items: center;
+	margin: 0.5rem;
+	border: 1px solid grey;
+}
+
+.skjerver-options .server-option:not(:first-child) {
+	border-top: 2px solid #0cd00c;
+
+}
+
+.dune-slider {
+	
+}
+
+.dune-slider input {
+	display: none;
+}
+.dune-slider .slider {
+	position: relative;
+	width: 2.25rem;
+	background-color: white;
+	height: 1.125rem;
+	border: 2px #05acac solid;
+	border-radius: 2rem;
+	transition: 0.4s background-color;
+	transform-box: view-box;
+}
+
+.dune-slider .slider::after {
+	position: absolute;
+	width: 0.8em;;
+	height: 0.8em;
+	border-radius: 1rem;
+	background-color: #048f8f;
+	top: 50%;
+	transform: translateY(-50%)	translateX(0%);
+	content: "";
+	transition: 0.5s transform;
+}
+.dune-slider input:checked ~ .slider {
+	background-color:#66eded;
+	transition: 0.4s background-color;
+}
+.dune-slider input:checked ~ .slider::after {
+	position: absolute;
+	transform: translateX(100%) translateY(-50%);
+	transition: 0.5s transform;
+	transform-box: view-box;
+}
+
+
+
+#lobby footer {
+	grid-column: 1 / 3;
+	text-align: center;
+	border: 1px solid black;
+	margin-top: 1rem;
+	min-height: 2rem;
+}
+
