@@ -1,5 +1,3 @@
-let param = `list2`;
+let num = parseInt('sdgf') ?? 0;
 
-let cmd = (param.match(/^([^\s]+?)(\s|$)/)||[])[1];
-
-console.log(cmd);
+console.log(num);

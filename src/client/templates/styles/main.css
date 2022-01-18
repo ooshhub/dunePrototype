@@ -184,7 +184,7 @@ section#ingamemenu .setting {
 main#mainmenu {
   visibility: visible;
   position: absolute;
-  z-index: 20;
+  z-index: 10;
   height: 100vh;
   width: 100vw;
   --tw-bg-opacity: 1;
@@ -340,7 +340,7 @@ main#mainmenu .single-item {
 /* Modal */
 
 main#mainmenu dialog {
-  visibility: hidden;
+  z-index: 30;
   display: block;
   opacity: 0;
   transition: opacity 0.3s;
@@ -381,6 +381,218 @@ main#mainmenu input[name="modalup"][value="1"] ~ dialog#loading-modal {
   font-weight: 700;
   opacity: 0.9;
   transition: opacity 0.3s;
+}
+
+/* Lobby */
+
+main#mainmenu #lobby {
+  position: absolute;
+  top: 25%;
+  z-index: 20;
+  margin: auto;
+  display: grid;
+  width: 50%;
+  padding: 0px;
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+  border-radius: 1rem;
+  border-width: 3px;
+  --tw-border-opacity: 1;
+  border-color: rgb(3 251 251 / var(--tw-border-opacity));
+  --tw-bg-opacity: 1;
+  background-color: rgb(204 144 71 / var(--tw-bg-opacity));
+  grid-template-columns: 66% 34%;
+  box-shadow: 0px 0px 10px var(--duneCyan);
+}
+
+main#mainmenu #lobby header {
+  height: 3rem;
+  text-align: center;
+  font-size: 1.25rem;
+  border-radius: 1rem 1rem 0 0;
+  grid-column: 1 / 3;
+  line-height: 3rem;
+}
+
+main#mainmenu #lobby .init {
+  margin: 0px;
+  --tw-bg-opacity: 1;
+  background-color: rgb(237 230 216 / var(--tw-bg-opacity));
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+  text-align: center;
+  grid-column: 1 / 3;
+}
+
+main#mainmenu #lobby .init div {
+  margin-left: 2rem;
+  margin-right: 2rem;
+  display: inline-block;
+}
+
+/* Player List */
+
+main#mainmenu #lobby .player-list {
+  margin: auto;
+  width: 95%;
+  border-right-width: 2px;
+  --tw-border-opacity: 1;
+  border-color: rgb(0 0 0 / var(--tw-border-opacity));
+  min-height: 20vh;
+}
+
+main#mainmenu #lobby .player-list select {
+  width: 100%;
+  font-size: 1rem;
+  line-height: 1.5rem;
+}
+
+main#mainmenu #lobby .player-list .player {
+  margin: 0.25rem;
+  display: grid;
+  align-items: center;
+  grid-template-columns: 30% 20% 20% 20%;
+  -moz-column-gap: 1%;
+       column-gap: 1%;
+}
+
+main#mainmenu #lobby .player-list .player .fa-crown {
+  display: none;
+}
+
+main#mainmenu #lobby .player-list .player[data-ishost="1"] .fa-crown {
+  margin-left: 0.5rem;
+  display: inline;
+  padding-bottom: 0.25rem;
+  vertical-align: middle;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  --tw-text-opacity: 1;
+  color: rgb(230 156 21 / var(--tw-text-opacity));
+}
+
+main#mainmenu #lobby .player-list .player .player-ready {
+  cursor: pointer;
+  border-radius: 0.25rem;
+  --tw-border-opacity: 1;
+  border-color: rgb(0 0 0 / var(--tw-border-opacity));
+  padding-top: 0.125rem;
+  padding-bottom: 0.125rem;
+  text-align: center;
+  --tw-text-opacity: 1;
+  color: rgb(107 114 128 / var(--tw-text-opacity));
+}
+
+main#mainmenu #lobby .player-list .player .player-ready:hover {
+  box-shadow: 0px 0px 2px var(--duneCyanBrighter)
+}
+
+main#mainmenu #lobby .player-list .player .player-ready div i {
+  visibility: hidden;
+  margin-left: 0.5rem;
+  display: inline-block;
+  padding-bottom: 0.25rem;
+  vertical-align: middle;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  --tw-text-opacity: 1;
+  color: rgb(37 99 235 / var(--tw-text-opacity));
+}
+
+main#mainmenu #lobby .player-list .player .player-ready input {
+  display: none;
+}
+
+main#mainmenu #lobby .player-list .player .player-ready input:checked ~ div {
+  --tw-text-opacity: 1;
+  color: rgb(37 99 235 / var(--tw-text-opacity));
+}
+
+main#mainmenu #lobby .player-list .player .player-ready input:checked ~ div i {
+  visibility: visible;
+}
+
+/* Server Options */
+
+main#mainmenu #lobby .server-options {
+  margin: auto;
+  margin-top: 0px;
+  width: 95%;
+}
+
+main#mainmenu #lobby .server-options .server-option {
+  margin: 0.5rem;
+  display: grid;
+  cursor: pointer;
+  align-items: center;
+  grid-template-columns: 80% 20%;
+}
+
+main#mainmenu #lobby .server-options .dune-switch input {
+  display: none;
+}
+
+main#mainmenu #lobby .server-options .dune-switch .slider {
+  transition: 0.4s background-color;
+  position: relative;
+  height: 1rem;
+  width: 2rem;
+  border-radius: 2rem;
+  border-width: 2px;
+  --tw-border-opacity: 1;
+  border-color: rgb(28 79 79 / var(--tw-border-opacity));
+  --tw-bg-opacity: 1;
+  background-color: rgb(255 255 255 / var(--tw-bg-opacity));
+}
+
+main#mainmenu #lobby .server-options .dune-switch .slider .slider .slider-button {
+  transform: translate(0%, -50%);
+  transition: 0.3s transform, 0.3s left, 0.3s background-color;
+  position: absolute;
+  top: 50%;
+  left: 5%;
+  height: 0.75rem;
+  width: 0.75rem;
+  border-radius: 1rem;
+  --tw-bg-opacity: 1;
+  background-color: rgb(107 114 128 / var(--tw-bg-opacity));
+}
+
+main#mainmenu #lobby .server-options .dune-switch input:checked ~ .slider {
+  transition: 0.3s background-color;
+  --tw-bg-opacity: 1;
+  background-color: rgb(123 255 255 / var(--tw-bg-opacity));
+}
+
+main#mainmenu #lobby .server-options .dune-switch input:checked ~ .slider .slider-button {
+  transform: translate(-100%, -50%);
+  transition: 0.3s transform, 0.3s left, 0.3s background-color;
+  left: 95%;
+}
+
+main#mainmenu #lobby footer {
+  margin: auto;
+  min-height: 3rem;
+  --tw-border-opacity: 1;
+  border-color: rgb(0 0 0 / var(--tw-border-opacity));
+  --tw-bg-opacity: 1;
+  background-color: rgb(204 144 71 / var(--tw-bg-opacity));
+  text-align: center;
+  line-height: 3rem;
+  grid-column: 1 / 3;
+  border-radius: 0 0 1rem 1rem;
+}
+
+/* Lobby Generics */
+
+main#mainmenu #lobby select {
+  border-radius: 0.25rem;
+  border-width: 1px;
+  --tw-border-opacity: 1;
+  border-color: rgb(75 85 99 / var(--tw-border-opacity));
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 1rem;
+  line-height: 1.5rem;
 }
 
 @font-face {
@@ -887,6 +1099,11 @@ main#gamecanvas {
   width: 100vw;
   height: 100vh;
   color: #646464;
+  z-index: 1;
+}
+
+main#chat {
+  z-index: 10;
 }
 
 /* GENERIC */

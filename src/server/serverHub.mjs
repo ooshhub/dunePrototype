@@ -20,12 +20,12 @@ export const initServerHub = async (gameServer) => {
 	// Server ==> Client returns
 	// Shortcut for sending to host
 	serverHub.for('host', async (event, data, ...args) => {
-		data.targets = 'host';
+		Object.assign(data, {targets: 'host'});
 		Game.Server.sendToClient(event, data, args);
 	});
 	// Shortcut for sending to everyone but host
 	serverHub.for('players', async (event, data, ...args) => {
-		data.targets = 'players';
+		Object.assign(data, {targets: 'players'});
 		Game.Server.sendToClient(event, data, args);
 	});
 	// Singular client expects at least one id

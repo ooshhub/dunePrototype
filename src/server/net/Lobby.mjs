@@ -59,6 +59,7 @@ export class Lobby {
 
 	async #getRulesetList() {
 		let filenames = await fetchRulesets();
+		console.log(filenames);
 		this.rulesetList = filenames.map(f => {	return { id: f, name: helpers.emproper(f)} });
 	}
 
@@ -78,6 +79,7 @@ export class Lobby {
 		let output = {
 			lobby: {
 				title: this.name,
+				init: 1
 			},
 			init: {
 				rulesets: this.rulesetList,

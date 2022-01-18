@@ -44,7 +44,7 @@ export const main = (() => {
 	/*
 	// HTML
 	*/
-	const renderHtml = async ({req}) => {
+	const renderHtml = async ({req, data}) => {
 		mlog(`HTML was requested`, req);
 		req = helpers.toArray(req);
 		Promise.all(req.map(async (r) => {
@@ -54,6 +54,7 @@ export const main = (() => {
 			else if (r === 'ui') hbsPath = `${CONFIG.PATH.HBS}/gameUi.hbs`;
 			else if (r === 'ingamemenu') hbsPath = `${CONFIG.PATH.HBS}/inGameMenu.hbs`, hbsData = { player: CONFIG.userSettings }
 			else if (r === 'chat') hbsPath = `${CONFIG.PATH.HBS}/chat.hbs`;
+			else if (r === 'lobby') hbsPath = `${CONFIG.PATH.HBS}/lobby.hbs`, hbsData = data;
 			let resHtml = await nHelpers.compileHbs(hbsPath, hbsData);
 			if (resHtml) mainHub.trigger('renderer/responseHtml', {req: r, html: resHtml});
 			else mlog([`Error loading HTML`, resHtml], 'error');

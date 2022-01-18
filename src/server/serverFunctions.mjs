@@ -19,7 +19,8 @@ export const server = (() => {
 			slog(`Host joined, initialising Lobby`);
 			if (Game.Server.getServerState() !== 'INIT_LOBBY') return slog('Server was not ready for init lobby', 'error');
 			Game.Lobby = new Lobby(Game.Server);
-			let initData = Game.Lobby.initLobbyData();
+			let initData = await Game.Lobby.initLobbyData();
+			slog([`Sending host lobby setup info`, initData]);
 			serverHub.trigger('host/responseLobbySetup', initData);
 		} else {
 			slog(`Lobby request from ${playerData.pid}`);

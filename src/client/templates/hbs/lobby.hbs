@@ -39,17 +39,18 @@ Passed in HBS data, serialised by Lobby class and sent to host
 	}
 }
  --}}
-
 <header class="titlebar">{{#if lobby.title}}{{lobby.title}}{{else}}Lobby Title{{/if}}</header>
 {{!-- Init stage - host selects ruleset and max players --}}
 {{#if lobby.init}}
 <section class="init">
 	<div class="init-ruleset">
+		<span>Ruleset: </span>
 		<select name="ruleset">
 			{{#each init.rulesets as |set setId|}}<option value={{set.id}}>{{set.name}}</option>{{/each}}
 		</select>
 	</div>
 	<div class="init-players">
+		<span>Players: </span>
 		<select name="players">
 			{{#each init.maxPlayers}} <option value={{this}}>{{this}}</option>{{/each}}
 		</select>
@@ -97,177 +98,14 @@ Passed in HBS data, serialised by Lobby class and sent to host
 			</div>
 		{{/if}}
 		{{!-- Add more types here if required --}}
+	{{/each}}
 </section>
 {{/if}}
 <footer class="lobby-buttonms">
 	<button class="lobby-button launch" id="cancel-lobby">Cancel</button>
-	{{#if lobby.init}}<button class="lobby-button launch" id="create-lobby">Continue</button>
-	{{else}}<button class="lobby-button launch" id="submit-lobby">Launch</button>
-	</label>
+	{{#if lobby.init}}
+		<button class="lobby-button launch" id="create-lobby">Continue</button>
+	{{else}}
+		<button class="lobby-button launch" id="submit-lobby">Launch</button>
+	{{/if}}
 </footer>
-
-
-{{!-- .label-button {
-	border: 1px solid green;
-	padding: 5px;
-	display: inline-block;
-	margin: 0.25rem;
-} --}}
-{{!-- 
-.plfayer-list, .server-options {
-	display:none;
-}
-.init {
-	display: none;
-} --}}
-{{!-- .init {
-	text-align: center;
-	grid-column: 1 / 3;
-	margin: 2rem;
-}
-.init div {
-	display: inline-block;
-	margin: 0rem 2rem 0rem 2rem;
-} --}}
-
-
-{{!-- #lobby {
-	display: grid;
-	width: 50vw;
-	grid-template-columns: 66% 33%;
-	grid-auto-flow: dense;
-	font-size: 1.25rem;
-	margin: 20px
-}
-
-#lobby header {
-	text-align: center;
-	font-size: 1.75rem;
-	grid-column: 1 / 3;
-	border: 1px solid black;
-	margin-bottom: 1rem;
-	height: 2rem;
-}
-
-#lobby .player-list {
-	min-height: 20vh;
-	border-right: 1px solid black;
-	width: 95%;
-	margin: auto;
-}
-#lobby .player-list select {
-	font-size: 1rem;
-	width: 100%;
-}
-
-#lobby .player {
-	display: grid;
-	grid-template-columns: 30% 20% 20% 20%;
-	column-gap: 1%;
-	align-items: center;
-	margin: 0.25rem;
-}
-#lobby .fa-crown {
-	display:none;
-}
-#lobby .player[data-ishost="1"] .fa-crown {
-	display: inline;
-	font-size: 0.8rem;
-	vertical-align: middle;
-	padding-bottom:0.3rem;
-	color: #e69c15;
-	margin-left: 0.5rem;
-}
-
-#lobby .player .player-ready {
-	border: 1px solid black;
-	text-align: center;
-	padding: 0.125rem 0rem 0.125rem 0rem;
-	border-radius: 5px;
-	cursor: pointer;
-	color: grey;
-} --}}
-{{!-- .player-ready input {
-	display:none;	
-} --}}
-{{!-- .player-ready div i {
-	color: blue;
-	font-size: 0.8rem;
-	padding-bottom: 0.3rem;
-	margin-left: 0.5rem;
-	vertical-align: middle;
-	visibility: hidden;
-	display: inline-block;
-} --}}
-{{!-- #lobby .player .player-ready:hover {
-	box-shadow: 0px 0px 2px blue;
-} --}}
-{{!-- #lobby .player-ready input:checked ~ div {
-	color: blue;
-}
-#lobby .player-ready input:checked ~ div i {
-	visibility: visible;
-} --}}
-
-{{!-- #lobby .server-options {
-	width: 95%;
-	margin: 0px auto auto auto;
-	border: 1px solid red;
-} --}}
-
-{{!-- #lobby .server-option {
-	display: grid;
-	grid-template-columns: 80% 20%;
-	cursor: pointer;
-	align-items: center;
-	margin: 0.5rem;
-	border: 1px solid grey;
-} --}}
-
-
-{{!-- .dune-slider input {
-	display: none;
-}
-
-.dune-slider .slider {
-	position: relative;
-	width: 2rem;
-	background-color: white;
-	height: 1rem;
-	border: 2px #05acac solid;
-	border-radius: 2rem;
-	transition: 0.4s background-color;
-}
-
-.dune-slider .slider .slider-button {
-	position: absolute;
-	width: 0.7em;
-	height: 0.7em;
-	border-radius: 1rem;
-	background-color: #048f8f;
-	top: 50%;
-	left: 5%;
-	transform: translate(0%, -50%);
-	transition: 0.3s transform, 0.3s left;
-} --}}
-{{!-- .dune-slider input:checked ~ .slider {
-	background-color:#66eded;
-	transition: 0.4s background-color;
-}
-.dune-slider input:checked ~ .slider .slider-button {
-	position: absolute;
-	left: 95%;
-	transform: translate(-100%, -50%);
-	transition: 0.3s transform, 0.3s left;
-} --}}
-
-
-{{!-- 
-#lobby footer {
-	grid-column: 1 / 3;
-	text-align: center;
-	border: 1px solid black;
-	margin-top: 1rem;
-	min-height: 2rem;
-} --}}
-

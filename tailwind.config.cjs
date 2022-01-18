@@ -13,6 +13,8 @@ module.exports = {
 			},
 			colors: {
 				'dune': {
+					sand: `#cc9047`,
+					whiteSand: `#ede6d8`,
 					brown: '#201900',
 					cyan: '#0ed5d5',
 					cyanBright: '#03fbfb',

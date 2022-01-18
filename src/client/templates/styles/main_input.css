@@ -27,7 +27,7 @@
 
 @layer components {
 	.rounded-switch {
-		& input @apply hidden;
+		& input { @apply hidden; }
 		& .slider {
 			@apply relative w-8 bg-white h-4 border-2 border-dune-cyanDark rounded-[2rem];
 			transition: 0.4s background-color;
@@ -82,6 +82,10 @@ main#gamecanvas {
 	width: 100vw;
 	height: 100vh;
 	color: #646464;
+	z-index: 1;
+}
+main#chat {
+	z-index: 10;
 }
 
 /* GENERIC */

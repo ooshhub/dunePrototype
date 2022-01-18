@@ -2,9 +2,12 @@
 import { mainHub, electronRoot, mlog } from '../main.mjs';
 import { main } from './mainFunctions.mjs';
 
+// First round of handlers
 mainHub.on('requestHtml', main.renderHtml);
 mainHub.on('requestConfig', main.getConfig);
 mainHub.on('writeConfig', main.modifyConfig);
+
+// Wait for main window to attach listeners
 mainHub.once('mainWindowReady', ({ win }) => {
 	// ipc passthrough for main <==> renderer messaging
 	mainHub.for('renderer', (event, ...args) => win.webContents.send('sendToRenderer', event, ...args));

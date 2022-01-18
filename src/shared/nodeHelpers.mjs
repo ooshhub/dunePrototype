@@ -1,6 +1,7 @@
 // shared helper functions requiring Node imports
 import fs from 'fs/promises';
-import * as handlebars from 'handlebars';
+import * as hbs from 'handlebars';
+const handlebars = hbs.create();
 import { helpers as browserHelpers } from './helpers.mjs';
 
 export const helpers = (() => {
