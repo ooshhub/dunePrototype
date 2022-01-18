@@ -1,3 +1,5 @@
-let arr = Array(8).fill().map(( _ , i) => i + 1);
+let param = `list2`;
 
-console.log(arr)
+let cmd = (param.match(/^([^\s]+?)(\s|$)/)||[])[1];
+
+console.log(cmd);

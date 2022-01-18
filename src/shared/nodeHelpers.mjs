@@ -29,6 +29,11 @@ export const helpers = (() => {
 	/*
 	// HBS / HTML
 	*/
+	// Register Helpers
+	handlebars.registerHelper('is', (val1, val2, options={doubleEquality: false}) => {
+		return ((val1 === val2) || (options.doubleEquality && val1 == val2)) ? true : false;
+	});
+	
 	// Handlebars compiler
 	const compileHbs = async (inputFile, data) => {
 		let file = await getFile(inputFile, false);

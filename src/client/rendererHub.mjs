@@ -14,8 +14,13 @@ const debugSources = {
 export const rlog = new DebugLogger('renderer', renHub, debugSources, 0);
 const debugRec = new DebugReceiver(renHub, debugSources);
 debugRec.registerHandlers();
-const ids = {
+
+// Useful consts
+const currentPlayer = {
 	pid: null,
+	playerName: '',
+	houseName: '',
+	houseReference: '',
 	hid: null
 };
 
@@ -27,8 +32,8 @@ const ids = {
 	// Server messaging. Attach ids to data
 	renHub.for('server', (event, data, ...args) => {
 		try {	Object.assign(data, {
-				pid: ids.pid,
-				hid: ids.hid });
+				pid: currentPlayer.pid,
+				hid: currentPlayer.hid });
 		} catch(e) { rlog(`Bad data object sent to server, could not attach ids`, 'warn') }
 		window.Dune?.Client?.sendToServer?.(event, data, ...args);
 	});
@@ -40,10 +45,13 @@ const ids = {
 	renHub.on('responseConfig', ren.updateConfig);
 
 	// Server connection
-	renHub.on('auth', (data) => ids.pid = data);
+	// renHub.on('auth', (data) => currentPlayer.pid = data);
 	renHub.on('joinServer', ren.joinLobby);
 	renHub.on('serverKick', (reason) => rlog([`Kicked from server: ${reason}`]));
-	renHub.on('authSuccess', (isHost) => renHub.trigger('server/requestLobby', isHost));
+	renHub.on('authSuccess', (playerData) => {
+		Object.assign(currentPlayer, playerData);
+		renHub.trigger('server/requestLobby', playerData);
+	});
 	
 	// Lobby
 	renHub.on('responseLobbySetup', ren.setupLobby);

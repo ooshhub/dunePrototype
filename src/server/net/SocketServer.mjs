@@ -220,6 +220,7 @@ export class SocketServer {
 	getServerState() { return this.#serverState }
 
 	setMaxPlayers(newMax) {
+		// TODO: get rid of allowed, let the Lobby set the max players
 		const allowed = [2,3,4,5,6,7,8];
 		if (allowed.includes(newMax)) {
 			this.#maxPlayers = allowed[newMax];

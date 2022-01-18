@@ -11,7 +11,6 @@ const helpers = (() => {
 	/* 
 	// ASYNC, TIMING & PROCESS FUNCTIONS
 	*/
-
 	// Simple async timeout
 	const timeout = async (ms) => new Promise(res => setTimeout(() => res(null), ms));
 	// Simple condition watcher
@@ -161,12 +160,23 @@ const helpers = (() => {
 		});
 	}
 
+	/**
+	 * OTHER FUNCTIONS
+	 */
+	const emproper = (input) => {
+		if (typeof(input) !== 'string') return;
+		let words = input.replace(/_/g, ' ').trim().split(/\s+/g);
+		let Words = words.map(w => `${w[0].toUpperCase()}${w.slice(1)}`);
+		return Words.join(' ');
+	}
+
 
 	return {
 		setLog,
 		timeout, watchCondition, asyncTimedLoad, parallelLoader,
 		toArray, generatePlayerId, getObjectPath, removeCyclicReferences,
 		windowFade,
+		emproper
 	}
 
 })();

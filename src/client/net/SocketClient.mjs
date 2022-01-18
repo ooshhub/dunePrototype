@@ -87,7 +87,11 @@ export class SocketClient {
 				this.#setClientState('INIT_LOBBY');
 				this.#socklog([`Authenticated ${isHost ? 'HOST' : 'PLAYER'} with server`]);
 				// Start Lobby init event
-				this.#triggerHub('authSuccess', { isHost: isHost });
+				this.#triggerHub('authSuccess', {
+					playerName: this.player.playerName,
+					pid: this.player.pid,
+					isHost: isHost
+				});
 			}
 		});
 	}

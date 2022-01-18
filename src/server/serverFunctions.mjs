@@ -8,16 +8,9 @@ export const server = (() => {
 	const linkServer = (gameServer) => Game.Server = gameServer;
 	const checkHost = (pid) => Game.Server?.host?.pid === pid;
 
-	const updateLobby = ({ pid, lobbyData }) => {
-		if (checkHost(pid)) {
-			// Run some verification here
-			Game.Lobby = lobbyData;
-			serverHub.trigger('clients/responseLobby', Game.Lobby);
-		} else slog(`Host check failed on "${pid}", aborting Lobby update`, 'warn');
-	}
-
-	const getLobby = async ({ isHost, pid }) => {
-		if (isHost) {
+	// Grab the lobby on player join / initialise on host join
+	const getLobby = async (playerData) => {
+		if (playerData.isHost) {
 			if (Game.Lobby) {
 				slog(`Lobby already exists`, 'warn');
 				// Prompt host to destroy old lobby
@@ -26,13 +19,27 @@ export const server = (() => {
 			slog(`Host joined, initialising Lobby`);
 			if (Game.Server.getServerState() !== 'INIT_LOBBY') return slog('Server was not ready for init lobby', 'error');
 			Game.Lobby = new Lobby(Game.Server);
-			Game.Lobby.rulesetList = await Game.Lobby.getRulesetList();
-			serverHub.trigger('host/responseLobbySetup', Game.Lobby);
+			let initData = Game.Lobby.initLobbyData();
+			serverHub.trigger('host/responseLobbySetup', initData);
 		} else {
-			slog(`Lobby request from ${pid}`);
+			slog(`Lobby request from ${playerData.pid}`);
 			if (Game.Lobby.getLobbyState() !== 'OPEN') return slog(`getLobby Error: lobby is "${Game.Lobby.getLobbyState()}"`);
-			let data = { lobby: Game.Lobby, targets: [pid] }
-			serverHub.trigger('client/responseLobby', data)
+			let joinSuccess = await Game.Lobby.addPlayer(playerData);
+			if (!joinSuccess) return slog([`${Game.Lobby.name}: Error adding player`, playerData], 'error');
+			let lobbyData = await Game.Lobby.openLobbyData();
+			serverHub.trigger('clients/lobbyUpdate', lobbyData);
+		}
+	}
+
+	// Update the lobby on host action / player selection
+	const updateLobby = ({ pid, type, data }) => {
+		if (type === 'init' || type === 'options') {
+			if (!checkHost(pid)) return slog(`Host check failed on "${pid}", aborting Lobby update`, 'warn');
+			// Run some verification here
+			// Game.Lobby = lobbyData;
+			serverHub.trigger('clients/responseLobby', Game.Lobby);
+		} else  {
+			// do stuff
 		}
 	}
 

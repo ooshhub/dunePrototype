@@ -20,7 +20,7 @@ main#mainmenu {
 	& input {	@apply text-sm font-mono font-normal text-black px-1 rounded; }
 
 	/* Expandable Sections */
-	 button {
+	button {
 
 		@apply text-2xl text-dune-cyan border-0 font-bold uppercase cursor-pointer my-1;
 		text-shadow: 0px 0px 12px var(--duneCyanBrighter2);
@@ -79,5 +79,73 @@ main#mainmenu {
 	& input[name="modalup"][value="1"] ~ dialog#loading-modal {
 		@apply top-1/4 bg-[color:#f1f1f1] text-2xl font-bold opacity-90 visible rounded-md;
 		transition: opacity 0.3s;
+	}
+
+	/* Lobby */
+	& #lobby {
+		@apply grid w-6/12 text-lg m-2;
+		grid-template-columns: 66% 33%;
+
+		& header {
+			@apply text-center text-xl mb-4 h-8;
+			grid-column: 1 / 3;
+		}
+
+		& .init {
+			@apply text-center m-8;
+			grid-column: 1 / 3;
+
+			& div {
+				@apply inline-block mx-8;
+			}
+		}
+
+		& .player-list {
+			@apply border-black border-r-2 w-[95%] m-auto;
+			min-height: 20vh;
+
+			& select {
+				@apply w-full text-base;
+			}
+
+			& .player {
+				@apply grid items-center m-1;
+				grid-template-columns: 30% 20% 20% 20%;
+				column-gap: 1%;
+
+				& fa-crown @apply hidden;
+				&[data-ishost="1"] .fa-crown {
+					@apply inline text-sm align-middle pb-1 text-[#e69c15] ml-2;
+				}
+
+				& .player-ready {
+					@apply border-black rounded text-center cursor-pointer text-gray-500 py-0.5;
+					&:hover { box-shadow: 0px 0px 2px var(--duneCyanBrighter) }
+
+					& div i {
+						@apply text-blue-600 text-sm inline-block invisible ml-2 pb-1 align-middle;
+					}
+
+					& input @apply hidden;
+					& input:checked ~ div @apply text-blue-600;
+					& input:checked ~ div i @apply visible;
+				}
+			}
+		}
+
+		& .server-options {
+			@apply w-[95%] m-auto mt-0;
+
+			& .server-option {
+				@apply grid cursor-pointer items-center m-2;
+				grid-template-columns: 80% 20%;
+			}
+
+			& .dune-switch @apply rounded-switch;
+		}
+
+		& footer {
+			@apply text-center border-black mt-4 min-h-[2rem];
+		}
 	}
 }
