@@ -30,6 +30,7 @@ export class SocketClient {
 			serverOptions: {
 				url: `http://${clientOptions.hostIp||'localhost'}:${clientOptions.hostPort||8080}`,
 				path: clientOptions.path || '/',
+				password: clientOptions.password||'',
 			},
 		});
 		// Create base Socket
@@ -112,6 +113,10 @@ export class SocketClient {
 			return 0;
 		} else return 1;
 	}
+
+	inLobby() { this.#setClientState('CONNECTED')	}
+
+	
 
 	// Link to event hub
 	#eventHub = [];

@@ -32,7 +32,7 @@
 			@apply relative w-8 bg-white h-4 border-2 border-dune-cyanDark rounded-[2rem];
 			transition: 0.4s background-color;
 
-			& .slider .slider-button {
+			& .slider-button {
 				@apply absolute w-3 h-3 rounded-[1rem] bg-gray-500 top-2/4 left-[5%];
 				transform: translate(0%, -50%);
 				transition: 0.3s transform, 0.3s left, 0.3s background-color;
@@ -66,16 +66,6 @@
 	user-select: none;
 }
 
-input[name="activePage"][value="gamecanvas"] ~ #game,
-input[name="activePage"][value="mainmenu"] ~ #mainmenu {
-	display: block;
-	opacity: 1.0;
-}
-input[name="activePage"][value="gamecanvas"] ~ #mainmenu,
-input[name="activePage"][value="mainmenu"] ~ #game {
-	display:none;
-}
-
 /* CANVAS */
 main#gamecanvas {
 	position: absolute;
@@ -86,6 +76,8 @@ main#gamecanvas {
 }
 main#chat {
 	z-index: 10;
+	width: 30vw;
+	height: 25vh;
 }
 
 /* GENERIC */

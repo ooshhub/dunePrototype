@@ -68,6 +68,7 @@ export class SocketServer {
 		: this.#logAttempts[cleanIp] = 0;
 		this.#slog(`${cleanIp} has tried to log in ${this.#logAttempts[cleanIp]} time(s).`);
 	}
+	// TODO: generate session id & store in #playerList for reconnect attempts
 	#initDefaultMessaging() {
 		this.io.on('connection', async (socket) => {
 			let cleanIp = socket.handshake.address.replace(/\./g, '_').replace(/[^\d_]/g, '');
@@ -232,8 +233,10 @@ export class SocketServer {
 		// Immediate middleware to upgrade http request ==> websocket
 		// Cannot attach as private method, causes crashes
 		const verifyUpgrade = async (socket, next) => {
-			if (this.#serverState !== 'INIT' && this.#serverState !== 'OPEN') return this.#slog(`Refused connection attempt, server state is "${this.#serverState}"`);
-			if (this.#serverState === 'INIT' && socket.handshake.auth.pid !== this.host.pid) return this.#slog('Refused connection attempt: Host must connect before players.' ,'warn');
+			const accept = ['INIT', 'INIT_LOBBY', 'OPEN'];
+			let currentState = this.#serverState;
+			if (!accept.includes(currentState)) return this.#slog(`Refused connection attempt, server state is "${currentState}"`);
+			if (currentState !== 'OPEN' && socket.handshake.auth.pid !== this.host.pid) return this.#slog('Refused connection attempt: Host must connect before players.' ,'warn');
 			if (!socket.handshake?.auth || !socket.handshake?.headers) return this.#slog(`socketServer: refused upgrade attempt - no headers present`);
 			let cleanIp = socket.handshake.address.replace(/\./g, '_').replace(/[^\d_]/g, '');
 			if (this.#blackList[cleanIp] && this.#blackList[cleanIp] > this.#maxUpgradeAttempts) return this.#slog(`Blacklisted cunt was told to fuck off: ${cleanIp}`)

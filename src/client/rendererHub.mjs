@@ -15,13 +15,13 @@ export const rlog = new DebugLogger('renderer', renHub, debugSources, 0);
 const debugRec = new DebugReceiver(renHub, debugSources);
 debugRec.registerHandlers();
 
-// Useful consts
+// Useful variables
 const currentPlayer = {
 	pid: null,
 	playerName: '',
 	houseName: '',
 	houseReference: '',
-	hid: null
+	hid: null,
 };
 
 (() => {
@@ -44,17 +44,29 @@ const currentPlayer = {
 	renHub.on('responseHtml', ren.insertHtml);
 	renHub.on('responseConfig', ren.updateConfig);
 
+	// HTML
+	// Show & Hide are convenience triggers. Use Fade for full control of params
+	renHub.on('showElement', (el) => ren.transitionSection(el, 'in'));
+	renHub.on('hideElement', (el) => ren.transitionSection(el, 'out'));
+	renHub.on('fadeElement', ren.transitionSection);
+
 	// Server connection
 	// renHub.on('auth', (data) => currentPlayer.pid = data);
-	renHub.on('joinServer', ren.joinLobby);
+	renHub.on('joinServer', ren.joinServer);
 	renHub.on('serverKick', (reason) => rlog([`Kicked from server: ${reason}`]));
 	renHub.on('authSuccess', (playerData) => {
 		Object.assign(currentPlayer, playerData);
+		window.Dune.ActivePlayer = currentPlayer;
+		window.Dune.Session?.update();
 		renHub.trigger('server/requestLobby', playerData);
 	});
 	
 	// Lobby
 	renHub.on('responseLobbySetup', ren.setupLobby);
+	renHub.on('responseLobby', ren.joinLobby);
+	renHub.on('updateLobby', ren.updateLobby);
+	/* *MAINMENU* renHub.on('initLobby', lobby.init); */
+	renHub.on('cancelLobby', ren.cancelLobby);
 
 	// Game Updates
 	renHub.on('updatePlayerList', ren.updatePlayerList);

@@ -73,6 +73,16 @@ const helpers = (() => {
 	/* 
 	// DATA FUNCTIONS
 	*/
+	// Bind all methods in a class - call at end of constructor
+	const bindAll = (inputClass) => {
+		let keys = Object.keys(inputClass);
+		console.log(keys);
+		keys.forEach(k => {
+			if (typeof(k) === 'function' && !/^#.+/.test(k)) {
+				console.log(`Found private method: ${k}`);
+			}
+		})
+	}
 	const toArray = (inp) => Array.isArray(inp) ? inp : [inp];
 	// Generate a player ID
 	// Format is 
@@ -174,7 +184,7 @@ const helpers = (() => {
 	return {
 		setLog,
 		timeout, watchCondition, asyncTimedLoad, parallelLoader,
-		toArray, generatePlayerId, getObjectPath, removeCyclicReferences,
+		bindAll, toArray, generatePlayerId, getObjectPath, removeCyclicReferences,
 		windowFade,
 		emproper
 	}

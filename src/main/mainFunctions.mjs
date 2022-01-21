@@ -1,4 +1,4 @@
-import { mainHub, mlog, CONFIG, electronRoot } from '../main.mjs';
+import { mainHub, mlog, CONFIG, electronRoot, Win } from '../main.mjs';
 import { helpers } from '../shared/helpers.mjs';
 import { helpers as nHelpers } from '../shared/nodeHelpers.mjs';
 import { getMenuItems } from '../client/mainMenu/menuItems.mjs';
@@ -60,6 +60,11 @@ export const main = (() => {
 			else mlog([`Error loading HTML`, resHtml], 'error');
 		}));
 	}
+	const inspectEl = async ({x,y}) => {
+		if (Win.Main || !parseInt(x) || !parseInt(y)) {
+			Win.Main.inspectElement(x,y);
+		} else mlog(`Couldn't find main window or bad pos data: (${x}, ${y})`);
+	}
 
 	/*
 	// CONFIG & SETTINGS
@@ -82,7 +87,7 @@ export const main = (() => {
 
 	return {
 		startServer, killServer,
-		renderHtml,
+		renderHtml, inspectEl,
 		modifyConfig, getConfig, exitAndSave
 	}
 

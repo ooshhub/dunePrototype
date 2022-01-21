@@ -6,9 +6,17 @@
 	--duneCyanBrighter: #7bffff;
 	--duneCyanBrighter2: #bcffff;
 	--duneGreenBrighter: #00d21d;
+	user-select: none;
 }
 
 main#mainmenu {
+
+	& #menu { filter: blur(0rem);	transition: filter 0.5s; }
+	&.disabled-blur #menu {
+		filter: blur(0.5rem);
+		pointer-events: none;
+		transition: filter 0.5s;
+	}
 
 	@apply visible z-10 text-center font-['dune'] absolute w-screen h-screen bg-dune-brown text-dune-cyan;
 	text-shadow: 0px 0px 12px var(--duneCyanBrighter2);
@@ -31,17 +39,31 @@ main#mainmenu {
 			text-shadow: 0px 0px 26px var(--duneCyanBrighter);
 			transition: color 0.5s, text-shadow 1s;
 		}
-		&.launch {
-			@apply text-base text-dune-green border-2 border-dune-greenBright rounded py-1 px-2 w-max mx-auto;
-			box-shadow: 0px 0px 3px 0px green, 0px 0px 2px 0px green inset;
-			text-shadow: 0px 0px 8px darkgreen;
+		&.neon {
+			@apply text-base rounded py-1 px-2 w-max mx-auto;
 			transition: color 0.5s, border 0.5s, text-shadow 1s, box-shadow 1s;
+		
+			&.green {
+				@apply border-dune-greenBright text-dune-green border-2;
+				box-shadow: 0px 0px 3px 0px green, 0px 0px 2px 0px greem inset;
+				text-shadow: 0px 0px 0px darkgreen;
+			}
+			&.red {
+				@apply border-red-900 text-red-700;
+				box-shadow: 0px 0px 3px 0px #ff0000, 0px 0px 2px 0px red inset;
+				text-shadow: 0px 0px 8px darkred;
+			}
 
-			&:hover {
-				color: red;
+			&.green:hover {
 				@apply text-dune-greenBrighter border-dune-greenBrighter;
 				text-shadow: 0px 0px 12px var(--duneCyanBrighter2);
 				box-shadow: 0px 0px 8px 0px var(--duneGreenBrighter), 0px 0px 3px 0px var(--duneGreenBrighter) inset;
+				transition: color 0.5s, border 0.5s, text-shadow 1s, box-shadow 1s;
+			}
+			&.red:hover {
+				@apply text-red-600 border-x-red-700;
+				text-shadow: 0px 0px 12px red;
+				box-shadow: 0px 0px 8px 0px #d10000, 0px 0px 3px 0px #d10000 inset;
 				transition: color 0.5s, border 0.5s, text-shadow 1s, box-shadow 1s;
 			}
 		}
@@ -64,28 +86,22 @@ main#mainmenu {
 	}
 	.single-item { @apply grid mx-auto my-0.5; }
 
-	/* Modal */	
-	& dialog {
-		@apply z-30 block opacity-0;
-		transition: opacity 0.3s;
+	/* Loading Modal */	
+	& dialog#loading-modal {
+		@apply z-30 block top-1/3 w-[30rem] font-mono border-3 border-dune-cyan;
 	
 		& .loading-spinner { @apply mx-auto text-center }
 		& .loading-spinner img { height: 100px; margin: auto; }
 
-		&#loading-modal button {
-			@apply text-red-700 border-2 border-[color:#a40000] px-4 py-1 rounded-md;
+		& button {
+			@apply text-red-700 border-2 border-[color:#a40000] px-4 py-1 rounded-md font-['dune'];
 		}
-	}
-	& input[name="modalup"][value="1"] ~ dialog#loading-modal {
-		@apply top-1/4 bg-[color:#f1f1f1] text-2xl font-bold opacity-90 visible rounded-md;
-		transition: opacity 0.3s;
 	}
 
 	/* Lobby */
 	& #lobby {
-		@apply z-20 absolute m-auto p-0 top-1/4 grid w-6/12 text-lg;
+		@apply block z-20 absolute m-auto p-0 top-1/4 w-8/12 text-lg;
 		@apply bg-dune-sand rounded-[1rem] border-3 border-dune-cyanBright;
-		grid-template-columns: 66% 34%;
     box-shadow: 0px 0px 10px var(--duneCyan);
 
 		& header {
@@ -95,57 +111,62 @@ main#mainmenu {
 			line-height: 3rem;
 		}
 
-		& .init {
-			@apply text-center m-0 py-8 bg-dune-whiteSand;
-			grid-column: 1 / 3;
+		& .body {
+			@apply grid bg-dune-whiteSand font-mono;
+			grid-template-columns: 66% 34%;
 
-			& div {
-				@apply inline-block mx-8;
+			& .init, {
+				@apply text-center m-0 py-8;
+				grid-column: 1 / 3;
+
+				& div {
+					@apply inline-block mx-8;
+				}
 			}
-		}
-		/* Player List */
-		& .player-list {
-			@apply border-black border-r-2 w-[95%] m-auto;
-			min-height: 20vh;
+			/* Player List */
+			& .player-list {
+				@apply border-black border-r-2 w-[95%] m-auto;
+				min-height: 20vh;
 
-			& select {
-				@apply w-full text-base;
-			}
-
-			& .player {
-				@apply grid items-center m-1;
-				grid-template-columns: 30% 20% 20% 20%;
-				column-gap: 1%;
-
-				& .fa-crown { @apply hidden; }
-				&[data-ishost="1"] .fa-crown {
-					@apply inline text-sm align-middle pb-1 text-[#e69c15] ml-2;
+				& select {
+					@apply w-full text-base;
 				}
 
-				& .player-ready {
-					@apply border-black rounded text-center cursor-pointer text-gray-500 py-0.5;
-					&:hover { box-shadow: 0px 0px 2px var(--duneCyanBrighter) }
+				& .player {
+					@apply grid items-center m-1;
+					grid-template-columns: 30% 20% 20% 20%;
+					column-gap: 1%;
 
-					& div i {
-						@apply text-blue-600 text-sm inline-block invisible ml-2 pb-1 align-middle;
+					& .fa-crown { @apply hidden; }
+					&[data-ishost="1"] .fa-crown {
+						@apply inline text-sm align-middle pb-1 text-[#e69c15] ml-2;
 					}
 
-					& input { @apply hidden; }
-					& input:checked ~ div { @apply text-blue-600; }
-					& input:checked ~ div i { @apply visible; }
+					& .player-ready {
+						@apply border-black rounded text-center cursor-pointer text-gray-500 py-0.5;
+						&:hover { box-shadow: 0px 0px 2px var(--duneCyanBrighter) }
+
+						& div i {
+							@apply text-blue-600 text-sm inline-block invisible ml-2 pb-1 align-middle;
+						}
+
+						& input { @apply hidden; }
+						& input:checked ~ div { @apply text-blue-600; }
+						& input:checked ~ div i { @apply visible; }
+					}
 				}
 			}
-		}
-		/* Server Options */
-		& .server-options {
-			@apply w-[95%] m-auto mt-0;
+			/* Server Options */
+			& .server-options {
+				@apply w-[95%] m-auto mt-0;
 
-			& .server-option {
-				@apply grid cursor-pointer items-center m-2;
-				grid-template-columns: 80% 20%;
+				& .server-option {
+					@apply grid cursor-pointer items-center m-2;
+					grid-template-columns: 80% 20%;
+				}
+
+				& .dune-switch { @apply rounded-switch; }
 			}
-
-			& .dune-switch { @apply rounded-switch; }
 		}
 
 		& footer {

@@ -1,6 +1,7 @@
 // Renderer entry point
 // Dependencies
 import { helpers } from '../shared/helpers.mjs';
+import { SessionState } from './net/SessionState.mjs';
 
 const Dune = {
 	Houses: {},
@@ -9,7 +10,8 @@ const Dune = {
 	Layers: {},
 	Helpers: helpers,
 	Client: null,
-	CONFIG: {},
+	CONFIG: null,
+	Session: null
 }
 window.Dune = Dune;
 window.$ = (selector) => document.querySelector(selector);
@@ -17,6 +19,7 @@ window.$$ = (selector) => document.querySelectorAll(selector);
 
 let renHub, rlog;
 
+// Initialise
 (async () => {
 	let err;
 	await import('./rendererHub.mjs')
@@ -37,19 +40,58 @@ let renHub, rlog;
 		renHub.trigger('main/requestConfig');
 	} else return console.error('Aborting client load due to errors.');
 
+	// Check for existing session
+	await helpers.watchCondition(() => Dune.CONFIG);
+	Dune.Session = new SessionState(Dune.CONFIG?.userSettings?.player);
+	let resumeSession = sessionStorage.getItem('DuneSession');
+	if (resumeSession) Dune.Session.restore(resumeSession);
+	else Dune.Session.init();
+
 	// Load core modules
 	await helpers.parallelLoader([
 		{ name: 'initCanvas', load: (await import('./canvas/stageManager.mjs')).initCanvas() },
 		{ name: 'initMainMenu', load: (await import('./mainMenu/mainMenu.mjs')).initMainMenu(), },
-	]).then(res => {
+		{ name: 'initUI', load: (await import('./ui/ui.mjs')).initUi() }
+	]).then(async (res) => {
 		if (res.failures > 0) throw new Error(res.errs.join('\n'));
-		// If successful, bring up main window
 		rlog(res.msgs.join('\n'));
 		rlog('===Core modules completed===');
+
+		//TODO: Put this section somewhere else??? Don't want it in SessionState though, it shouldn't be controlling systems
+		// Deal with existing session if applicable
+		let shown, hidden, reconnect;
+		let currentState = Dune.Session.getSessionState();
+		switch(currentState) {
+			// TODO: Index HTML selectors somewhere as well?
+			case 'ERROR': break;
+			case 'UNKNOWN': break;
+			default: break;
+			case 'LOBBY':
+				// Falls through
+			case 'GAME':
+				reconnect = Dune.Session?.getServerReconnectObject();
+				rlog([`Attempting to reconnect to server: `, reconnect]);
+				renHub.trigger('joinServer', reconnect);
+				if (await helpers.watchCondition(() => Dune.Client?.socket?.connected, 'Reconnect Successful?', 5000)) {
+					if (currentState === 'LOBBY') renHub.trigger('server/getLobby');
+					// ELSE retrieve canvas state
+				} else {
+					rlog(`Reconnect attempt failed.`);
+					Dune.Session?.update?.('MENU');
+				}
+				// Falls through
+			case 'MENU':
+				({ shown, hidden } = Dune.Session.getInterfaceStatus());
+				rlog([shown, hidden]);
+				shown = shown.length ? shown : ['main#mainmenu'];
+				renHub.trigger('fadeElement', shown, 'in', 500);
+		}
+		
 		renHub.trigger('main/coreLoadComplete');
 	}).catch(e => err = e);
 	if (err) return rlog(['Client load had errors.', err], 'error');
 	rlog(Dune.CONFIG);
+
 	// Load other modules
 	await helpers.parallelLoader([
 		{ name: 'howlerAudio', load: (await import('./audio/audio.mjs')).initAudio() }
@@ -57,6 +99,5 @@ let renHub, rlog;
 		if (res.failures === 0) rlog(res.msgs.join('\n'));
 		else rlog(res.errs.join('\n'), 'error');
 	});
-
 
 })();

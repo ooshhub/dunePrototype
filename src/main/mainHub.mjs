@@ -18,6 +18,7 @@ mainHub.once('mainWindowReady', ({ win }) => {
 	mainHub.on('startServer', main.startServer);
 	mainHub.on('killServer', main.killServer);
 	mainHub.on('exitGame', main.exitAndSave);
+	mainHub.on('inspectElement', main.inspectEl);
 
 	mlog(`===mainHub handlers registered===`);
 });

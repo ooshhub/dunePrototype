@@ -8,6 +8,7 @@ export const CONFIG = { DEBUG: 1 };
 export const mainHub = new EventHub('mainHub');
 export const mlog = new DebugLogger('mainLog', mainHub, 1, 1);
 export const electronRoot = electron;
+export const Win = {};
 
 mlog(`===Dependencies Loaded===`);
 // helpers.setLog(mlog);
@@ -84,6 +85,7 @@ const startElectron = async () => {
 		dev: true,
 		maximize: true
 	});
+	Win.Main = mainFrame;
 	mainHub.trigger('mainWindowReady', { win: mainFrame, app: electron.app });
 
 	let coreLoad = 0;
@@ -102,10 +104,12 @@ const startElectron = async () => {
 		}).catch(e => {
 			// Try to bring up main window on error
 			console.error(e);
-			if (!mainFrame.isVisible()) {
+			// if (!mainFrame.isVisible()) {
 				mainFrame.show();
 				mainFrame.setOpacity(1.0);
-			}
+				mainHub.trigger('renderer/fadeElement', 'main#mainmenu', 'in', 500);
+				loadingFrame.destroy();
+			// }
 		});
 	});
 }

@@ -41,71 +41,76 @@ Passed in HBS data, serialised by Lobby class and sent to host
  --}}
 <header class="titlebar">{{#if lobby.title}}{{lobby.title}}{{else}}Lobby Title{{/if}}</header>
 {{!-- Init stage - host selects ruleset and max players --}}
-{{#if lobby.init}}
-<section class="init">
-	<div class="init-ruleset">
-		<span>Ruleset: </span>
-		<select name="ruleset">
-			{{#each init.rulesets as |set setId|}}<option value={{set.id}}>{{set.name}}</option>{{/each}}
-		</select>
-	</div>
-	<div class="init-players">
-		<span>Players: </span>
-		<select name="players">
-			{{#each init.maxPlayers}} <option value={{this}}>{{this}}</option>{{/each}}
-		</select>
-	</div>
-</section>
-{{else}}
-{{!-- Player list --}}
-<section class="player-list">
-	{{#each lobby.players}}
-		<div class="player" data-index="{{this}}" data-id="" data-ishost="">
-			<div class="player-name"><i class="fas fa-crown"></i></div>
-			<div class="house-select">
-				<select name="house-{{this}}">
-					{{#each lobby.houses as |house houseIdx|}}<option value="{{house.id}}">{{house.name}}</option>{{/each}}
-				</select>
-			</div>
-			<div class="house-color">
-				<input name="color-{{this}}" type="color" value="#2222cc"/>
-			</div>
-			<div class="player-ready">
-				<input type="checkbox" name="ready-{{this}}" value="1"/>
-			</div>
-		</div>
-	{{/each}}
-</section>
-{{!-- Server options: rules customisation etc. --}}
-<section class="server-options">
-	{{#each serverOptions as |opt optIdx|}}
-		{{!-- Checkbox / switch --}}
-		{{#if (is opt.type 'switch')}}
-			<label class="server-option dune-switch">
-				<span>{{opt.name}}</span>
-				<input type="checkbox" name="{{opt.id}}" {{#if opt.default}}checked{{/if}}/>
-				<span class="slider">
-					<span class="slider-button"></span>
-				</span>
-			</label>
-		{{/if}}
-		{{!-- Select / options --}}
-		{{#if (is opt.type 'select')}}
-			<div class="server-option">
-				<select name="{{opt.id}}">
-					{{#each opt.selectOptions as |selOpt optIdx|}}<option value="{{selOpt.value}}">{{selOpt.name}}</option>{{/each}}
-				</select>
-			</div>
-		{{/if}}
-		{{!-- Add more types here if required --}}
-	{{/each}}
-</section>
-{{/if}}
-<footer class="lobby-buttonms">
-	<button class="lobby-button launch" id="cancel-lobby">Cancel</button>
+<div class="body">
 	{{#if lobby.init}}
-		<button class="lobby-button launch" id="create-lobby">Continue</button>
+	{{!-- Host Init Section --}}
+	<section class="init">
+		<div class="init-ruleset">
+			<span>Ruleset: </span>
+			<select name="ruleset">
+				{{#each init.rulesets as |set setId|}}<option value={{set.id}}>{{set.name}}</option>{{/each}}
+			</select>
+		</div>
+		<div class="init-players">
+			<span>Players: </span>
+			<select name="players">
+				{{#each init.maxPlayers}} <option value="{{this}}" {{#if (is this 6)}}selected{{/if}}>{{this}}</option>{{/each}}
+			</select>
+		</div>
+	</section>
 	{{else}}
-		<button class="lobby-button launch" id="submit-lobby">Launch</button>
+	{{!-- Player list --}}
+	<section class="player-list">
+		{{#each lobby.players}}
+			<div class="player" data-index="{{this}}" data-id="" data-ishost="">
+				<div class="player-name"><span></span><i class="fas fa-crown"></i></div>
+				<div class="house-select">
+					<select name="house-{{this}}">
+						<option value="">Select House</option>
+						{{#each ../lobby.houses as |house houseIdx|}}<option value="{{house.id}}">{{house.name}}</option>{{/each}}
+					</select>
+				</div>
+				<div class="house-color">
+					<input name="color-{{this}}" type="color" value="#2222cc"/>
+				</div>
+				<label class="player-ready">
+					<input type="checkbox" name="ready-{{this}}" value="1"/>
+					<div><span>Ready</span><i class="fas fa-check"></i></div>
+				</label>
+			</div>
+		{{/each}}
+	</section>
+	{{!-- Server options: rules customisation etc. --}}
+	<section class="server-options">
+		{{#each serverOptions as |opt optIdx|}}
+			{{!-- Checkbox / switch --}}
+			{{#if (is opt.type 'switch')}}
+				<label class="server-option dune-switch">
+					<span>{{opt.name}}</span>
+					<input type="checkbox" name="{{opt.id}}" {{#if opt.default}}checked{{/if}}/>
+					<span class="slider">
+						<span class="slider-button"></span>
+					</span>
+				</label>
+			{{/if}}
+			{{!-- Select / options --}}
+			{{#if (is opt.type 'select')}}
+				<div class="server-option">
+					<select name="{{opt.id}}">
+						{{#each opt.selectOptions as |selOpt optIdx|}}<option value="{{selOpt.value}}">{{selOpt.name}}</option>{{/each}}
+					</select>
+				</div>
+			{{/if}}
+			{{!-- Add more types here if required --}}
+		{{/each}}
+	</section>
+	{{/if}}
+</div>
+<footer class="lobby-buttonms">
+	<button class="lobby-button neon red" id="cancel-lobby">Cancel</button>
+	{{#if lobby.init}}
+		<button class="lobby-button neon green" id="create-lobby">Continue</button>
+	{{else}}
+		<button class="lobby-button launch neon green" id="submit-lobby">Launch</button>
 	{{/if}}
 </footer>

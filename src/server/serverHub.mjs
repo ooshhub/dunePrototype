@@ -40,6 +40,8 @@ export const initServerHub = async (gameServer) => {
 
 	// Setup server, lobby & game
 	serverHub.on('requestLobby', server.getLobby);
+	serverHub.on('setupLobby', server.initLobby);
+	serverHub.on('hostJoined', server.openLobby);
 	serverHub.on('updateLobby', server.updateLobby);
 	serverHub.on('sendLobbyUpdate', Game.Server.sendToClient);
 
