@@ -69,9 +69,10 @@ export const main = (() => {
 	/*
 	// CONFIG & SETTINGS
 	*/
+	// TODO: allow array of changes
 	const modifyConfig = async ( { path, data, options } ) => {
 		if (!data || !path) return mlog(`modifyConfig: no data received with request`, data);
-		let target = nHelpers.getObjectPath(CONFIG, path, options?.createPath||true);
+		let target = helpers.getObjectPath(CONFIG, path, options?.createPath||true);
 		Object.assign(target, data);
 		mlog(CONFIG.userSettings);
 		if (!options?.noSave) saveConfig();

@@ -18,6 +18,9 @@ export const initMainMenu = async () => {
 	// Fallback for unblurring main menu
 	$('#mainmenu').addEventListener('click', (ev) => { if (ev.target.id === 'mainmenu') menu.blurMainMenu() });
 
+	// Remove pid from index
+	$('input[name="pid"]').tabIndex = -1;
+
 	renHub.on('mainMenuModalDown', menu.modalDown);
 	renHub.on('mainMenuModalUp', menu.modalUp);
 	renHub.on('checkMenuBlur', menu.blurMainMenu);
@@ -34,6 +37,13 @@ export const initMainMenu = async () => {
 	for (let input in settingsKeys) {
 		$(`input[name="${input}"]`).addEventListener('change', (ev) => {
 			renHub.trigger('main/writeConfig', { path: `userSettings/${settingsKeys[input]}`, data: {[input]: ev.target.value||'', options: { createPath: true } } });
+			if (input === 'playerName') {
+				let newId = window.Dune.Helpers.generatePlayerId(ev.target.value);
+				if (newId) {
+					renHub.trigger('main/writeConfig', { path: `userSettings/player`, data: { pid: newId } } );
+					$(`input[name="pid"]`).value = newId;
+				}
+			}
 		});
 	}
 	// renHub.trigger('main/mainMenuLoaded')
