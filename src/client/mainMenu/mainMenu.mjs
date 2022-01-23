@@ -52,13 +52,27 @@ export const initMainMenu = async () => {
 
 const lobby = (() => {
 
+	const formTags = ['input', 'select']
+
 	const init = () => {
+		// Set up buttons
 		$(`#cancel-lobby`)?.addEventListener('click', cancel);
 		$(`#create-lobby`)?.addEventListener('click', create);
 		$(`#submit-lobby`)?.addEventListener('click', submit);
-	}
+		$$(`${formTags.map(tag => `.player-list ${tag}`).join(', ')}`)?.forEach(el => el.addEventListener('change', (ev) => {
+			update(ev, 'player');
+		}));
+		if (window.Dune.ActivePlayer?.isHost && $('.server-options')) {
+			$$(`${formTags.map(tag => `.server-options ${tag}`).join(', ')}`)?.forEach(el => el.addEventListener('change', (ev) => {
+				update(ev, '');
+			}));
+			$('.server-options').classList.remove('disabled');
+		}
+		$('#copy-server-link').addEventListener('click', copyServerLink);
+		$('#refresh-lobby').addEventListener('click', refresh);
+	}	
 
-	const getFormData = (selector, tags = ['input', 'select']) => {
+	const getFormData = (selector, tags = formTags) => {
 		let inputs = $(`${selector}`).querySelectorAll(`${tags.join(', ')}`);
 		let output = {};
 		inputs.forEach(input => {
@@ -79,11 +93,36 @@ const lobby = (() => {
 		renHub.trigger('server/setupLobby', data);
 	}
 
+	const update = (ev) => {
+		let elName = ev.target.attributes?.name?.value;
+		if (!elName) return rlog(`Bad input name: ${ev.target}`, 'warn');
+		let pIdx = parseInt(elName.replace(/\D/g, '')),
+				key = elName.replace(/[\d-]/g, '');
+		if (!pIdx) return rlog([`Couldn't find player index in changed setting!`, ev], 'warn');
+		rlog(`Send update to server: player ${pIdx}: ${key}/${ev.target.value}`);
+		let update = {
+			index: pIdx,
+			name: key,
+			value: ev.target.value
+		}
+		renHub.trigger('server/updateLobby', { type: 'updatePlayer', data: update });
+		// Load mentat data
+		if (key === 'house') {
+			let mentatLink = ev.target.querySelector('option:checked')?.dataset.mentat;
+			rlog(`Found mentat link: ${mentatLink}`);
+			renHub.trigger('mentatLoad', { target: 'lobby', data: mentatLink });
+		}
+	}
+
+	const copyServerLink = () => renHub.trigger('main/writeClipboard', window.Dune.Client?.serverOptions?.hostUrl);
+
+	const refresh = () => renHub.trigger('server/requestLobby', {refresh: true});
+
 	const submit = () => {
 		rlog(`submit lobby`);
 	}
 
-	return { init, cancel, create, submit }
+	return { init, cancel, create, update, submit }
 	
 })();
 
@@ -108,8 +147,8 @@ const menu = (() => {
 			path = 'main/startServer';
 		} else if (type === 'join') {
 			Object.assign(options, {
-				hostIp: $('[name="ip"]').value,
-				hostPort: $('[name="portjoin"]').value,
+				hostIp: $('[name="joinIp"]').value,
+				hostPort: $('[name="joinPort"]').value,
 			});
 			msg = `Attempting to join server ${options.hostIp} on port ${options.hostPort}`;
 			cancelAction = 'killSocket';
@@ -140,7 +179,7 @@ const menu = (() => {
 	}
 
 	const modalUp = async (msg, buttonEvents, blurMain=true) => {
-		renHub.trigger('fadeElement', '#loading-modal', 'in', 500);
+		renHub.trigger('fadeElement', '#loading-modal', 'in', 100);
     if (blurMain) blurMainMenu(1);
     $('#loading-modal .launch-message').innerHTML = msg||'Launching...';
 		$('#loading-modal .modal-button').dataset.events = buttonEvents;

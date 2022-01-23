@@ -9,6 +9,8 @@ const atreides = new House({
 	},
 	defaultColor: '#2222dd',
 	abilities: [`jessica's titties`],
+	description: 'The good guys.',
+	mentat: 'houses/atreides/basic'
 });
 
 const harkonnen = new House({
@@ -19,6 +21,8 @@ const harkonnen = new House({
 	},
 	defaultColor: '#dd2222',
 	abilities: [`vlad's titties`],
+	description: 'The good guys.',
+	mentat: 'houses/harkonnen/basic'
 });
 
 export { atreides, harkonnen }

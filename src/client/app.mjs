@@ -11,7 +11,8 @@ const Dune = {
 	Helpers: helpers,
 	Client: null,
 	CONFIG: null,
-	Session: null
+	Session: null,
+	ActivePlayer: {},
 }
 window.Dune = Dune;
 window.$ = (selector) => document.querySelector(selector);
@@ -43,9 +44,20 @@ let renHub, rlog;
 	// Check for existing session
 	await helpers.watchCondition(() => Dune.CONFIG);
 	Dune.Session = new SessionState(Dune.CONFIG?.userSettings?.player);
-	let resumeSession = sessionStorage.getItem('DuneSession');
-	if (resumeSession) Dune.Session.restore(resumeSession);
-	else Dune.Session.init();
+	const resumeSession = sessionStorage.getItem('DuneSession');
+	rlog([`PREV SESSION`, JSON.parse(resumeSession)]);
+	let prevSession, currentState, reconnectObject, prevStore;
+	if (resumeSession) {
+		prevSession = await Dune.Session.restore(resumeSession);
+		// rlog(prevSession);
+		currentState = prevSession.state;
+		reconnectObject = prevSession.reconnect;
+		prevStore = prevSession.store;
+	} else {
+		Dune.Session.init(Dune.CONFIG?.userSettings?.player);
+		currentState = Dune.Session.getSessionState();
+	}
+
 
 	// Load core modules
 	await helpers.parallelLoader([
@@ -56,11 +68,9 @@ let renHub, rlog;
 		if (res.failures > 0) throw new Error(res.errs.join('\n'));
 		rlog(res.msgs.join('\n'));
 		rlog('===Core modules completed===');
-
 		//TODO: Put this section somewhere else??? Don't want it in SessionState though, it shouldn't be controlling systems
 		// Deal with existing session if applicable
-		let shown, hidden, reconnect;
-		let currentState = Dune.Session.getSessionState();
+		let shown;
 		switch(currentState) {
 			// TODO: Index HTML selectors somewhere as well?
 			case 'ERROR': break;
@@ -69,11 +79,10 @@ let renHub, rlog;
 			case 'LOBBY':
 				// Falls through
 			case 'GAME':
-				reconnect = Dune.Session?.getServerReconnectObject();
-				rlog([`Attempting to reconnect to server: `, reconnect]);
-				renHub.trigger('joinServer', reconnect);
+				rlog([`Attempting to reconnect to server: `, { serverOptions: reconnectObject }]);
+				renHub.trigger('joinServer', { serverOptions: reconnectObject });
 				if (await helpers.watchCondition(() => Dune.Client?.socket?.connected, 'Reconnect Successful?', 5000)) {
-					if (currentState === 'LOBBY') renHub.trigger('server/getLobby');
+					if (currentState === 'LOBBY') renHub.trigger('server/requestLobby', reconnectObject);
 					// ELSE retrieve canvas state
 				} else {
 					rlog(`Reconnect attempt failed.`);
@@ -81,9 +90,9 @@ let renHub, rlog;
 				}
 				// Falls through
 			case 'MENU':
-				({ shown, hidden } = Dune.Session.getInterfaceStatus());
-				rlog([shown, hidden]);
-				shown = shown.length ? shown : ['main#mainmenu'];
+				// ({ shown, hidden } = Dune.Session.getInterfaceStatus());
+				rlog(prevStore?.ui);
+				shown = prevStore?.ui?.shown?.length ? prevStore.ui.shown : ['main#mainmenu'];
 				renHub.trigger('fadeElement', shown, 'in', 500);
 		}
 		

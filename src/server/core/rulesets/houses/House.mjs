@@ -9,6 +9,8 @@ export class House {
 			},
 			defaultColor: houseData.defaultColor || '#ffffff',
 			abilities: [],
+			description: houseData.description || null,
+			mentat: houseData.mentat ?? null,
 		}
 		Object.assign(this, newData);
 	}

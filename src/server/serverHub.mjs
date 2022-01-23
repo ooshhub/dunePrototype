@@ -30,7 +30,7 @@ export const initServerHub = async (gameServer) => {
 	});
 	// Singular client expects at least one id
 	serverHub.for('client', async (event, data, ...args) => {
-		if (!data.targets?.length) slog(`No target ids found on event sent to "client/"`, 'warn');
+		if (!data?.targets?.length) slog(`No target ids found on event sent to "client/"`, 'warn');
 		Game.Server.sendToClient(event, data, ...args)
 	});
 	// Clients and renderer both emit to all clients
@@ -41,8 +41,14 @@ export const initServerHub = async (gameServer) => {
 	// Setup server, lobby & game
 	serverHub.on('requestLobby', server.getLobby);
 	serverHub.on('setupLobby', server.initLobby);
-	serverHub.on('hostJoined', server.openLobby);
-	serverHub.on('updateLobby', server.updateLobby);
+	serverHub.on('hostJoined', () => {
+		server.openLobby();
+		Game.Server.hostJoinedLobby();
+	});
+	serverHub.on('updateLobby', (data) => {
+		slog(data);
+		server.updateLobby(data);
+	});
 	serverHub.on('sendLobbyUpdate', Game.Server.sendToClient);
 
 	slog(`===Server Hub online===`);

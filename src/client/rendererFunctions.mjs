@@ -57,6 +57,7 @@ export const ren = (() => {
 				$(el).style['z-index'] = newZ;
 			}
 		}));
+		window.Dune.Session?.update(0, 'ui');
 		return 1;
 	}
 	const fadeSection = async (element, direction, length=1000, timeStep = 2) => {
@@ -67,38 +68,44 @@ export const ren = (() => {
 		// target.style.opacity = direction === 'out' ? 1 : 0;
 		return new Promise(res => {
 			let fade = setInterval(() => {
-				if ((direction === 'out' && target.style.opacity <= 0) ||
-						(direction === 'in' && target.style.opacity >= 1)) {
+				if ((direction === 'out' && target.style.opacity <= 0.0) ||
+						(direction === 'in' && target.style.opacity >= 1.0)) {
+					target.style.opacity = (direction === 'out') ? 0 : 1;
 					clearInterval(fade);
 					res();
 				} else {
 					let elapsed = Date.now() - start;
 					// rlog([elapsed, length, elapsed/length, target.style.opacity]);
-					if (direction === 'out') target.style.opacity = 1 - elapsed/length;
-					else target.style.opacity = elapsed/length;
+					if (direction === 'out') target.style.opacity = 1 - bezier(elapsed/length)//length;
+					else target.style.opacity = bezier(elapsed/length)//length;
 				}
 			}, timeStep);
 		});
+	}
+	const bezier = (t) => {
+		let ret = t*t*(3 - 2*t);
+		return ret.toFixed(2);
 	}
 	
 
 	/*
 	// LOBBY AND GAME START
 	*/
-	const joinServer = async (joinOptions) => {
-		rlog(joinOptions);
+	const joinServer = async ({ serverOptions }) => {
+		rlog(serverOptions);
 		if (window.Dune.Client?.io) {
 			rlog(`Closing old Client...`);
 			window.Dune.Client.close()
 			window.Dune.Client = null;
 			await helpers.timeout(200);
 		}
-		const DuneClient = new SocketClient(joinOptions);
+		const DuneClient = new SocketClient(serverOptions);
 		window.Dune.Client = DuneClient;
 		DuneClient.registerEventHub(renHub);
 		rlog([`Created socket Client`, DuneClient]);
 		let connected = await DuneClient.connectToGame();
-		if (!connected) rlog(['Connection to server failed', joinOptions], 'warn');
+		if (!connected) rlog(['Connection to server failed', serverOptions], 'warn');
+		else renHub.trigger('writeConfig', { path: 'net', data: { lastIp: serverOptions.hostIp, lastPort: serverOptions.hostIp }});
 	}
 
 	const setupLobby = async (newLobby) => {
@@ -114,23 +121,25 @@ export const ren = (() => {
 		} else rlog('Error in host Client state, not ready for Lobby setup', 'error');
 	}
 
-	const joinLobby = async ({ lobbyData, playerData }) => {
+	const joinLobby = async ({ lobbyData, playerData, initFlag }) => {
 		rlog([`Received lobby data:`, lobbyData], 'info');
 		// Validate data
 		renHub.trigger('main/requestHtml', { req: 'lobby', data: lobbyData });
 		if (await helpers.watchCondition(() => $('.player-list'))) {
-			renHub.trigger('updateLobby', { playerData: playerData });
+			renHub.trigger('refreshLobby', { playerData: playerData });
+			if (!$('#lobby').classList.contains('show')) renHub.trigger('showElement', '#lobby');
+			if ($('#loading-modal').classList.contains('show')) renHub.trigger('mainMenuModalDown');
 			window.Dune.Client?.inLobby();
 			window.Dune.Session?.update('LOBBY');
-			renHub.trigger('server/hostJoined', { });
+			if (initFlag) renHub.trigger('server/hostJoined');
 		} else {
 			rlog(`Lobby failed to load`);
 			// close lobby & shit
 		}
 	}
 
-	const updateLobby = async ({ serverOptions, playerData }) => {
-		if (!serverOptions && !playerData) return rlog(`Bad lobby update received: no data`);
+	const updateLobby = async ({ serverOptions, playerData, update }) => {
+		if (!serverOptions && !playerData && !update) return rlog(`Bad lobby update received: no data`);
 		if (serverOptions) {
 			rlog([`Lobby update received`, serverOptions]);
 		}
@@ -142,7 +151,22 @@ export const ren = (() => {
 				targetRow.querySelector('.player-name span').innerText = playerData[p].playerName;
 				targetRow.dataset.id = playerData[p].pid;
 				targetRow.dataset.ishost = (p == 1) ? '1' : '';
+				const validKeys = ['house', 'color'];
+				validKeys.forEach(k => {
+					if (playerData[p][k]) {
+						let targetInput = targetRow.querySelector(`[name="${k}-${p}"]`);
+						if (targetInput) targetInput.value = playerData[p][k];
+						if (targetInput.type === 'checkbox') targetInput.checked = targetInput.value == 0 ? false : true;
+					}
+				});
+				if (playerData[p].pid === window.Dune.ActivePlayer.pid) targetRow.classList.remove('disabled');
 			});
+		}
+		if (update) {
+			let targetEl = $(`[name="${update.name}-${update.index}"]`);
+			if (targetEl) targetEl.value = update.value;
+			else rlog([`Bad update data`, update], 'warn');
+			if (targetEl.type === 'checkbox') targetEl.checked = targetEl.value == 0 ? false : true;
 		}
 	}
 

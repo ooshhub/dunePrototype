@@ -6,6 +6,7 @@
 	--duneCyanBrighter: #7bffff;
 	--duneCyanBrighter2: #bcffff;
 	--duneGreenBrighter: #00d21d;
+	--duneBrown: #201900;
 	user-select: none;
 }
 
@@ -28,11 +29,21 @@ main#mainmenu {
 	& input {	@apply text-sm font-mono font-normal text-black px-1 rounded; }
 
 	/* Expandable Sections */
-	button {
+	& button {
 
-		@apply text-2xl text-dune-cyan border-0 font-bold uppercase cursor-pointer my-1;
+		@apply font-bold uppercase cursor-pointer my-1;
 		text-shadow: 0px 0px 12px var(--duneCyanBrighter2);
 		transition: color 0.5s, text-shadow 1s;
+
+		&.mainmenu {
+			@apply text-2xl text-dune-cyan border-0;
+		}
+
+		&.system {
+			@apply flex items-center text-sm justify-center rounded-sm h-6 w-6 mx-1;
+			@apply text-black bg-dune-whiteSand border-dune-brown;
+			box-shadow: 0px 0px 4px var(--duneBrown) inset;
+		}
 		
 		&.expandable:hover {
 			@apply text-dune-cyanBright transition-colors duration-500;
@@ -74,7 +85,7 @@ main#mainmenu {
 		transition: max-height 0.5s ease-out 0.5s, opacity 0.5s linear, visibility 0.5s;
 	}
 	& input.toggle[value="1"] ~ .toggle-content {
-		@apply visible opacity-100 h-auto max-h-[200px];
+		@apply visible opacity-100 h-auto max-h-[12rem];
 		transition: max-height 1s ease-in-out, opacity 0.5s linear 0.5s;
 	}
 
@@ -88,7 +99,7 @@ main#mainmenu {
 
 	/* Loading Modal */	
 	& dialog#loading-modal {
-		@apply z-30 block top-1/3 w-[30rem] font-mono border-3 border-dune-cyan;
+		@apply z-30 block top-1/3 w-[30rem] font-mono border-3 border-dune-cyan opacity-0 bg-[whitesmoke];
 	
 		& .loading-spinner { @apply mx-auto text-center }
 		& .loading-spinner img { height: 100px; margin: auto; }
@@ -100,19 +111,28 @@ main#mainmenu {
 
 	/* Lobby */
 	& #lobby {
-		@apply block z-20 absolute m-auto p-0 top-1/4 w-8/12 text-lg;
+		@apply block z-20 absolute m-auto p-0 top-1/4 w-8/12 text-lg opacity-0;
 		@apply bg-dune-sand rounded-[1rem] border-3 border-dune-cyanBright;
     box-shadow: 0px 0px 10px var(--duneCyan);
 
+	
 		& header {
-			@apply text-center text-xl h-12;
+			@apply text-center text-xl h-12 relative;
 			border-radius: 1rem 1rem 0 0;
+			border-bottom: 2px solid black;
 			grid-column: 1 / 3;
 			line-height: 3rem;
+
+			& .controls {
+				@apply flex absolute items-center;
+				top: 50%;
+				right: 1%;
+				transform: translate(0%, -50%);
+			}
 		}
 
 		& .body {
-			@apply grid bg-dune-whiteSand font-mono;
+			@apply grid bg-dune-whiteSand font-mono text-base;
 			grid-template-columns: 66% 34%;
 
 			& .init, {
@@ -127,10 +147,6 @@ main#mainmenu {
 			& .player-list {
 				@apply border-black border-r-2 w-[95%] m-auto;
 				min-height: 20vh;
-
-				& select {
-					@apply w-full text-base;
-				}
 
 				& .player {
 					@apply grid items-center m-1;
@@ -172,13 +188,14 @@ main#mainmenu {
 		& footer {
 			@apply text-center border-black m-auto min-h-[3rem] bg-dune-sand;
 			line-height: 3rem;
+			border-top: 2px solid black;
 			grid-column: 1 / 3;
 			border-radius: 0 0 1rem 1rem;
 		}
 
 		/* Lobby Generics */
 		& select {
-			@apply border-gray-600 border-[1px] text-base rounded font-mono;
+			@apply border-gray-600 border-[1px] text-base rounded font-mono w-min;
     }
 	}
 }

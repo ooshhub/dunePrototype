@@ -39,7 +39,13 @@ Passed in HBS data, serialised by Lobby class and sent to host
 	}
 }
  --}}
-<header class="titlebar">{{#if lobby.title}}{{lobby.title}}{{else}}Lobby Title{{/if}}</header>
+<header class="titlebar">
+	{{#if lobby.title}}{{lobby.title}}{{else}}Lobby Title{{/if}}
+	<div class="controls">
+		<button class="system" id="copy-server-link"><i class="fas fa-link"></i></button>
+		<button class="system" id="refresh-lobby"><i class="fas fa-sync-alt"></i></button>
+	</div>
+</header>
 {{!-- Init stage - host selects ruleset and max players --}}
 <div class="body">
 	{{#if lobby.init}}
@@ -62,12 +68,12 @@ Passed in HBS data, serialised by Lobby class and sent to host
 	{{!-- Player list --}}
 	<section class="player-list">
 		{{#each lobby.players}}
-			<div class="player" data-index="{{this}}" data-id="" data-ishost="">
+			<div class="player disabled" data-index="{{this}}" data-id="" data-ishost="">
 				<div class="player-name"><span></span><i class="fas fa-crown"></i></div>
 				<div class="house-select">
 					<select name="house-{{this}}">
 						<option value="">Select House</option>
-						{{#each ../lobby.houses as |house houseIdx|}}<option value="{{house.id}}">{{house.name}}</option>{{/each}}
+						{{#each ../lobby.houses as |house houseIdx|}}<option data-color="{{house.defaultColor}}" data-mentat="{{house.mentat}}" value="{{house.id}}">{{house.name}}</option>{{/each}}
 					</select>
 				</div>
 				<div class="house-color">
@@ -81,7 +87,7 @@ Passed in HBS data, serialised by Lobby class and sent to host
 		{{/each}}
 	</section>
 	{{!-- Server options: rules customisation etc. --}}
-	<section class="server-options">
+	<section class="server-options disabled">
 		{{#each serverOptions as |opt optIdx|}}
 			{{!-- Checkbox / switch --}}
 			{{#if (is opt.type 'switch')}}

@@ -44,7 +44,7 @@
 			transition: 0.3s background-color;
 
 			& .slider-button {
-				@apply left-[95%];
+				@apply left-[95%] bg-dune-cyanDark;
 				transform: translate(-100%, -50%);
 				transition: 0.3s transform, 0.3s left, 0.3s background-color;
 			}
@@ -86,7 +86,10 @@ main#chat {
 .hide { @apply invisible opacity-0; }
 .toback { z-index: -1 }
 
-.disabled { pointer-events: none; cursor: not-allowed; filter: grayscale(70%); user-select: none; }
+.disabled {
+	pointer-events: none; user-select: none;
+	& .grey { filter: grayscale(70%); }
+}
 input.disabled { @apply bg-slate-400 pointer-events-auto } 
 
 .custom-scroll::-webkit-scrollbar {

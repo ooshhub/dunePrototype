@@ -179,6 +179,7 @@ section#ingamemenu .setting {
   --duneCyanBrighter: #7bffff;
   --duneCyanBrighter2: #bcffff;
   --duneGreenBrighter: #00d21d;
+  --duneBrown: #201900;
   -webkit-user-select: none;
      -moz-user-select: none;
       -ms-user-select: none;
@@ -249,15 +250,38 @@ main#mainmenu button {
   margin-top: 0.25rem;
   margin-bottom: 0.25rem;
   cursor: pointer;
+  font-weight: 700;
+  text-transform: uppercase;
+  text-shadow: 0px 0px 12px var(--duneCyanBrighter2);
+  transition: color 0.5s, text-shadow 1s;
+}
+
+main#mainmenu button.mainmenu {
   border-width: 0px;
   font-size: 1.5rem;
   line-height: 2rem;
-  font-weight: 700;
-  text-transform: uppercase;
   --tw-text-opacity: 1;
   color: rgb(14 213 213 / var(--tw-text-opacity));
-  text-shadow: 0px 0px 12px var(--duneCyanBrighter2);
-  transition: color 0.5s, text-shadow 1s;
+}
+
+main#mainmenu button.system {
+  margin-left: 0.25rem;
+  margin-right: 0.25rem;
+  display: flex;
+  height: 1.5rem;
+  width: 1.5rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.125rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  --tw-border-opacity: 1;
+  border-color: rgb(32 25 0 / var(--tw-border-opacity));
+  --tw-bg-opacity: 1;
+  background-color: rgb(237 230 216 / var(--tw-bg-opacity));
+  --tw-text-opacity: 1;
+  color: rgb(0 0 0 / var(--tw-text-opacity));
+  box-shadow: 0px 0px 4px var(--duneBrown) inset;
 }
 
 main#mainmenu button.expandable:hover {
@@ -347,7 +371,7 @@ main#mainmenu .toggle-content {
 main#mainmenu input.toggle[value="1"] ~ .toggle-content {
   visibility: visible;
   height: auto;
-  max-height: 200px;
+  max-height: 12rem;
   opacity: 1;
   transition: max-height 1s ease-in-out, opacity 0.5s linear 0.5s;
 }
@@ -384,7 +408,10 @@ main#mainmenu dialog#loading-modal {
   border-width: 3px;
   --tw-border-opacity: 1;
   border-color: rgb(14 213 213 / var(--tw-border-opacity));
+  --tw-bg-opacity: 1;
+  background-color: rgb(245 245 245 / var(--tw-bg-opacity));
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  opacity: 0;
 }
 
 main#mainmenu dialog#loading-modal .loading-spinner {
@@ -424,6 +451,7 @@ main#mainmenu #lobby {
   padding: 0px;
   font-size: 1.125rem;
   line-height: 1.75rem;
+  opacity: 0;
   border-radius: 1rem;
   border-width: 3px;
   --tw-border-opacity: 1;
@@ -434,12 +462,23 @@ main#mainmenu #lobby {
 }
 
 main#mainmenu #lobby header {
+  position: relative;
   height: 3rem;
   text-align: center;
   font-size: 1.25rem;
   border-radius: 1rem 1rem 0 0;
+  border-bottom: 2px solid black;
   grid-column: 1 / 3;
   line-height: 3rem;
+}
+
+main#mainmenu #lobby header .controls {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  top: 50%;
+  right: 1%;
+  transform: translate(0%, -50%);
 }
 
 main#mainmenu #lobby .body {
@@ -447,6 +486,8 @@ main#mainmenu #lobby .body {
   --tw-bg-opacity: 1;
   background-color: rgb(237 230 216 / var(--tw-bg-opacity));
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 1rem;
+  line-height: 1.5rem;
   grid-template-columns: 66% 34%;
 }
 
@@ -473,12 +514,6 @@ main#mainmenu #lobby .body .player-list {
   --tw-border-opacity: 1;
   border-color: rgb(0 0 0 / var(--tw-border-opacity));
   min-height: 20vh;
-}
-
-main#mainmenu #lobby .body .player-list select {
-  width: 100%;
-  font-size: 1rem;
-  line-height: 1.5rem;
 }
 
 main#mainmenu #lobby .body .player-list .player {
@@ -602,6 +637,8 @@ main#mainmenu #lobby .body .server-options .dune-switch input:checked ~ .slider 
   transform: translate(-100%, -50%);
   transition: 0.3s transform, 0.3s left, 0.3s background-color;
   left: 95%;
+  --tw-bg-opacity: 1;
+  background-color: rgb(28 79 79 / var(--tw-bg-opacity));
 }
 
 main#mainmenu #lobby footer {
@@ -613,6 +650,7 @@ main#mainmenu #lobby footer {
   background-color: rgb(204 144 71 / var(--tw-bg-opacity));
   text-align: center;
   line-height: 3rem;
+  border-top: 2px solid black;
   grid-column: 1 / 3;
   border-radius: 0 0 1rem 1rem;
 }
@@ -620,6 +658,9 @@ main#mainmenu #lobby footer {
 /* Lobby Generics */
 
 main#mainmenu #lobby select {
+  width: -webkit-min-content;
+  width: -moz-min-content;
+  width: min-content;
   border-radius: 0.25rem;
   border-width: 1px;
   --tw-border-opacity: 1;
@@ -1149,12 +1190,14 @@ main#chat {
 
 .disabled {
   pointer-events: none;
-  cursor: not-allowed;
-  filter: grayscale(70%);
   -webkit-user-select: none;
      -moz-user-select: none;
       -ms-user-select: none;
           user-select: none;
+}
+
+.disabled .grey {
+  filter: grayscale(70%);
 }
 
 input.disabled {

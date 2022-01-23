@@ -10,22 +10,40 @@ export const server = (() => {
 
 	// Grab the lobby on player join / initialise on host join
 	const getLobby = async (playerData) => {
-		if (playerData.isHost) {
+		// If refresh only, send back refresh data
+		if (playerData?.refresh) {
+			let lobbyData = await Game.Lobby.getLobby();
+			lobbyData.targets = playerData.pid;
+			serverHub.trigger('client/responseLobby', lobbyData);
+			return;
+		}
+		const { pid, reconnect } = playerData;
+		slog(`Getting lobby data... ${pid}, recon: ${reconnect}`);
+		if (checkHost(pid)) {
 			if (Game.Lobby) {
-				slog(`Lobby already exists`, 'warn');
-				// Prompt host to destroy old lobby
-				Game.Lobby = null;
+				if (reconnect) {
+					serverHub.trigger('host/responseLobby', Game.Lobby.getLobby());
+					return;
+				} else {
+					slog(`Lobby already exists`, 'warn');
+					Game.Lobby = null;
+				}
 			}
 			slog(`Host joined, initialising Lobby`);
-			if (Game.Server.getServerState() !== 'INIT_LOBBY') return slog('Server was not ready for init lobby', 'error');
+			if (Game.Server.getServerState() !== 'INIT_LOBBY') return slog(`Server was not ready for init lobby `, 'error');
 			Game.Lobby = new Lobby(Game.Server);
 			let initData = await Game.Lobby.initLobbyData();
 			// slog([`Sending host lobby setup info`, initData]);
 			serverHub.trigger('host/responseLobbySetup', initData);
 		} else {
 			// slog(`Lobby request from ${playerData.pid}`);
-			if (Game.Lobby.getLobbyState() !== 'OPEN') return slog(`getLobby Error: lobby is "${Game.Lobby.getLobbyState()}"`);
-
+			if (Game.Lobby?.getLobbyState() !== 'OPEN') return slog(`getLobby Error: lobby is "${Game.Lobby.getLobbyState()}"`);
+			let lobbyData = await Game.Lobby.playerJoin(playerData);
+			if (lobbyData.stack) {
+				return slog(lobbyData, 'error');
+			}
+			// lobbyData.targets = [pid];
+			serverHub.trigger('clients/responseLobby', lobbyData);
 		} 
 	}
 
@@ -46,10 +64,11 @@ export const server = (() => {
 
 	// Update the lobby on host action / player selection
 	const updateLobby = ({ pid, type, data }) => {
-		slog([`Lobby updated received`,data]);
-		if (!type || !pid) return;
-		let update = updateLobby(type, data, pid);
-		if (update) serverHub.trigger('clients/updateLobby', update);
+		slog([`Lobby update received`, data, type, pid]);
+		if (!type || !pid || !data) return;
+		let update = Game.Lobby.updateLobby(type, data, pid);
+		if (!update || update.stack) slog(update, 'error');
+		else serverHub.trigger('clients/refreshLobby', update);
 	}
 
 	return {

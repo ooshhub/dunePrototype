@@ -3,6 +3,7 @@ import { EventHub } from '../shared/EventHub.mjs';
 // import { SocketClient } from  './net/SocketClient.mjs';
 import { ren } from './rendererFunctions.mjs';
 import { DebugLogger, DebugReceiver } from '../shared/DebugLogger.mjs';
+import { MentatSystem } from './mentat/thufir.mjs';
 
 export const renHub = new EventHub('rendererHub');
 const debugSources = {
@@ -31,6 +32,7 @@ const currentPlayer = {
 	renHub.for('main', async (event, ...args) => window.rendererToHub.send('sendToMain', event, ...args));
 	// Server messaging. Attach ids to data
 	renHub.for('server', (event, data, ...args) => {
+		data = data === undefined ? {} : data;
 		try {	Object.assign(data, {
 				pid: currentPlayer.pid,
 				hid: currentPlayer.hid });
@@ -53,23 +55,31 @@ const currentPlayer = {
 	// Server connection
 	// renHub.on('auth', (data) => currentPlayer.pid = data);
 	renHub.on('joinServer', ren.joinServer);
-	renHub.on('serverKick', (reason) => rlog([`Kicked from server: ${reason}`]));
+	renHub.on('serverKick', (reason) => {
+		rlog([`Kicked from server: ${reason}`]);
+		window.Dune.Session?.setServerStatus(false);
+	});
+	// Successful connect - save server settings & session state
 	renHub.on('authSuccess', (playerData) => {
 		Object.assign(currentPlayer, playerData);
 		window.Dune.ActivePlayer = currentPlayer;
 		window.Dune.Session?.update();
+		window.Dune.Session?.setServerStatus(true, playerData.setSessionToken);
 		renHub.trigger('server/requestLobby', playerData);
 	});
 	
 	// Lobby
 	renHub.on('responseLobbySetup', ren.setupLobby);
 	renHub.on('responseLobby', ren.joinLobby);
-	renHub.on('updateLobby', ren.updateLobby);
+	renHub.on('refreshLobby', ren.updateLobby);
 	/* *MAINMENU* renHub.on('initLobby', lobby.init); */
 	renHub.on('cancelLobby', ren.cancelLobby);
 
 	// Game Updates
 	renHub.on('updatePlayerList', ren.updatePlayerList);
+
+	// Mentat system
+	renHub.on('mentatLoad', MentatSystem.load);
 
 	/* External handlers
 

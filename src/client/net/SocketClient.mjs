@@ -28,7 +28,11 @@ export class SocketClient {
 				pid: clientOptions.pid,
 			},
 			serverOptions: {
-				url: `http://${clientOptions.hostIp||'localhost'}:${clientOptions.hostPort||8080}`,
+				hostIp: clientOptions.hostIp,
+				selfJoin: clientOptions.selfJoin,
+				localhost: clientOptions.selfJoin,
+				url: `http://${clientOptions.selfJoin ? 'localhost' : clientOptions.hostIp}:${clientOptions.hostPort||8080}`,
+				hostUrl: `http://${clientOptions.hostIp}:${clientOptions.hostPort||8080}`,
 				path: clientOptions.path || '/',
 				password: clientOptions.password||'',
 			},
@@ -43,9 +47,11 @@ export class SocketClient {
 				playerName: this.player.playerName,
 				pid: this.player.pid,
 				password: clientOptions.password||'',
+				sessionToken: clientOptions.sessionToken||null,
 			},
 			extraHeaders: {
 				game: 'dune',
+				reconnect: clientOptions.reconnect||0,
 			}
 		});
 
@@ -76,23 +82,19 @@ export class SocketClient {
 		});
 
 		// Auth reply from server
-		this.socket.on('auth', ({ isHost }) => {
+		this.socket.on('auth', (playerDetails) => {
 			// this.#socklog(`Auth received: ${data}`);
-			if (isHost == null) {
+			if (playerDetails.isHost == null) {
 				let err = `Bad auth reply from server`;
 				this.#socklog(err, 'error');
 				this.socket.close();
 				this.#triggerHub('authReject', err);
 			} else {
-				this.player.isHost = isHost;
+				this.player.isHost = playerDetails.isHost;
 				this.#setClientState('INIT_LOBBY');
-				this.#socklog([`Authenticated ${isHost ? 'HOST' : 'PLAYER'} with server`]);
+				this.#socklog([`Authenticated ${playerDetails.isHost ? 'HOST' : 'PLAYER'} with server`]);
 				// Start Lobby init event
-				this.#triggerHub('authSuccess', {
-					playerName: this.player.playerName,
-					pid: this.player.pid,
-					isHost: isHost
-				});
+				this.#triggerHub('authSuccess', playerDetails);
 			}
 		});
 	}

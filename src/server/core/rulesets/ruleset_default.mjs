@@ -3,7 +3,7 @@ import { Ruleset } from './Ruleset.mjs';
 
 export const ruleset = async () => {
 	const newRuleset = new Ruleset({
-		name: 'Default Dune Rules',
+		name: 'Basic Dune Rules',
 		availableHouses: ['atreides', 'harkonnen'],
 		serverOptions: [
 			{

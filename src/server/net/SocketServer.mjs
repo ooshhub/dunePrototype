@@ -29,6 +29,7 @@ export class SocketServer {
 			DESTROYING: 'DESTROYING'
 		};
 		this.#serverState = states[newState] ?? this.#serverState;
+		this.#slog(`Server state set to "${newState}"`);
 	}
 	#handleGeneralConnectionError(details) {
 		this.#slog([`Connection error: `, details], 'warn');
@@ -73,7 +74,7 @@ export class SocketServer {
 	}
 
 	async #receiveFromClient(socket, data, ...args) {
-		console.log(`Rec'd from client: ${socket.id}:`, data, `Hub length: ${this.#eventHub.length}`);
+		// console.log(`Rec'd from client: ${socket.id}:`, data, `Hub length: ${this.#eventHub.length}`);
 		try { Object.assign(data, { sid: socket.id }) }
 		catch(e) { this.#slog(`Bad event received from client, data was not an Object`, 'warn') }
 		this.#triggerHub(data, ...args);
@@ -120,17 +121,31 @@ export class SocketServer {
 				this.#addLogAttempt(cleanIp);
 				return;
 			}
-			let playerExists = await this.#checkPlayerIsAlive(playerDetails);
-			if (playerExists !== undefined) {
-				this.#slog(`Player reconnect attempt: checking old socket...`);
-				if (playerExists) { // truthy return means player responded to ack
-					return this.#slog(`Player is already connected!`, 'warn');
-				} else { // null return means player exists on server but did not respond to ack
-					this.#slog(`Player ${playerDetails.playerName} - failed to respond to ack on existing socket`);
-					await this.#destroyPlayer(this.#playerList[playerDetails.pid], 'Failed to respond to ack request');
+			let reconnectAttempt = socket.handshake.headers.reconnect == 1 ? 1 : 0;
+			// Ff playerID already exists in playerList
+			if (this.#playerList[playerDetails.pid]) {
+				if (reconnectAttempt) {
+					this.#slog(`Reconnect attempt from ${playerDetails.playerName}`);
+					if (this.sessionToken !== socket.handshake.auth.sessionToken) {
+						this.#slog(`Session Token is invalid, removing player.`);
+						return this.#destroyPlayer(playerDetails.pid, `Bad session token`);
+					}
+				} else {
+					// No reconnect flag
+					let playerExists = await this.#checkPlayerIsAlive(playerDetails);
+					if (playerExists !== undefined) {
+						if (playerExists) { // truthy return means player responded to ack
+							return this.#slog(`Player is already connected!`, 'warn');
+						} else { // null return means player exists on server but did not respond to ack
+							this.#slog(`Player ${playerDetails.playerName} - failed to respond to ack on existing socket`);
+							await this.#destroyPlayer(this.#playerList[playerDetails.pid], 'Failed to respond to ack request');
+						}
+					}
 				}
 			}
 			playerDetails.isHost = this.#checkPlayerIsHost(playerDetails.pid);
+			playerDetails.sessionToken = this.sessionToken;
+			playerDetails.reconnect = reconnectAttempt;
 			socket.emit('auth', playerDetails);
 			playerDetails.socket = socket;
 			// Add player to server, init handlers
@@ -144,9 +159,9 @@ export class SocketServer {
 				// console.log(...args);
 				this.#receiveFromClient(socket, ...args)})
 			this.#slog(`New player joined: ${playerDetails.playerName}${playerDetails.isHost ? ' (HOST)' : ''}`);
-			if (playerDetails.isHost) {
+			if (playerDetails.isHost && !reconnectAttempt) {
 				this.#setServerState('INIT_LOBBY');
-			} else this.#triggerHub('playerJoinedLobby', { player: this.getPlayerList(playerDetails.pid) });
+			} else this.#triggerHub('playerJoinedServer', { player: this.getPlayerList(playerDetails.pid) });
 		});
 	}
 
@@ -191,6 +206,7 @@ export class SocketServer {
 		} else this.#slog(`Bad Event Hub supplied to server!`, 'error');
 	}
 	async sendToClient(event, data={}, ...args) {
+		if (!this.io) return;
 		// console.log(`Sending to client`, event, data);
 		if (!data.targets) this.io.emit('message', event, data, ...args);
 		else {
@@ -224,6 +240,7 @@ export class SocketServer {
 	}
 
 	getServerState() { return this.#serverState }
+	hostJoinedLobby() { this.#setServerState('OPEN') }
 
 	setMaxPlayers(newMax) {
 		// TODO: get rid of allowed, let the Lobby set the max players
@@ -246,7 +263,7 @@ export class SocketServer {
 			let cleanIp = socket.handshake.address.replace(/\./g, '_').replace(/[^\d_]/g, '');
 			if (this.#blackList[cleanIp] && this.#blackList[cleanIp] > this.#maxUpgradeAttempts) return this.#slog(`Blacklisted cunt was told to fuck off: ${cleanIp}`)
 			this.#slog(`===UPGRADE REQUEST FROM ${/1/.test(cleanIp) ? 'localhost' : cleanIp}===`);
-			if (!socket.handshake.headers.game === 'dune' || !socket.handshake.auth?.playerName) {
+			if (socket.handshake.headers.game !== 'dune' || !socket.handshake.auth?.playerName) {
 				socket.disconnect(true);
 				this.#slog(`Connection from ${cleanIp} was rejected.`, 'warn');
 				this.#addLogAttempt(cleanIp);

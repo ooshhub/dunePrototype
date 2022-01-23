@@ -3,7 +3,7 @@ export const getMenuItems = (config={}) => {
 		{
 			label: 'Create Online Game',
 			id: 'online',
-			class: 'expandable disabled',
+			class: 'expandable disabled grey mainmenu',
 			expandable: true,
 			subItems: [
 				{
@@ -39,7 +39,7 @@ export const getMenuItems = (config={}) => {
 		{
 			label: 'Host Local Game',
 			id: 'host',
-			class: 'expandable',
+			class: 'expandable mainmenu',
 			expandable: true,
 			subItems: [
 				{
@@ -75,7 +75,7 @@ export const getMenuItems = (config={}) => {
 		{
 			label: 'Join Game',
 			id: 'join',
-			class: 'expandable',
+			class: 'expandable mainmenu',
 			expandable: true,
 			subItems: [
 				{
@@ -117,7 +117,7 @@ export const getMenuItems = (config={}) => {
 		{
 			label: 'Settings',
 			id: 'settings',
-			class: 'expandable',
+			class: 'expandable mainmenu',
 			expandable: true,
 			subItems: [
 				{
@@ -144,7 +144,7 @@ export const getMenuItems = (config={}) => {
 		{
 			label: 'Exit Game',
 			id: 'quit',
-			class: 'expandable',
+			class: 'expandable mainmenu',
 			expandable: false,
 			subItems: []
 		},

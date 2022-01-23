@@ -6,15 +6,19 @@ import { mainHub, mlog, electronRoot } from '../main.mjs';
 export const initConfig = async (configReference) => {
 	let electronApp = electronRoot.app;
 	let rootPath = electronApp?.getAppPath();
+	let externalPath = electronApp.isPackaged ? electronApp.getPath('exe').replace(/\\[^\\]+$/, '') : rootPath;
 	if (!rootPath) return new Error(`initConfig error: no root path to Electron found.`);
 	const config = {
+		CORE: {
+			PACKAGED: electronApp.isPackaged
+		},
 		NET: {
 			PUBLIC_IP: "",
 		},
 		PATH: {
 			ROOT: rootPath,
-			USERDATA: `${rootPath}/config`, // change to electron.app.getPath('userData') later
-			SAVEGAME: `${rootPath}/saves`,
+			USERDATA: `${externalPath}/config`, // change to electron.app.getPath('userData') later
+			SAVEGAME: `${externalPath}/saves`,
 			HTML: `${rootPath}/client/templates`,
 			HBS: `${rootPath}/client/templates/hbs`,
 			CORE: `${rootPath}/server/core`
@@ -32,8 +36,7 @@ export const initConfig = async (configReference) => {
 			mlog(loadResult.msgs.join('\n'));
 			return 1;
 		} else {
-			console.error(loadResult.errs.join('\n'));
-			return 0;
+			return new Error(loadResult.errs.join('\n'));
 		}
 	}
 	else return new Error(`Could not initialise core CONFIG.`);
@@ -46,16 +49,19 @@ const getUserSettings = async (configReference) => {
 	try {
 		let settings = await nodeHelpers.getFile(settingsPath);
 		if (!settings?.player) {
-			settings = await nodeHelpers.getFile(`${configReference.PATH.ROOT}/config/defaultUserSettings.json`);
-			await nodeHelpers.saveFile(settingsPath, JSON.stringify(settings));
+			settings = await nodeHelpers.getFile(`${configReference.PATH.USERDATA}/defaultUserSettings.json`);
+			if (!settings) err = new Error(`Could not find default settings @${process.env.NODE_ENV} @@${configReference.PATH.TEMP}`);
+			else await nodeHelpers.saveFile(settingsPath, JSON.stringify(settings));
 		}
-		if (!/^[A-Za-z]_/.test(`${settings?.player?.pid}`)) {
-			settings.player.pid = helpers.generatePlayerId(process?.env?.USERNAME);
-			console.log(`New player ID generated: ${settings.player.id}`);
-			mainHub.trigger('saveConfig', settings);
-		}
-		if (!settings?.player?.playerName) {
-			settings.player.playerName = process.env?.USERNAME || `newPlayer_${Math.floor(Math.random()*999)}`;
+		if (settings?.player) {
+			if (!/^[A-Za-z]_/.test(`${settings.player.pid}`)) {
+				settings.player.pid = helpers.generatePlayerId(process?.env?.USERNAME);
+				mlog(`New player ID generated: ${settings.player.id}`);
+				mainHub.trigger('saveConfig', settings);
+			}
+			if (!settings.player.playerName) {
+				settings.player.playerName = process.env?.USERNAME || `newPlayer_${Math.floor(Math.random()*999)}`;
+			}
 		}
 		configReference.userSettings = settings;
 	} catch(e) {

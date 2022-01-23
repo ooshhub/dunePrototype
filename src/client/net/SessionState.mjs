@@ -15,7 +15,8 @@ export class SessionState {
 			LOBBY: 'LOBBY',
 			GAME: 'GAME',
 			ERROR: 'ERROR',
-			UNKNOWN: 'UNKNOWN'
+			UNKNOWN: 'UNKNOWN',
+			RESTORING: 'RESTORING'
 		}
 		this.#state = validStates[newState] ?? this.#state;
 	}
@@ -24,6 +25,7 @@ export class SessionState {
 		if (!$('main#mainmenu')) return rlog(`SessionState: failed to find Document`, 'error');
 		this.#store.ui.shown = Array.from($$('.show'))?.map(el => { if (el.id) return `${el.tagName}#${el.id}` });
 		this.#store.ui.hidden = Array.from($$('.hide'))?.map(el => { if (el.id) return `${el.tagName}#${el.id}` });
+		rlog(this.#store.ui);
 	}
 	async #updateServerStatus() {
 		if (!window.Dune?.Client?.player) return rlog(`SessionState: failed to find server info on SocketClient`, 'warn');
@@ -69,15 +71,22 @@ export class SessionState {
 		this.#store.ui.shown.push('main#mainmenu');
 	}
 
-	restore(previousSession) {
-		if (typeof(previousSession) === 'string')	try { previousSession = JSON.parse(previousSession) } catch(e) { rlog(['SessionState: error parsing previous state',e], 'error') }
+	async restore(previousSession) {
+		this.#setSessionState('RESTORING');
 		rlog(['Restoring session...', previousSession]);
-		let { state, store } = previousSession;
+		let sessionObj = JSON.parse(previousSession);
+		// rlog(sessionObj.store.ui);
+		// try { sessionObj = JSON.parse(previousSession) } catch(e) { rlog(['SessionState: error parsing previous state',e], 'error') }
+		let { state, store } = sessionObj;
+		// rlog(state, store);
 		if (state && store?.player?.pid) Object.assign(this.#store, store);
+		let returnData = { state: state, store: this.getStore(), reconnect: this.getServerReconnectObject() }
 		this.#setSessionState(state);
+		return returnData;
 	}
 
 	async update(state, component='all', save=true) {
+		if (this.getSessionState() === 'RESTORING') return;
 		let queue = [];
 		if (component === 'all' || component === 'ui') queue.push(this.#updateInterfaceStatus.bind(this));
 		if (component === 'all' || component === 'server') queue.push(this.#updateServerStatus.bind(this));
@@ -88,6 +97,17 @@ export class SessionState {
 		}
 		if (state) this.#setSessionState(state);
 		if (save) this.#saveToStorage();
+	}
+
+	setServerStatus(connected, token) {
+		if (connected) {
+			this.#store.server.sessionToken = token;
+			this.#store.reconnect = 1;
+		} else {
+			this.#store.server.sessionToken = null;
+			this.#store.reconnect = 0;
+		}
+		this.update();
 	}
 
 	lastUpdate() { return this.#updated } // Needed at all???
@@ -102,6 +122,7 @@ export class SessionState {
 				p = this.getPlayerStatus(),
 				output = {};
 		Object.assign(output, s.server, p.player);
+		output.reconnect = this.#store.reconnect;
 		return output;
 	}
 

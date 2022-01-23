@@ -22,6 +22,7 @@ export class Lobby {
 			SUBMIT: 'SUBMIT'
 		}
 		this.#lobbyState = states[newState] ?? this.#lobbyState;
+		slog(`Lobby state is now ${this.#lobbyState}`);
 	}
 	getLobbyState() { return this.#lobbyState }
 
@@ -37,7 +38,7 @@ export class Lobby {
 	
 	#setRuleset(Ruleset) {
 		let err;
-		slog(Ruleset);
+		// slog(Ruleset);
 		['name', 'availableHouses', 'map', 'serverOptions', 'House'].forEach(k => { if (Ruleset[k] == null) err = `Bad ruleset data`; });
 		Ruleset.availableHouses?.forEach(h => {	if (!Ruleset.House?.[h]) err = `Missing house ${h}`	});
 		if (err) return new Error(err);
@@ -99,17 +100,30 @@ export class Lobby {
 		return { playerData };
 	}
 
+	#updatePlayer(updateData = {}, pid) {
+		let err;
+		if (!updateData.index || !this.#playerList[updateData.index]) err = slog(`Player ${pid} does not exist in Lobby`, 'error');
+		if (pid !== this.#playerList[updateData.index].pid) err = slog([`pid mismatch between Lobby and requestor`, updateData], 'warn');
+		if (!err) {
+			// key names will match the HTML names e.g. name="house-3" is name: house, index: 3
+			const keyNames = ['house', 'color'];
+			if (keyNames.includes(updateData.name)) this.#playerList[updateData.index][updateData.name] = updateData.value;
+			return { update: updateData };
+		} else return new Error(err);
+	}
+
 	#removePlayer() {
 		// do stuff
 	}
 	
 	async #getRulesetList() {
 		let filenames = await fetchRulesets();
-		console.log(filenames);
+		// console.log(filenames);
 		this.rulesetList = filenames.map(f => {	return { id: f, name: helpers.emproper(f)} });
 	}
 
 	#getLobbyData() {
+		if (!this.#ruleset) return slog(`No ruleset found in Lobby`, 'error');
 		return {
 			lobby: {
 				init: 0,
@@ -120,7 +134,8 @@ export class Lobby {
 					return {
 						id: hs,
 						name: this.#ruleset.House[hs].name,
-						defaultColor: this.#ruleset.House[hs].defaultColor
+						defaultColor: this.#ruleset.House[hs].defaultColor,
+						mentat: this.#ruleset.House[hs].mentat
 					}
 				}),
 			},
@@ -170,22 +185,29 @@ export class Lobby {
 		} else err = `Failed to load ruleset`;
 		if (err) return new Error (err);
 		let lobby = this.#getLobbyData();
-		lobby.isSetup = true;
 		this.#setLobbyState('AWAIT_HOST');
-		if (this.#addPlayer(this.host)) return { lobbyData: lobby, playerData: { 1: this.host } }
-		else slog(`Failed to add host to game`, 'error');
+		let addHost = this.#addPlayer(this.host);
+		if (addHost.stack) return addHost;
+		else return { lobbyData: lobby, playerData: { 1: this.host }, initFlag: true }
 	}
 
 	openLobby() { this.#setLobbyState('OPEN') }
 
-	async getLobby() { return { lobbyData: this.#getLobbyData(), playerData: this.#playerList }	}
+	async playerJoin(playerData) {
+		let joinSuccess = await this.#addPlayer(playerData);
+		if (!joinSuccess.stack) return this.getLobby();
+		else return joinSuccess;
+	}
+
+	// Get lobby data
+	getLobby() { return { lobbyData: this.#getLobbyData(), playerData: this.#playerList }	}
 
 	// Update lobby instance on player/host action
 	updateLobby(type, data, pid) {
 		let result = (type === 'updateOptions' && pid === this.host.pid) ? this.#updateOptions(data)
-			: (type === 'addPlayer') ? this.#addPlayer(data)
+			: (type === 'addPlayer') ? this.#addPlayer(data, pid)
+			: (type === 'updatePlayer') ? this.#updatePlayer(data, pid)
 			: null;
-		return result ?? null;
+		return result ? result : new Error(`No update type received`);
 	}
-
 }

@@ -3,6 +3,7 @@ import { helpers } from './shared/helpers.mjs';
 import { EventHub } from './shared/EventHub.mjs';
 import { DebugLogger } from './shared/DebugLogger.mjs';
 import { initConfig } from './main/initLoader.mjs';
+import  unhandled  from 'electron-unhandled';
 
 export const CONFIG = { DEBUG: 1 };
 export const mainHub = new EventHub('mainHub');
@@ -10,18 +11,19 @@ export const mlog = new DebugLogger('mainLog', mainHub, 1, 1);
 export const electronRoot = electron;
 export const Win = {};
 
+unhandled();
+
 mlog(`===Dependencies Loaded===`);
-// helpers.setLog(mlog);
 
 // Call initLoader
 (async () => {
 	let initLoad = await initConfig(CONFIG);
-	if (initLoad) {
+	if (initLoad == 1) {
 		mlog(`===Initialised settings===`);
 		startElectron();
 	} else {
-		console.error(new Error('Core load failed.'));
-	electron.app.exit();
+		electron.app.exit();
+		throw new Error(initLoad ?? 'Core load failed.');
 	}
 })();
 
@@ -66,7 +68,6 @@ const startElectron = async () => {
 		loadingFrame.show();
 		helpers.windowFade(loadingFrame, 500);
 	});
-
 	const mainFrame = await createWindow({
 		browserWindow: {
 			width: screen.width,
