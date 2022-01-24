@@ -179,13 +179,13 @@ const menu = (() => {
 	}
 
 	const modalUp = async (msg, buttonEvents, blurMain=true) => {
-		renHub.trigger('fadeElement', '#loading-modal', 'in', 100);
+		renHub.trigger('fadeElement', '#loading-modal', 'in', 500);
     if (blurMain) blurMainMenu(1);
     $('#loading-modal .launch-message').innerHTML = msg||'Launching...';
 		$('#loading-modal .modal-button').dataset.events = buttonEvents;
   }
   const modalDown = async (unBlur) => {
-		renHub.trigger('fadeElement', '#loading-modal', 'out', 500);
+		renHub.trigger('fadeElement', '#loading-modal', 'out', 750);
 		let actions = $('#loading-modal .modal-button').dataset?.events;
 		if (actions) {
 			actions = actions.split('|');

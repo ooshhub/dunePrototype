@@ -443,7 +443,7 @@ main#mainmenu dialog#loading-modal button {
 
 main#mainmenu #lobby {
   position: absolute;
-  top: 25%;
+  top: 1rem;
   z-index: 20;
   margin: auto;
   display: block;
@@ -483,12 +483,14 @@ main#mainmenu #lobby header .controls {
 
 main#mainmenu #lobby .body {
   display: grid;
+  overflow-y: auto;
   --tw-bg-opacity: 1;
   background-color: rgb(237 230 216 / var(--tw-bg-opacity));
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   font-size: 1rem;
   line-height: 1.5rem;
   grid-template-columns: 66% 34%;
+  max-height: 16rem;
 }
 
 main#mainmenu #lobby .body .init {
@@ -668,6 +670,59 @@ main#mainmenu #lobby select {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   font-size: 1rem;
   line-height: 1.5rem;
+}
+
+.mentat-container {
+  display: grid;
+  max-height: 100%;
+  grid-template-rows: 2rem 1fr;
+}
+
+.mentat-container .body {
+  overflow-y: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.mentat-container .body .background {
+  position: absolute;
+  z-index: -1;
+  max-height: 100%;
+  width: 100%;
+  opacity: 0.5;
+  filter: sepia(20%) blur(1px);
+}
+
+.mentat-container .body .background img {
+  width: 100%;
+}
+
+#mentat-lobby {
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+  width: 75%;
+  padding: 0.125rem;
+  max-height: 28vh;
+  height: 28vh;
+  top: 44vh;
+}
+
+#mentat-lobby .body {
+  position: relative;
+  margin: 0px;
+  display: grid;
+  padding: 0px;
+  grid-template-columns: 10% 90%;
+  grid-template-rows: auto 1fr;
+}
+
+#mentat-lobby .body .stats {
+  /* temp disable */
+  display: none;
+}
+
+#mentat-lobby .body .abilities {
+  grid-column: 1 / 3;
 }
 
 @font-face {

@@ -21,7 +21,8 @@ export const initConfig = async (configReference) => {
 			SAVEGAME: `${externalPath}/saves`,
 			HTML: `${rootPath}/client/templates`,
 			HBS: `${rootPath}/client/templates/hbs`,
-			CORE: `${rootPath}/server/core`
+			CORE: `${rootPath}/server/core`,
+			ASSETS: `${rootPath}/assets`
 		},
 	};
 	Object.assign(configReference, config);

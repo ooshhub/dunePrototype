@@ -62,6 +62,13 @@ export const main = (() => {
 			else mlog([`Error loading HTML`, resHtml], 'error');
 		}));
 	}
+	const renderMentatHtml = async ({ container, template, data }) => {
+		if (!template || !container || !data) return mlog(`Missing data for Mentat render`, 'warn');
+		let responseHtml = await nHelpers.compileHbs(`${CONFIG.PATH.HBS}/${template}`, {house: data});
+		if (responseHtml) mainHub.trigger(`renderer/responseMentat`, { target: container, html: responseHtml });
+		else mlog([`Error loading HTML`, responseHtml], 'error');
+	}
+
 	const inspectEl = async ({x,y}) => {
 		if (Win.Main || !parseInt(x) || !parseInt(y)) {
 			Win.Main.inspectElement(x,y);
@@ -80,15 +87,18 @@ export const main = (() => {
 		if (!options?.noSave) saveConfig();
 	}
 	const getConfig = async () => mainHub.trigger('renderer/responseConfig', { CONFIG });
-	const saveConfig = async () => nHelpers.saveFile(`${CONFIG.PATH.USERDATA}/userSettings.json`, JSON.stringify(CONFIG.userSettings||CONFIG.USERSETTINGS));
+	const saveConfig = async () => nHelpers.saveFile(`${CONFIG.PATH.USERDATA}/userSettings.json`, JSON.stringify(CONFIG.userSettings));
 
 	const exitAndSave = async () => { // erm.... saveAndExit would be a more sensible name
 		mlog(`Saving settings...`);
+		helpers.timeout(50);
 		await saveConfig()
 			.catch((e) => {
+				console.log(`You fucking stupid cunt, AWAIT MEANS FUCKING AWAIT`)
 				electronRoot.app.exit();
 				throw new Error(e);
 			});
+		console.log(`FUCK YOU`)
 		electronRoot.app.exit();
 	}
 
@@ -106,7 +116,7 @@ export const main = (() => {
 
 	return {
 		startServer, killServer,
-		renderHtml, inspectEl,
+		renderHtml, renderMentatHtml, inspectEl,
 		modifyConfig, getConfig, exitAndSave,
 		ioClipboard
 	}

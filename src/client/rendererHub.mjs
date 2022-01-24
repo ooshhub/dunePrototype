@@ -80,6 +80,7 @@ const currentPlayer = {
 
 	// Mentat system
 	renHub.on('mentatLoad', MentatSystem.load);
+	renHub.on('responseMentat', MentatSystem.append);
 
 	/* External handlers
 

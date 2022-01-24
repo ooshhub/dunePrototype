@@ -111,7 +111,7 @@ main#mainmenu {
 
 	/* Lobby */
 	& #lobby {
-		@apply block z-20 absolute m-auto p-0 top-1/4 w-8/12 text-lg opacity-0;
+		@apply block z-20 absolute m-auto p-0 top-4 w-8/12 text-lg opacity-0;
 		@apply bg-dune-sand rounded-[1rem] border-3 border-dune-cyanBright;
     box-shadow: 0px 0px 10px var(--duneCyan);
 
@@ -132,8 +132,9 @@ main#mainmenu {
 		}
 
 		& .body {
-			@apply grid bg-dune-whiteSand font-mono text-base;
+			@apply grid bg-dune-whiteSand font-mono text-base overflow-y-auto;
 			grid-template-columns: 66% 34%;
+			max-height: 16rem;
 
 			& .init, {
 				@apply text-center m-0 py-8;
@@ -198,4 +199,5 @@ main#mainmenu {
 			@apply border-gray-600 border-[1px] text-base rounded font-mono w-min;
     }
 	}
+
 }

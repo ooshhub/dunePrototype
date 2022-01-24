@@ -21,6 +21,7 @@ mainHub.once('mainWindowReady', ({ win }) => {
 	mainHub.on('inspectElement', main.inspectEl);
 	mainHub.on('writeClipboard', (str) => main.ioClipboard(str||'no text'));
 	mainHub.on('readClipboard', main.ioClipboard);
+	mainHub.on('requestMentatHtml', main.renderMentatHtml);
 
 	mlog(`===mainHub handlers registered===`);
 });
