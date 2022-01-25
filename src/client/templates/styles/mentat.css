@@ -3,7 +3,7 @@
 	grid-template-rows: 2rem 1fr;
 
 	& .body {
-		@apply overflow-y-auto font-mono;
+		@apply overflow-y-auto font-mono whitespace-pre-wrap;
 
 		& .background {
 			@apply absolute z-[-1] w-full opacity-50 max-h-full;
@@ -23,15 +23,12 @@
 	top: 44vh;
 
 		& .body {
-			@apply grid relative m-0 p-0;
+			@apply grid relative m-0 p-0 text-sm;
 			grid-template-columns: 10% 90%;
 			grid-template-rows: auto 1fr;
-		
-			& .stats {
-				/* temp disable */
-				display: none;
-			}
+
 			& .abilities {
+				@apply mx-4 text-left;
 				grid-column: 1 / 3;
 			}
 		}

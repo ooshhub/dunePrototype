@@ -39,8 +39,8 @@ export class Lobby {
 	#setRuleset(Ruleset) {
 		let err;
 		// slog(Ruleset);
-		['name', 'availableHouses', 'map', 'serverOptions', 'House'].forEach(k => { if (Ruleset[k] == null) err = `Bad ruleset data`; });
-		Ruleset.availableHouses?.forEach(h => {	if (!Ruleset.House?.[h]) err = `Missing house ${h}`	});
+		['name', 'availableHouses', 'map', 'serverOptions', 'Houses'].forEach(k => { if (Ruleset[k] == null) err = `Bad ruleset data`; });
+		Ruleset.availableHouses?.forEach(h => {	if (!Ruleset.Houses?.[h]) err = `Missing house ${h}`	});
 		if (err) return new Error(err);
 		this.#houseList = Ruleset.availableHouses;
 		this.#houseAvailable = this.#houseList;
@@ -130,12 +130,12 @@ export class Lobby {
 				title: this.name,
 				players: Array(this.#numPlayers).fill().map((_,i) => i+1),
 				ruleset: this.#ruleset.name,
+				// TODO: This can go, once the House data is attached to client window
 				houses: this.#houseList.map(hs => {
 					return {
 						id: hs,
-						name: this.#ruleset.House[hs].name,
-						defaultColor: this.#ruleset.House[hs].defaultColor,
-						mentat: this.#ruleset.House[hs].mentat
+						name: this.#ruleset.Houses[hs].name,
+						defaultColor: this.#ruleset.Houses[hs].defaultColor,
 					}
 				}),
 			},
@@ -183,12 +183,12 @@ export class Lobby {
 				if (!playerLimit) err = `Couldn't set player limit`;
 			} else err = rulesetResult;
 		} else err = `Failed to load ruleset`;
-		if (err) return new Error (err);
+		if (err) return (err.stack) ? err : new Error(err);
 		let lobby = this.#getLobbyData();
 		this.#setLobbyState('AWAIT_HOST');
 		let addHost = this.#addPlayer(this.host);
 		if (addHost.stack) return addHost;
-		else return { lobbyData: lobby, playerData: { 1: this.host }, initFlag: true }
+		else return { lobbyData: lobby, playerData: { 1: this.host }, initFlag: true, houseData: this.#ruleset?.Houses }
 	}
 
 	openLobby() { this.#setLobbyState('OPEN') }
@@ -200,7 +200,7 @@ export class Lobby {
 	}
 
 	// Get lobby data
-	getLobby() { return { lobbyData: this.#getLobbyData(), playerData: this.#playerList }	}
+	getLobby() { return { lobbyData: this.#getLobbyData(), playerData: this.#playerList, houseData: this.#ruleset?.Houses }	}
 
 	// Update lobby instance on player/host action
 	updateLobby(type, data, pid) {

@@ -7,7 +7,7 @@ export class Ruleset {
 			availableHouses: ruleData.availableHouses || ['atreides', 'harkonnen', 'guild', 'beneGesserit', 'emperor', 'fremen'],
 			players: ruleData.players || [2,3,4,5,6,7,8],
 			map: ruleData.map || 'dune',
-			House: {},
+			Houses: {},
 			serverOptions: ruleData.serverOptions ?? [],
 		}
 		Object.assign(this, newData);
@@ -19,7 +19,7 @@ export class Ruleset {
 		} else {
 			const DefaultHouses = await import('./houses/defaultHouses.mjs');
 			this.availableHouses.forEach(house => {
-				if (DefaultHouses[house]) this.House[house] = DefaultHouses[house];
+				if (DefaultHouses[house]) this.Houses[house] = DefaultHouses[house];
 			});
 		}
 	}

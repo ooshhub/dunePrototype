@@ -65,7 +65,7 @@ export const ren = (() => {
 		let start = Date.now();
 		let target = $(element);
 		if (!target || !/^(in|out)$/.test(direction)) return rlog(`fadeSection() error: bad selector or direction, "${element}", "${direction}"`);
-		// target.style.opacity = direction === 'out' ? 1 : 0;
+		target.style.opacity = direction === 'out' ? 1 : 0;
 		return new Promise(res => {
 			let fade = setInterval(() => {
 				if ((direction === 'out' && target.style.opacity <= 0.0) ||
@@ -121,9 +121,10 @@ export const ren = (() => {
 		} else rlog('Error in host Client state, not ready for Lobby setup', 'error');
 	}
 
-	const joinLobby = async ({ lobbyData, playerData, initFlag }) => {
-		rlog([`Received lobby data:`, lobbyData], 'info');
+	const joinLobby = async ({ lobbyData, playerData, initFlag, houseData }) => {
+		rlog([`Received lobby data:`, lobbyData, playerData, houseData], 'info');
 		// Validate data
+		if (houseData) window.Dune.Houses = houseData;
 		renHub.trigger('main/requestHtml', { req: 'lobby', data: lobbyData });
 		if (await helpers.watchCondition(() => $('.player-list'))) {
 			renHub.trigger('refreshLobby', { playerData: playerData });
@@ -172,6 +173,7 @@ export const ren = (() => {
 
 	const cancelLobby = async () => {
 		renHub.trigger('server/killLobby');
+		renHub.trigger('hideElement', '#mentat-lobby');
 		destroyClient();
 		// do more stuff
 	}

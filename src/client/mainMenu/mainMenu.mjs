@@ -60,11 +60,11 @@ const lobby = (() => {
 		$(`#create-lobby`)?.addEventListener('click', create);
 		$(`#submit-lobby`)?.addEventListener('click', submit);
 		$$(`${formTags.map(tag => `.player-list ${tag}`).join(', ')}`)?.forEach(el => el.addEventListener('change', (ev) => {
-			update(ev, 'player');
+			update(ev, 'updatePlayer');
 		}));
 		if (window.Dune.ActivePlayer?.isHost && $('.server-options')) {
 			$$(`${formTags.map(tag => `.server-options ${tag}`).join(', ')}`)?.forEach(el => el.addEventListener('change', (ev) => {
-				update(ev, '');
+				update(ev, 'updateOptions');
 			}));
 			$('.server-options').classList.remove('disabled');
 		}
@@ -93,22 +93,22 @@ const lobby = (() => {
 		renHub.trigger('server/setupLobby', data);
 	}
 
-	const update = (ev) => {
+	const update = (ev, updateType) => {
 		let elName = ev.target.attributes?.name?.value;
-		if (!elName) return rlog(`Bad input name: ${ev.target}`, 'warn');
-		let pIdx = parseInt(elName.replace(/\D/g, '')),
-				key = elName.replace(/[\d-]/g, '');
-		if (!pIdx) return rlog([`Couldn't find player index in changed setting!`, ev], 'warn');
-		rlog(`Send update to server: player ${pIdx}: ${key}/${ev.target.value}`);
-		let update = {
-			index: pIdx,
-			name: key,
-			value: ev.target.value
+		if (!elName || !ev.target.value) return rlog(`Bad input element: ${ev.target}`, 'warn');
+		let update = { name: elName, value: ev.target.value };
+		if (updateType === 'updatePlayer') {
+			let pIdx = parseInt(elName.replace(/\D/g, ''));
+			elName = elName.replace(/[\d-]/g, '');
+			if (!pIdx) return rlog([`Couldn't find player index in changed setting!`, ev], 'warn');
+			rlog(`Send update to server: player ${pIdx}: ${elName}/${ev.target.value}`);
+			update.index = pIdx;
+			update.name = elName;
 		}
-		renHub.trigger('server/updateLobby', { type: 'updatePlayer', data: update });
+		renHub.trigger('server/updateLobby', { type: updateType, data: update });
 		// Load mentat data
-		if (key === 'house') {
-			let mentatLink = ev.target.querySelector('option:checked')?.dataset.mentat;
+		if (elName === 'house') {
+			let mentatLink = ev.target.value;
 			rlog(`Found mentat link: ${mentatLink}`);
 			renHub.trigger('mentatLoad', { target: 'lobby', data: mentatLink });
 		}

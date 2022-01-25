@@ -14,7 +14,6 @@ export const initServerHub = async (gameServer) => {
 	Game.Server.registerEventHub(serverHub);
 	server.linkServer(Game.Server);
 
-
 	if (serverHub.getHubState() === 'INIT') return slog(`Hub was already initialised.`);
 
 	// Server ==> Client returns
