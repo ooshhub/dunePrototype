@@ -7,19 +7,14 @@ export class SocketClient {
 
 	#clientState;
 	#debug = 1;
-
-	#setClientState(newState) {
-		const states = {
-			INIT: 'INIT',
-			INIT_LOBBY: 'INIT_LOBBY',
-			CONNECTING: 'CONNECTING',
-			CONNECTED: 'CONNECTED',
-			CLOSING: 'CLOSING',
-			ERROR: 'ERROR'
-		}
-		this.#clientState = states[newState] ?? this.#clientState;
+	#validStates = {
+		INIT: 'INIT',
+		INIT_LOBBY: 'INIT_LOBBY',
+		CONNECTING: 'CONNECTING',
+		CONNECTED: 'CONNECTED',
+		CLOSING: 'CLOSING',
+		ERROR: 'ERROR'
 	}
-	getClientState() { return this.#clientState }
 
 	constructor(clientOptions={}) {
 		Object.assign(this, {
@@ -99,8 +94,13 @@ export class SocketClient {
 		});
 	}
 
+	#setClientState(newState) {
+		this.#clientState = this.#validStates[newState] ?? this.#clientState;
+	}
+	get clientState() { return this.#clientState }
+
 	async connectToGame(maxAttemptTime=8000) {
-		if (this.getClientState() === 'CONNECTING' || this.socket.connected) return this.#socklog(`Already connected/connecting!`, 'warn');
+		if (this.clientState === 'CONNECTING' || this.socket.connected) return this.#socklog(`Already connected/connecting!`, 'warn');
 		this.#setClientState('CONNECTING');
 		this.#socklog(`Connecting...`);
 		this.socket.connect();
@@ -117,6 +117,12 @@ export class SocketClient {
 	}
 
 	inLobby() { this.#setClientState('CONNECTED')	}
+
+	async destroy() {
+		this.#setClientState('CLOSING');
+		this.socket.close();
+		return 1
+	}
 
 	
 

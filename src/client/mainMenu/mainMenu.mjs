@@ -21,6 +21,9 @@ export const initMainMenu = async () => {
 	// Remove pid from index
 	$('input[name="pid"]').tabIndex = -1;
 
+	// Paste IP
+	$('#joinIp').addEventListener('paste', menu.pasteIp);
+
 	renHub.on('mainMenuModalDown', menu.modalDown);
 	renHub.on('mainMenuModalUp', menu.modalUp);
 	renHub.on('checkMenuBlur', menu.blurMainMenu);
@@ -59,15 +62,18 @@ const lobby = (() => {
 		$(`#cancel-lobby`)?.addEventListener('click', cancel);
 		$(`#create-lobby`)?.addEventListener('click', create);
 		$(`#submit-lobby`)?.addEventListener('click', submit);
+		// Handlers for player option changes
 		$$(`${formTags.map(tag => `.player-list ${tag}`).join(', ')}`)?.forEach(el => el.addEventListener('change', (ev) => {
 			update(ev, 'updatePlayer');
 		}));
+		// Handlers for server option changes
 		if (window.Dune.ActivePlayer?.isHost && $('.server-options')) {
 			$$(`${formTags.map(tag => `.server-options ${tag}`).join(', ')}`)?.forEach(el => el.addEventListener('change', (ev) => {
 				update(ev, 'updateOptions');
 			}));
 			$('.server-options').classList.remove('disabled');
 		}
+		// Server control buttons
 		$('#copy-server-link').addEventListener('click', copyServerLink);
 		$('#refresh-lobby').addEventListener('click', refresh);
 	}	
@@ -82,7 +88,7 @@ const lobby = (() => {
 	}
 
 	const cancel = async () => {
-		renHub.trigger('cancelLobby'); // TODO:no Handler yet
+		renHub.trigger('cancelLobby');
 		renHub.trigger('fadeElement', '#lobby', 'out', 1000);
 		menu.modalDown(true);
 	}
@@ -96,12 +102,13 @@ const lobby = (() => {
 	const update = (ev, updateType) => {
 		let elName = ev.target.attributes?.name?.value;
 		if (!elName || !ev.target.value) return rlog(`Bad input element: ${ev.target}`, 'warn');
-		let update = { name: elName, value: ev.target.value };
+		const elValue = ev.target.type === 'checkbox' ? ev.target.checked : ev.target.value;
+		const update = { name: elName, value: elValue };
 		if (updateType === 'updatePlayer') {
 			let pIdx = parseInt(elName.replace(/\D/g, ''));
 			elName = elName.replace(/[\d-]/g, '');
 			if (!pIdx) return rlog([`Couldn't find player index in changed setting!`, ev], 'warn');
-			rlog(`Send update to server: player ${pIdx}: ${elName}/${ev.target.value}`);
+			rlog(`Send update to server: player ${pIdx}: ${elName}/${elValue}}`);
 			update.index = pIdx;
 			update.name = elName;
 		}
@@ -201,6 +208,18 @@ const menu = (() => {
     toggles.forEach(t => t.value = t.name.indexOf(itemId) > -1 ? 1-t.value : 0);
   };
 
-	return { launchLobby, blurMainMenu, modalUp, modalDown, toggleMenuItem	}
+	const pasteIp = (ev) => {
+		// rlog(['Paste detected', ev]);
+		let paste = ev.clipboardData.getData('text');
+		paste = paste.replace(/^[^/]*\/\//, '').replace(/[^\d:.]/g, '');
+		const parts = paste.split(/:/);
+		if (parts.length === 2) {
+			ev.preventDefault();
+			$('#joinIp').value = parts[0];
+			$('[name="joinPort"]').value = parts[1];
+		}
+	}
+
+	return { launchLobby, blurMainMenu, modalUp, modalDown, toggleMenuItem, pasteIp	}
 
 })();

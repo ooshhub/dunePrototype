@@ -83,7 +83,7 @@ export const getMenuItems = (config={}) => {
 					input: true,
 					type: 'text',
 					class: 'double-item',
-					id: '',
+					id: 'joinIp',
 					name: 'joinIp',
 					setting: config.join?.lastIp||'127.0.0.1',
 				},

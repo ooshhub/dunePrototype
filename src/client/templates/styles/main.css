@@ -527,6 +527,11 @@ main#mainmenu #lobby .body .player-list .player {
        column-gap: 1%;
 }
 
+main#mainmenu #lobby .body .player-list .player input[type="color"] {
+  --tw-bg-opacity: 1;
+  background-color: rgb(237 230 216 / var(--tw-bg-opacity));
+}
+
 main#mainmenu #lobby .body .player-list .player .fa-crown {
   display: none;
 }
@@ -581,6 +586,10 @@ main#mainmenu #lobby .body .player-list .player .player-ready input:checked ~ di
 
 main#mainmenu #lobby .body .player-list .player .player-ready input:checked ~ div i {
   visibility: visible;
+}
+
+main#mainmenu #lobby .body .player-list .player[data-id=""] {
+  color: lightgray;
 }
 
 /* Server Options */

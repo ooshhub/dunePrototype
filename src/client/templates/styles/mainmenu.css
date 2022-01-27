@@ -34,7 +34,7 @@ main#mainmenu {
 		@apply font-bold uppercase cursor-pointer my-1;
 		text-shadow: 0px 0px 12px var(--duneCyanBrighter2);
 		transition: color 0.5s, text-shadow 1s;
-
+	
 		&.mainmenu {
 			@apply text-2xl text-dune-cyan border-0;
 		}
@@ -154,6 +154,8 @@ main#mainmenu {
 					grid-template-columns: 30% 20% 20% 20%;
 					column-gap: 1%;
 
+					& input[type="color"] { @apply bg-dune-whiteSand; }
+
 					& .fa-crown { @apply hidden; }
 					&[data-ishost="1"] .fa-crown {
 						@apply inline text-sm align-middle pb-1 text-[#e69c15] ml-2;
@@ -170,6 +172,10 @@ main#mainmenu {
 						& input { @apply hidden; }
 						& input:checked ~ div { @apply text-blue-600; }
 						& input:checked ~ div i { @apply visible; }
+					}
+
+					&[data-id=""] {
+						color: lightgray;
 					}
 				}
 			}

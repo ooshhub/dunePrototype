@@ -7,6 +7,14 @@ const { Server } = socketio;
 export class SocketServer {
 
 	#serverState;
+	#validStates = {
+		INIT: 'INIT',
+		INIT_LOBBY: 'INIT_LOBBY',
+		BUSY: 'BUSY',
+		OPEN: 'OPEN',
+		FULL: 'FULL',
+		DESTROYING: 'DESTROYING'
+	};
 
 	#eventHub = [];
 
@@ -19,16 +27,98 @@ export class SocketServer {
 	#playerList = {};
 	#houseList = {};
 
-	#setServerState(newState) {
-		const states = {
-			INIT: 'INIT',
-			INIT_LOBBY: 'INIT_LOBBY',
-			BUSY: 'BUSY',
-			OPEN: 'OPEN',
-			FULL: 'FULL',
-			DESTROYING: 'DESTROYING'
+	constructor(serverOptions) {
+		this.#setServerState('INIT');
+		let options = {
+			name: serverOptions.gameName,
+			config: {
+				port: serverOptions.hostPort || 8080,
+				path: serverOptions.path || '/',
+				password: serverOptions.password || null,
+				dedicated: serverOptions.dedicated || false,
+				maxPlayers: serverOptions.maxPlayers ?? 6
+			},
+			host: {
+				playerName: serverOptions.playerName,
+				pid: serverOptions.pid
+			}
 		};
-		this.#serverState = states[newState] ?? this.#serverState;
+		Object.assign(this, options);
+		const httpServer = createServer();
+		this.io = new Server(httpServer, {
+      path: options.path,
+      connectTimeout: 5000,
+    });
+		httpServer.listen(this.config.port);
+		this.io.engine.on('connection_error', this.#handleGeneralConnectionError);
+		if (serverOptions.autoInitialize) this.initServer();
+		this.#slog(`Server state: ${this.#serverState}`);
+
+		this.sessionToken = (this.io.engine.generateId?.());
+		this.#slog(this.sessionToken);
+
+		this.sendToClient = this.sendToClient.bind(this);
+	}
+
+	#initDefaultMessaging() {
+		this.io.on('connection', async (socket) => {
+			let cleanIp = socket.handshake.address.replace(/\./g, '_').replace(/[^\d_]/g, '');
+			// this.#slog(`===UPGRADED CONNECTION FROM ${socket.handshake.address} ===`);
+			let playerDetails = socket.handshake.auth;
+			let rejection;
+			if (this.config.password && this.config.password !== playerDetails.password) rejection = new Error('Incorrect password!');
+			if (!playerDetails.playerName || !playerDetails.pid) rejection = new Error(`Bad player setup - missing PID or name`);
+			if (rejection) {
+				this.#slog(rejection, 'error');
+				this.#addLogAttempt(cleanIp);
+				return;
+			}
+			let reconnectAttempt = socket.handshake.headers.reconnect == 1 ? 1 : 0;
+			// Ff playerID already exists in playerList
+			if (this.#playerList[playerDetails.pid]) {
+				if (reconnectAttempt) {
+					this.#slog(`Reconnect attempt from ${playerDetails.playerName}`);
+					if (this.sessionToken !== socket.handshake.auth.sessionToken) {
+						this.#slog(`Session Token is invalid, removing player.`);
+						return this.#destroyPlayer(playerDetails.pid, `Bad session token`);
+					}
+				} else {
+					// No reconnect flag
+					let playerExists = await this.#checkPlayerIsAlive(playerDetails);
+					if (playerExists !== undefined) {
+						if (playerExists) { // truthy return means player responded to ack
+							return this.#slog(`Player is already connected!`, 'warn');
+						} else { // null return means player exists on server but did not respond to ack
+							this.#slog(`Player ${playerDetails.playerName} - failed to respond to ack on existing socket`);
+							await this.#destroyPlayer(this.#playerList[playerDetails.pid], 'Failed to respond to ack request');
+						}
+					}
+				}
+			}
+			playerDetails.isHost = this.#checkPlayerIsHost(playerDetails.pid);
+			playerDetails.sessionToken = this.sessionToken;
+			playerDetails.reconnect = reconnectAttempt;
+			socket.emit('auth', playerDetails);
+			playerDetails.socket = socket;
+			// Add player to server, init handlers
+			this.#playerList[playerDetails.pid] = playerDetails;
+			// Check number of players in lobby
+			if (Object.keys(this.#playerList).length >= this.config.maxPlayers) this.#setServerState('FULL');
+			// Update clients with new player list
+			this.sendToClient('updatePlayerList', this.getPlayerList());
+			socket.on('disconnect', this.#handlePlayerDisconnect);
+			socket.on('message', (...args) => {
+				// console.log(...args);
+				this.#receiveFromClient(socket, ...args)})
+			this.#slog(`New player joined: ${playerDetails.playerName}${playerDetails.isHost ? ' (HOST)' : ''}`);
+			if (playerDetails.isHost && !reconnectAttempt) {
+				this.#setServerState('INIT_LOBBY');
+			} else this.#triggerHub('playerJoinedServer', { player: this.getPlayerList(playerDetails.pid) });
+		});
+	}
+
+	#setServerState(newState) {
+		this.#serverState = this.#validStates[newState] ?? this.#serverState;
 		this.#slog(`Server state set to "${newState}"`);
 	}
 	#handleGeneralConnectionError(details) {
@@ -108,95 +198,6 @@ export class SocketServer {
 		this.#slog(`${cleanIp} has tried to log in ${this.#logAttempts[cleanIp]} time(s).`);
 	}
 	// TODO: generate session id & store in #playerList for reconnect attempts
-	#initDefaultMessaging() {
-		this.io.on('connection', async (socket) => {
-			let cleanIp = socket.handshake.address.replace(/\./g, '_').replace(/[^\d_]/g, '');
-			// this.#slog(`===UPGRADED CONNECTION FROM ${socket.handshake.address} ===`);
-			let playerDetails = socket.handshake.auth;
-			let rejection;
-			if (this.config.password && this.config.password !== playerDetails.password) rejection = new Error('Incorrect password!');
-			if (!playerDetails.playerName || !playerDetails.pid) rejection = new Error(`Bad player setup - missing PID or name`);
-			if (rejection) {
-				this.#slog(rejection, 'error');
-				this.#addLogAttempt(cleanIp);
-				return;
-			}
-			let reconnectAttempt = socket.handshake.headers.reconnect == 1 ? 1 : 0;
-			// Ff playerID already exists in playerList
-			if (this.#playerList[playerDetails.pid]) {
-				if (reconnectAttempt) {
-					this.#slog(`Reconnect attempt from ${playerDetails.playerName}`);
-					if (this.sessionToken !== socket.handshake.auth.sessionToken) {
-						this.#slog(`Session Token is invalid, removing player.`);
-						return this.#destroyPlayer(playerDetails.pid, `Bad session token`);
-					}
-				} else {
-					// No reconnect flag
-					let playerExists = await this.#checkPlayerIsAlive(playerDetails);
-					if (playerExists !== undefined) {
-						if (playerExists) { // truthy return means player responded to ack
-							return this.#slog(`Player is already connected!`, 'warn');
-						} else { // null return means player exists on server but did not respond to ack
-							this.#slog(`Player ${playerDetails.playerName} - failed to respond to ack on existing socket`);
-							await this.#destroyPlayer(this.#playerList[playerDetails.pid], 'Failed to respond to ack request');
-						}
-					}
-				}
-			}
-			playerDetails.isHost = this.#checkPlayerIsHost(playerDetails.pid);
-			playerDetails.sessionToken = this.sessionToken;
-			playerDetails.reconnect = reconnectAttempt;
-			socket.emit('auth', playerDetails);
-			playerDetails.socket = socket;
-			// Add player to server, init handlers
-			this.#playerList[playerDetails.pid] = playerDetails;
-			// Check number of players in lobby
-			if (Object.keys(this.#playerList).length >= this.config.maxPlayers) this.#setServerState('FULL');
-			// Update clients with new player list
-			this.sendToClient('updatePlayerList', this.getPlayerList());
-			socket.on('disconnect', this.#handlePlayerDisconnect);
-			socket.on('message', (...args) => {
-				// console.log(...args);
-				this.#receiveFromClient(socket, ...args)})
-			this.#slog(`New player joined: ${playerDetails.playerName}${playerDetails.isHost ? ' (HOST)' : ''}`);
-			if (playerDetails.isHost && !reconnectAttempt) {
-				this.#setServerState('INIT_LOBBY');
-			} else this.#triggerHub('playerJoinedServer', { player: this.getPlayerList(playerDetails.pid) });
-		});
-	}
-
-	constructor(serverOptions) {
-		this.#setServerState('INIT');
-		let options = {
-			name: serverOptions.gameName,
-			config: {
-				port: serverOptions.hostPort || 8080,
-				path: serverOptions.path || '/',
-				password: serverOptions.password || null,
-				dedicated: serverOptions.dedicated || false,
-				maxPlayers: serverOptions.maxPlayers ?? 6
-			},
-			host: {
-				playerName: serverOptions.playerName,
-				pid: serverOptions.pid
-			}
-		};
-		Object.assign(this, options);
-		const httpServer = createServer();
-		this.io = new Server(httpServer, {
-      path: options.path,
-      connectTimeout: 5000,
-    });
-		httpServer.listen(this.config.port);
-		this.io.engine.on('connection_error', this.#handleGeneralConnectionError);
-		if (serverOptions.autoInitialize) this.initServer();
-		this.#slog(`Server state: ${this.#serverState}`);
-
-		this.sessionToken = (this.io.engine.generateId?.());
-		this.#slog(this.sessionToken);
-
-		this.sendToClient = this.sendToClient.bind(this);
-	}
 
 	// Set up event hub link
 	registerEventHub(eventHubLink) {

@@ -77,7 +77,7 @@ Passed in HBS data, serialised by Lobby class and sent to host
 					</select>
 				</div>
 				<div class="house-color">
-					<input name="color-{{this}}" type="color" value="#2222cc"/>
+					<input name="color-{{this}}" type="color" value="#dddddd"/>
 				</div>
 				<label class="player-ready">
 					<input type="checkbox" name="ready-{{this}}" value="1"/>
@@ -93,7 +93,7 @@ Passed in HBS data, serialised by Lobby class and sent to host
 			{{#if (is opt.type 'switch')}}
 				<label class="server-option dune-switch">
 					<span>{{opt.name}}</span>
-					<input type="checkbox" name="{{opt.id}}" {{#if opt.default}}checked{{/if}}/>
+					<input type="checkbox" name="{{@key}}" {{#if opt.default}}checked{{/if}}/>
 					<span class="slider">
 						<span class="slider-button"></span>
 					</span>
@@ -102,7 +102,7 @@ Passed in HBS data, serialised by Lobby class and sent to host
 			{{!-- Select / options --}}
 			{{#if (is opt.type 'select')}}
 				<div class="server-option">
-					<select name="{{opt.id}}">
+					<select name="{{@key}}">
 						{{#each opt.selectOptions as |selOpt optIdx|}}<option value="{{selOpt.value}}">{{selOpt.name}}</option>{{/each}}
 					</select>
 				</div>

@@ -91,7 +91,7 @@ let renHub, rlog;
 				// Falls through
 			case 'MENU':
 				// ({ shown, hidden } = Dune.Session.getInterfaceStatus());
-				rlog(prevStore?.ui);
+				// rlog(prevStore?.ui);
 				shown = prevStore?.ui?.shown?.length ? prevStore.ui.shown : ['main#mainmenu'];
 				renHub.trigger('fadeElement', shown, 'in', 500);
 		}

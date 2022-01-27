@@ -5,20 +5,18 @@ export const ruleset = async () => {
 	const newRuleset = new Ruleset({
 		name: 'Basic Dune Rules',
 		availableHouses: ['atreides', 'harkonnen'],
-		serverOptions: [
-			{
+		serverOptions: {
+			duplicateHouses: {
 				name: `Duplicate Houses`,
-				id: 'duplicateHouses',
 				type: 'switch',
 				default: 0
 			},
-			{
+			customColor: {
 				name: `Custom colors`,
-				id: 'customColor',
 				type: 'switch',
 				default: 1
 			}			
-		]
+		},
 	});
 	await newRuleset.populateHouses();
 	return newRuleset;

@@ -49,6 +49,7 @@ export const initServerHub = async (gameServer) => {
 		server.updateLobby(data);
 	});
 	serverHub.on('sendLobbyUpdate', Game.Server.sendToClient);
+	serverHub.on('exitLobby', server.exitLobby);
 
 	slog(`===Server Hub online===`);
 	

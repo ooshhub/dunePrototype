@@ -71,9 +71,20 @@ export const server = (() => {
 		else serverHub.trigger('clients/refreshLobby', update);
 	}
 
+	const exitLobby = ({ pid }) => {
+		if (checkHost(pid)) {
+			// slog('Host destroyed lobby', 'warn');
+			Game.Server?.destroy?.();
+		}	else {
+			// slog('Player left...');
+			Game.Server.destroyPlayer(pid, 'Player quit lobby');
+			Game.Lobby.playerQuit(pid);
+		}
+	}
+
 	return {
 		linkServer,
-		initLobby, updateLobby, getLobby, openLobby
+		initLobby, updateLobby, getLobby, openLobby, exitLobby,
 	}
 
 })();

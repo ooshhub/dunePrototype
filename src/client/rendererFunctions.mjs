@@ -60,7 +60,7 @@ export const ren = (() => {
 		window.Dune.Session?.update(0, 'ui');
 		return 1;
 	}
-	const fadeSection = async (element, direction, length=1000, timeStep = 2) => {
+	const fadeSection = async (element, direction, length=1000, timeStep = 1) => {
 		rlog(`Fading ${direction} ${element}...`);
 		let start = Date.now();
 		let target = $(element);
@@ -83,8 +83,10 @@ export const ren = (() => {
 		});
 	}
 	const bezier = (t) => {
-		let ret = t*t*(3 - 2*t);
-		return ret.toFixed(2);
+		return t;
+		// Temp DISABLE
+		// let ret = t*t*(3 - 2*t);
+		// return ret.toFixed(2);
 	}
 	
 
@@ -109,7 +111,7 @@ export const ren = (() => {
 	}
 
 	const setupLobby = async (newLobby) => {
-		if (window.Dune.Client.getClientState() === 'INIT_LOBBY') {
+		if (window.Dune.Client.clientState === 'INIT_LOBBY') {
 			rlog([`Received fresh Lobby for setup`, newLobby], 'info');
 			renHub.trigger('main/requestHtml', { req: 'lobby', data: newLobby });
 			let lobbyReady = await helpers.watchCondition(() => $('#lobby header'), 'Lobby HTML found', 6000);
@@ -139,43 +141,62 @@ export const ren = (() => {
 		}
 	}
 
-	const updateLobby = async ({ serverOptions, playerData, update }) => {
+	const updateLobby = async ({ serverOptions, playerData, update, canLaunch }) => {
+		const validKeys = ['house', 'color', 'ready'];
+		rlog(`LAUNCH STATUS: ${canLaunch}`);
 		if (!serverOptions && !playerData && !update) return rlog(`Bad lobby update received: no data`);
 		if (serverOptions) {
 			rlog([`Lobby update received`, serverOptions]);
+			if (serverOptions.name && serverOptions.value !== null) {
+				// TODO: this is duplicate code from playerData update, move to helper? Or combine paths.
+				const targetInput = $(`[name=${serverOptions.name}`);
+				if (targetInput.type === 'checkbox') targetInput.checked = /(0|off|false)/i.test(`${serverOptions.value}`) ? false : true;
+				else targetInput.value = serverOptions.value;
+			} else rlog(`Bad lobby update`, 'warn');
 		}
 		if (playerData) {
 			rlog([`Lobby update received`, playerData]);
 			Object.keys(playerData).forEach(p => {
 				let targetRow = $(`.player[data-index="${p}"]`);
 				rlog(`Inserting player into slot ${p}`);
-				targetRow.querySelector('.player-name span').innerText = playerData[p].playerName;
-				targetRow.dataset.id = playerData[p].pid;
-				targetRow.dataset.ishost = (p == 1) ? '1' : '';
-				const validKeys = ['house', 'color'];
+				targetRow.querySelector('.player-name span').innerText = playerData[p].playerName || '';
+				targetRow.dataset.id = playerData[p].pid || '';
+				targetRow.dataset.ishost = (p == 1 && p.pid) ? '1' : '';
 				validKeys.forEach(k => {
 					if (playerData[p][k]) {
 						let targetInput = targetRow.querySelector(`[name="${k}-${p}"]`);
-						if (targetInput) targetInput.value = playerData[p][k];
-						if (targetInput.type === 'checkbox') targetInput.checked = targetInput.value == 0 ? false : true;
+						if (targetInput.type === 'checkbox') targetInput.checked = /(0|off|false)/i.test(`${playerData[p][k]}`) ? false : true;
+						else if (targetInput) targetInput.value = playerData[p][k];
 					}
 				});
 				if (playerData[p].pid === window.Dune.ActivePlayer.pid) targetRow.classList.remove('disabled');
 			});
 		}
 		if (update) {
-			let targetEl = $(`[name="${update.name}-${update.index}"]`);
-			if (targetEl) targetEl.value = update.value;
-			else rlog([`Bad update data`, update], 'warn');
-			if (targetEl.type === 'checkbox') targetEl.checked = targetEl.value == 0 ? false : true;
+			rlog(['Lobby update received: ', update]);
+			const playerIndex = update.index;
+			if (playerIndex > -1) {
+				for (let pKey in update.data) {
+					if (validKeys.includes(pKey)) {
+						let targetEl = $(`[name="${pKey}-${playerIndex}"]`);
+						if (targetEl.type === 'checkbox') targetEl.checked = update.data[pKey] ? true: false;
+						else if (targetEl) targetEl.value = update.data[pKey];
+						else rlog([`Bad update data`, pKey], 'warn');
+					}
+				}
+			}
 		}
 	}
 
 	const cancelLobby = async () => {
-		renHub.trigger('server/killLobby');
+		rlog('Exiting current lobby...');
+		renHub.trigger('server/exitLobby');
+		await window.Dune.Client.destroy()
+			.catch(e => rlog(e, 'error'));
+		window.Dune.Client = null;
 		renHub.trigger('hideElement', '#mentat-lobby');
 		destroyClient();
-		// do more stuff
+		// do more stuff???
 	}
 
 	const destroyClient = async () => {

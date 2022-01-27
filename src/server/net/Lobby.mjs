@@ -46,6 +46,7 @@ export class Lobby {
 		this.#houseAvailable = this.#houseList;
 		this.#ruleset = Ruleset;
 		this.#rulesetOptions = Ruleset.serverOptions;
+		for (let opt in this.#rulesetOptions) this.#rulesetOptions[opt].value = this.#rulesetOptions[opt].default;
 		return 1;
 	}
 
@@ -71,11 +72,14 @@ export class Lobby {
 	}
 
 	#updateOptions(optionData) {
+		slog(['option data update:', optionData]);
 		let validKeys = Object.keys(this.#rulesetOptions);
-		Object.entries(optionData).forEach(opt => {
-			if (validKeys.includes(opt)) this.#rulesetOptions[opt] = optionData[opt];
-		});
-		return { serverOptions: this.#rulesetOptions };
+		if (validKeys.includes(optionData.name)) {
+			slog('updating settings');
+			this.#rulesetOptions[optionData.name].value = optionData.value;
+		}
+		slog(this.#rulesetOptions);
+		return { serverOptions: optionData };
 	}
 
 	// Add a player
@@ -106,14 +110,29 @@ export class Lobby {
 		if (pid !== this.#playerList[updateData.index].pid) err = slog([`pid mismatch between Lobby and requestor`, updateData], 'warn');
 		if (!err) {
 			// key names will match the HTML names e.g. name="house-3" is name: house, index: 3
-			const keyNames = ['house', 'color'];
-			if (keyNames.includes(updateData.name)) this.#playerList[updateData.index][updateData.name] = updateData.value;
-			return { update: updateData };
+			const keyNames = ['house', 'color', 'ready'];
+			if (keyNames.includes(updateData.name)) {
+				// Set default house color if player hasn't yet changed it
+				if (updateData.name === 'house' && (!this.#playerList[updateData.index].color || !this.#rulesetOptions.customColor.value)) {
+					const defColor = this.#ruleset.Houses[updateData.value]?.defaultColor;
+					slog(`House defCol: ${defColor}`);
+					if (/#[\dA-Fa-f]{6}/.test(defColor)) this.#playerList[updateData.index].color = defColor;
+				}
+				this.#playerList[updateData.index][updateData.name] = updateData.value;
+				return { update: { index: updateData.index, data: this.#playerList[updateData.index] } };
+			} else return new Error(`Player option does not exist: "${updateData.name}"`);
 		} else return new Error(err);
 	}
 
-	#removePlayer() {
-		// do stuff
+	#removePlayer(pid) {
+		let playerToRemove;
+		for (let p in this.#playerList) {
+			if (this.#playerList[p].pid === pid) {
+				playerToRemove = p;
+				this.#playerList[p] = { pid: null, playerName: '', color: '#dddddd' };
+			}
+		}
+		return playerToRemove ? 1 : 0;
 	}
 	
 	async #getRulesetList() {
@@ -199,8 +218,13 @@ export class Lobby {
 		else return joinSuccess;
 	}
 
+	playerQuit(pid) {
+		slog(`Player ${pid} quit lobby.`);
+		if (this.#removePlayer(pid)) return this.getLobby();
+	}
+
 	// Get lobby data
-	getLobby() { return { lobbyData: this.#getLobbyData(), playerData: this.#playerList, houseData: this.#ruleset?.Houses }	}
+	getLobby() { return { lobbyData: this.#getLobbyData(), playerData: this.#playerList, houseData: this.#ruleset?.Houses, canLaunch: this.arePlayersReady() }	}
 
 	// Update lobby instance on player/host action
 	updateLobby(type, data, pid) {
@@ -208,6 +232,28 @@ export class Lobby {
 			: (type === 'addPlayer') ? this.#addPlayer(data, pid)
 			: (type === 'updatePlayer') ? this.#updatePlayer(data, pid)
 			: null;
+		result.canLaunch = this.arePlayersReady();
 		return result ? result : new Error(`No update type received`);
 	}
+
+	getPlayerCount() {
+		let players = 0;
+		for (let p in this.#playerList) {
+			if (this.#playerList[p].pid) players ++;
+		}
+		return players;
+	}
+
+	arePlayersReady() {
+		const players = this.getPlayerCount();
+		// DISABLE FOR TESTING
+		// if (players < 2) return false;
+		let ready = 0;
+		for (let p in this.#playerList) {
+			if (this.#playerList[p].ready) ready++;
+		}
+		if (players === ready) return true;
+		else return false;
+	}
+
 }

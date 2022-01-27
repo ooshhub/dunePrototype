@@ -8,17 +8,17 @@
     "start": "electron ./src/main.cjs",
     "buildcssw": "npx tailwindcss --postcss postcss.config.cjs -c ./tailwind.config.cjs -i ./src/client/templates/styles/main_input.css -o ./src/client/templates/styles/main.css -w",
     "buildcss": "npx tailwindcss --postcss postcss.config.cjs -c ./tailwind.config.cjs -i ./src/client/templates/styles/main_input.css -o ./src/client/templates/styles/main.css",
-    "build:test": "set NODE_ENV=production&&electron-builder --dir",
-    "build:dist": "set NODE_ENV=production&&electron-builder",
-    "build:unpack": "npx asar e a:/games/dune/win-unpacked/resources/app.asar a:/games/dune/win-unpacked/resources/unpacked"
+    "build:test": "electron-builder --dir",
+    "build:dist": "electron-builder",
+    "build:unpack": "npx asar e ./dist/win-unpacked/resources/app.asar ./dist/win-unpacked/resources/unpacked"
   },
   "author": "oosh",
   "license": "ISC",
   "dependencies": {
-    "clipboardy": "^2.2.0",
     "electron-unhandled": "^3.0.2",
     "esm-wallaby": "^3.2.25",
     "handlebars": "^4.7.7",
+    "nat-upnp": "^1.1.1",
     "pixi.js": "^6.2.0",
     "socket.io": "^4.4.0",
     "socket.io-client": "^4.4.0"
@@ -33,11 +33,11 @@
     "tailwindcss": "^3.0.11"
   },
   "build": {
-    "appId": "Oosh.Dune.PrePrototype.v030",
+    "appId": "Oosh.Dune.Prototype.v010",
     "productName": "Dune",
     "directories": {
       "buildResources": "buildRes",
-      "output": "a:/games/Dune"
+      "output": "./dist"
     },
     "files": [
       {
@@ -46,7 +46,7 @@
         "filter": [
           "**/*",
           "!config/*",
-          "!mods/"
+          "!mods/*"
         ]
       },
       "./node_modules/**/*",

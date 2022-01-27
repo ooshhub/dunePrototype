@@ -1,4 +1,3 @@
-import clipboard from 'clipboardy';
 import { mainHub, mlog, CONFIG, electronRoot, Win } from '../main.mjs';
 import { helpers } from '../shared/helpers.mjs';
 import { helpers as nHelpers } from '../shared/nodeHelpers.mjs';
@@ -90,15 +89,13 @@ export const main = (() => {
 	const saveConfig = async () => nHelpers.saveFile(`${CONFIG.PATH.USERDATA}/userSettings.json`, JSON.stringify(CONFIG.userSettings));
 
 	const exitAndSave = async () => { // erm.... saveAndExit would be a more sensible name
-		mlog(`Saving settings...`);
+		console.log(`Saving settings...`);
 		helpers.timeout(50);
 		await saveConfig()
 			.catch((e) => {
-				console.log(`You fucking stupid cunt, AWAIT MEANS FUCKING AWAIT`)
 				electronRoot.app.exit();
 				throw new Error(e);
 			});
-		console.log(`FUCK YOU`)
 		electronRoot.app.exit();
 	}
 
@@ -106,9 +103,9 @@ export const main = (() => {
 	 * OTHER
 	 */
 	const ioClipboard = async (inputString) => {
-		if (inputString) clipboard.write(`${inputString}`);
+		if (inputString) 	electronRoot.clipboard.writeText(`${inputString}`);
 		else {
-			let content = await clipboard.read();
+			let content = await 	electronRoot.clipboard.readText();
 			content = content ?? 'no text';
 			mainHub.trigger('renderer/responseClipboard', content);
 		}
