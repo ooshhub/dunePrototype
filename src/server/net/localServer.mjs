@@ -1,7 +1,6 @@
 import { SocketServer } from './SocketServer.mjs';
 import { slog, initServerHub } from '../serverHub.mjs';
-import * as natuPnP from 'nat-upnp';
-import * as net from 'net';
+import { setupMapping, removeMap } from './promiseUpnp.mjs';
 
 export const startLocalServer = async (serverOptions) => {
 
@@ -16,25 +15,13 @@ export const startLocalServer = async (serverOptions) => {
 	const localServer = new SocketServer(serverOptions);
 	await initServerHub(localServer);
 	slog(`===Local Server Created===`);
-	openPort();
+	const mapping = await setupMapping(localServer.config.port, 7200);
+	if (mapping.result) {
+		slog([`Port has been mapped: `, mapping.msg], 'info');
+		localServer.removeMapping = removeMap.bind(localServer, localServer.config.port);
+		// TODO: bind a mapping lease refresh to the server and lower the TTL to 5 minutes or so
+	} else {
+		slog([`Couldn't map port`, mapping.err??mapping.msg], 'warn');
+	}
 	return localServer;
-}
-
-const openPort = () => {
-	const listenServer = net.createServer((sv) => {
-		slog('CONNECTION MAYBE');
-		sv.on('end', () => slog('CON_END'))
-	});
-	listenServer.listen(2222, () => slog('listening on 2222'));
-	const client = natuPnP.createClient();
-	client.getMappings((e, res) => slog([`1st mapping:`, e, res]));
-	client.portMapping({
-		description: 'DunePrototype',
-		protocol: 'tcp',
-		public: 2222,
-		private: 2222,
-		ttl: 12000,
-	}, (err) => slog(err));
-	client.externalIp((err, ip) => slog([`IP: `, err, ip]));
-	client.getMappings((e, res) => slog([`2nd mapping: `, e, res]));
 }

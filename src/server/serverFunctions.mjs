@@ -77,7 +77,7 @@ export const server = (() => {
 			Game.Server?.destroy?.();
 		}	else {
 			// slog('Player left...');
-			Game.Server.destroyPlayer(pid, 'Player quit lobby');
+			Game.Server.removePlayer(pid, 'Player quit lobby');
 			Game.Lobby.playerQuit(pid);
 		}
 	}

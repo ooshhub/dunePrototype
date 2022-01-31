@@ -59,7 +59,22 @@ export class SocketClient {
 		// TODO: Connection handling
 		// Dunno what's needed
 		this.socket.on('disconnect', msg => this.#socklog('===Disconnected===', msg));
-		this.socket.on('connect_error', msg => this.#socklog(['ConnectionError', msg], 'error'));
+		this.socket.on('connect_error', (err) => {
+			if (this.clientState === 'ERROR') return;
+			this.#socklog(['ConnectionError', err], 'error');
+			this.#setClientState('ERROR');
+			// TODO: Display connection error modal
+			let retries = 0, checkTimer=1000;
+			let errorTimeout = setInterval((maxRetries=5) => {
+				if (this.socket.connected) {
+					this.#setClientState('CONNECTED');
+					clearInterval(errorTimeout);
+				} else {
+					retries++;
+					if (retries > maxRetries) this.#triggerHub('main/cancelLobby');
+				}
+			}, checkTimer);
+		});
 		this.socket.on('error', msg => this.#socklog(['Error', msg], 'error'));
 		this.socket.on('reconnect_error', msg => this.#socklog(msg));
 		this.socket.on('reconnect_failed', msg => this.#socklog(msg));

@@ -230,6 +230,8 @@ export class SocketServer {
 			this.io.close(() => res(1));
 		});
 	}
+	// TODO: make #destroyPlayer() public if nothing else is added here
+	async removePlayer(pid, reason) { this.#destroyPlayer(pid, reason) }
 
 	getPlayerList(playerId) {
 		// console.log(this.#playerList);
