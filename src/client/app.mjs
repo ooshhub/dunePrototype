@@ -45,14 +45,15 @@ let renHub, rlog;
 	await helpers.watchCondition(() => Dune.CONFIG);
 	Dune.Session = new SessionState(Dune.CONFIG?.userSettings?.player);
 	const resumeSession = sessionStorage.getItem('DuneSession');
-	rlog([`PREV SESSION`, JSON.parse(resumeSession)]);
+	rlog([`Previous Session Store: `, JSON.parse(resumeSession)]);
 	let prevSession, currentState, reconnectObject, prevStore;
 	if (resumeSession) {
 		prevSession = await Dune.Session.restore(resumeSession);
-		// rlog(prevSession);
+		// rlog([`Prev Session:`, prevSession]);
 		currentState = prevSession.state;
 		reconnectObject = prevSession.reconnect;
 		prevStore = prevSession.store;
+		// rlog([`Prev Store:`, prevStore]);
 	} else {
 		Dune.Session.init(Dune.CONFIG?.userSettings?.player);
 		currentState = Dune.Session.getSessionState();
@@ -93,6 +94,7 @@ let renHub, rlog;
 				// ({ shown, hidden } = Dune.Session.getInterfaceStatus());
 				// rlog(prevStore?.ui);
 				shown = prevStore?.ui?.shown?.length ? prevStore.ui.shown : ['main#mainmenu'];
+				// rlog([`Restoring UI elements from store: `, shown]);
 				renHub.trigger('fadeElement', shown, 'in', 500);
 		}
 		

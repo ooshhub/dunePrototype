@@ -88,6 +88,28 @@ main#chat {
 }
 
 /* GENERIC */
+/* Simple CSS Tooltips */
+@keyframes fadein {
+  from { opacity: 0.0 }
+  to { opacity 1.0 }
+}
+.tt-target {
+	@apply relative;
+
+	&:hover > .tt-content {
+		@apply block;
+		animation: fadein 0.5s;
+	}
+}
+
+.tt-content {
+	@apply hidden absolute bg-dune-whiteSand whitespace-nowrap mono max-w-lg;
+	@apply px-[1px] py-3 border-black rounded-sm text-sm;
+	bottom: 100%;
+	text-transform: none;
+}
+
+/* Z-Indexing */
 
 .show { @apply visible opacity-100; }
 .hide { @apply invisible opacity-0; }
@@ -98,6 +120,8 @@ main#chat {
 	& .grey { filter: grayscale(70%); }
 }
 input.disabled { @apply bg-slate-400 pointer-events-auto } 
+
+/* Scrollbars */
 
 .custom-scroll::-webkit-scrollbar {
 	background-color: #047360;
@@ -110,6 +134,8 @@ input.disabled { @apply bg-slate-400 pointer-events-auto }
 	border: 1px solid #025546;
 	border-radius: 5px;
 }
+
+/* Other */
 
 body {
 	font-family: corbel;

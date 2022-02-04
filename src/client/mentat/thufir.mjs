@@ -1,6 +1,7 @@
 import { rlog, renHub } from '../rendererHub.mjs';
 import { helpers } from '../../shared/helpers.mjs';
 import { fetchFilePath } from '../../assets/assetDirectory.mjs';
+import { ttIndex } from './tooltips.mjs';
 
 export const MentatSystem = (() => {
 
@@ -48,9 +49,11 @@ export const MentatSystem = (() => {
 			}
 			output +=`${i+1}. ${ab.description}`;
 			return output;
-		})
+		});
+		// Add tooltips
+		abilityDescription = addTooltips(abilityDescription.join('\n'));
 		output.description += `\n${statsDescription}`;
-		output.abilities += abilityDescription.join('\n');
+		output.abilities += abilityDescription;
 		// Resolve filenames
 		output.art = {
 			portrait: fetchFilePath(entryData.mentat?.art?.portrait),
@@ -61,8 +64,23 @@ export const MentatSystem = (() => {
 
 	const addTooltips = (inputString) => {
 		const rxTooltip = /%%[^%]+%%/g;
-		let ttMatches = `${inputString}`.matchAll(rxTooltip);
-		rlog(`tooltip matches: ${ttMatches.join(', ')}`);
+		let ttMatches = [...`${inputString}`.matchAll(rxTooltip)];
+		rlog([`tooltip matches: `,ttMatches.join(', ')]);
+		ttMatches.forEach((tt,i) => {
+			// rlog(tt[0]);
+			rlog(`${i} - ${tt[0]}`);
+			const parts = tt[0]?.replace(/%/g, '').split(/\|/) || [];
+			if (parts.length === 2) {
+				const tip = ttIndex[parts[1]] ? ttIndex[parts[1]] : ttIndex.default;
+				const label = parts[0];
+				rlog(`Replacing ${tt[0]} with [${label}](${tip})`);
+				const html = `<div class="tt-target tt-mentat">
+												<span>${label}</span>
+												<div class="tt-content tt-mentat">${tip}</div>
+											</div>`;
+				inputString = inputString.replace(tt[0], html);
+			}
+		});
 		return inputString;
 	}
 

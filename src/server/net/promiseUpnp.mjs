@@ -12,8 +12,10 @@ export const setupMapping = async (port, ttl) => {
 	// Then check mappings
 	else {
 		if (!localIp.length) await getValidLocalIps();
+		console.log(`Local IPs: ${localIp}`);
 		if (!localIp.length) return { result: false, err: `Could not find a valid local IP, could not map an open port.` }
-		const currentMap = await getMapping();
+		const currentMap = await getMapping().catch(err => console.log(`Couldn't get port mappings`, err));
+		console.log(currentMap);
 		let isMapped;
 		currentMap.forEach(pm => {
 			if (localIp.includes(pm.private.host)) {
@@ -25,6 +27,7 @@ export const setupMapping = async (port, ttl) => {
 		if (isMapped) return { result: false, err: `Port is already mapped but cannot be reached.` }
 		// Create new mapping as required
 		else {
+			console.log(`Creating new mapping...`);
 			let portOpen = await newMap(port, ttl);
 			if (portOpen === true) return { result: true, msg: `Port ${port} has been successfully mapped.` }
 			else return { result: false, err: portOpen }
@@ -57,7 +60,10 @@ export const getMapping = async () => {
 			if (err) rej(err)
 			else res(response);
 		});
-	})
+	}).catch(e => {
+		console.log(`mapping error`, e);
+		return null;
+	});
 }
 
 export const newMap = async (port, ttl) => {
@@ -69,8 +75,12 @@ export const newMap = async (port, ttl) => {
 			private: port ?? 8080,
 			ttl: ttl ?? 600,
 		}, (err) => {
-			if (err) rej(err);
-			else res(true);
+			if (err) {
+				// console.log(`newMap error`, err.message);
+				rej(err);
+			} else {
+				res(true);
+			}
 		});
 	});
 }
@@ -95,14 +105,9 @@ export const getPublicIp = async () => {
 
 const getValidLocalIps = async () => {
 	const availableInterfaces = networkInterfaces();
-	// console.log(availableInterfaces);
 	for (let intType in availableInterfaces) {
 		availableInterfaces[intType].forEach(adapter => {
 			if (/ipv4/i.test(adapter.family) && !adapter.internal && !localIp.includes(adapter.address)) localIp.push(adapter.address);
 		});
 	}
 }
-
-// (async () => {
-// 	console.log(await setupMapping(11111));
-// })()

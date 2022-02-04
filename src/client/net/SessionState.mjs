@@ -73,15 +73,15 @@ export class SessionState {
 
 	async restore(previousSession) {
 		this.#setSessionState('RESTORING');
-		rlog(['Restoring session...', previousSession]);
-		let sessionObj = JSON.parse(previousSession);
-		// rlog(sessionObj.store.ui);
+		// rlog(['Restoring session...', previousSession]);
+		const { state, store } = JSON.parse(previousSession);
+		// rlog([`Store:`, store]);
 		// try { sessionObj = JSON.parse(previousSession) } catch(e) { rlog(['SessionState: error parsing previous state',e], 'error') }
-		let { state, store } = sessionObj;
+		// let { state, store } = sessionObj;
 		// rlog(state, store);
-		if (state && store?.player?.pid) Object.assign(this.#store, store);
-		let returnData = { state: state, store: this.getStore(), reconnect: this.getServerReconnectObject() }
-		this.#setSessionState(state);
+		if (state && store?.player?.pid) Object.assign(this.#store, JSON.parse(previousSession).store);
+		let returnData = { state: state, store: store, reconnect: this.getServerReconnectObject() }
+		this.#setSessionState(`${state}`);
 		return returnData;
 	}
 

@@ -24,6 +24,7 @@ export class SocketClient {
 			},
 			serverOptions: {
 				hostIp: clientOptions.hostIp,
+				hostPort: clientOptions.hostPort,
 				selfJoin: clientOptions.selfJoin,
 				localhost: clientOptions.selfJoin,
 				url: `http://${clientOptions.selfJoin ? 'localhost' : clientOptions.hostIp}:${clientOptions.hostPort||8080}`,

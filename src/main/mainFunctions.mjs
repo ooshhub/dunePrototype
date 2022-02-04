@@ -38,7 +38,7 @@ export const main = (() => {
 
 	const killServer = async () => {
 		mlog(`Destroying server...`);
-		try { await server.local.destroy() } catch(e) { mlog(e, 'error') }
+		try { await server.local.destroy() } catch(e) { mlog(e.msg??e.message??`Server error`, 'error') }
 		server.local = null;
 	}
 

@@ -41,7 +41,7 @@ const atreides = new House({
 			name: 'Prescience',
 			id: 'atreidesPrescience_battlePeak',
 			tags: ['battle'],
-			description: `During the battle round, you may force your opponent to show you your choice of *one* of the four elements they will use in their battle plan against you: the %%Leader%%, the %%weapon%%, the %%defence%% or the %%number dialed|battleWheel%%. If your opponent shows you that they are not playing a weapon or defence, you may not ask to see another element of the plan.`,
+			description: `During the battle round, you may force your opponent to show you your choice of *one* of the four elements they will use in their battle plan against you: the %%Leader|leaders%%, the %%weapon|weapons%%, the %%defence|defences%% or the %%number dialed|battleWheel%%. If your opponent shows you that they are not playing a weapon or defence, you may not ask to see another element of the plan.`,
 			effects: [],
 		}
 	],	// TODO: Move to HouseAlliance, subclass of HouseAbility
@@ -113,7 +113,7 @@ const harkonnen = new House({
 			name: 'Treacherous',
 			id: 'ally_harkonnenTreacherous_extraTraitors',
 			tags: ['battle'],
-			description: `%%Leaders%% in your pay may betray your allies' opponents, too.`,
+			description: `%%Leaders|leaders%% in your pay may betray your allies' opponents, too.`,
 			effects: [],
 		},
 	],

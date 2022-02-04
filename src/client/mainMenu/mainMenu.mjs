@@ -186,7 +186,7 @@ const menu = (() => {
 	}
 
 	const modalUp = async (msg, buttonEvents, blurMain=true) => {
-		renHub.trigger('fadeElement', '#loading-modal', 'in', 500);
+		renHub.trigger('fadeElement', '#loading-modal', 'in', 750);
     if (blurMain) blurMainMenu(1);
     $('#loading-modal .launch-message').innerHTML = msg||'Launching...';
 		$('#loading-modal .modal-button').dataset.events = buttonEvents;

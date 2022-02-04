@@ -18,7 +18,7 @@ export const server = (() => {
 			return;
 		}
 		const { pid, reconnect } = playerData;
-		slog(`Getting lobby data... ${pid}, recon: ${reconnect}`);
+		// slog(`Getting lobby data... ${pid}, recon: ${reconnect}`);
 		if (checkHost(pid)) {
 			if (Game.Lobby) {
 				if (reconnect) {
@@ -55,7 +55,7 @@ export const server = (() => {
 			slog(['Error setting up lobby:', lobbySetup], 'error');
 			// Deal with error - close server, return to menu, show error modal
 		} else {
-			slog('Sending lobby data back to host');
+			// slog('Sending lobby data back to host');
 			serverHub.trigger('host/responseLobby', lobbySetup);
 		}
 	}

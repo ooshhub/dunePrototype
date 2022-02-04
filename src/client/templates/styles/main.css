@@ -1251,6 +1251,15 @@ main#chat {
 
 /* GENERIC */
 
+.tt-content {
+  position: absolute;
+  display: none;
+}
+
+.tt-target:hover > .tt-content {
+  display: block;
+}
+
 .show {
   visibility: visible;
   opacity: 1;

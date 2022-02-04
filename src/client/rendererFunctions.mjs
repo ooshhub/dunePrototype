@@ -94,7 +94,7 @@ export const ren = (() => {
 	// LOBBY AND GAME START
 	*/
 	const joinServer = async ({ serverOptions }) => {
-		rlog(serverOptions);
+		rlog([`Joining server with options: `, serverOptions]);
 		if (window.Dune.Client?.io) {
 			rlog(`Closing old Client...`);
 			window.Dune.Client.close()
@@ -194,7 +194,7 @@ export const ren = (() => {
 		await window.Dune.Client.destroy()
 			.catch(e => rlog(e, 'error'));
 		window.Dune.Client = null;
-		renHub.trigger('hideElement', '#mentat-lobby');
+		renHub.trigger('hideElement', ['main#chat', '#mentat-lobby']);
 		destroyClient();
 		// do more stuff???
 	}

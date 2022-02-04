@@ -42,8 +42,14 @@ Passed in HBS data, serialised by Lobby class and sent to host
 <header class="titlebar">
 	{{#if lobby.title}}{{lobby.title}}{{else}}Lobby Title{{/if}}
 	<div class="controls">
-		<button class="system" id="copy-server-link"><i class="fas fa-link"></i></button>
-		<button class="system" id="refresh-lobby"><i class="fas fa-sync-alt"></i></button>
+		<button class="system tt-target" id="copy-server-link">
+			<i class="fas fa-link"></i>
+			<div class="tt-content">Copy Server link to clipboard</div>
+		</button>
+		<button class="system tt-target" id="refresh-lobby">
+			<i class="fas fa-sync-alt"></i>
+			<div class="tt-content">Refresh Lobby</div>
+		</button>
 	</div>
 </header>
 {{!-- Init stage - host selects ruleset and max players --}}
