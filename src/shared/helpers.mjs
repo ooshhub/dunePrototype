@@ -1,4 +1,6 @@
 // shared helpers for Browser environment, NO NODE IMPORTS
+import * as convert from './Colours.mjs';
+
 const helpers = (() => {
 	
 	let log;
@@ -171,6 +173,22 @@ const helpers = (() => {
 	}
 
 	/**
+	 * COLOUR FUNCTIONS
+	 */
+	const satMax = 100, satMin = 40, lumMax = 80, lumMin = 30;
+	const normaliseHsl = (hexColor) => {
+		const hsl = convert.hexToHsl(hexColor);
+		if (hsl?.stack) {
+			log(`Error converting color: ${hexColor}`, hsl);
+			return null;
+		}
+		// console.log(hsl);
+		hsl[1] = Math.min(Math.max(hsl[1], satMin), satMax);
+		hsl[2] = Math.min(Math.max(hsl[2], lumMin), lumMax);
+		return convert.hslToHex(hsl);
+	}
+
+	/**
 	 * OTHER FUNCTIONS
 	 */
 	const emproper = (input) => {
@@ -180,15 +198,17 @@ const helpers = (() => {
 		return Words.join(' ');
 	}
 
-
 	return {
 		setLog,
 		timeout, watchCondition, asyncTimedLoad, parallelLoader,
 		bindAll, toArray, generatePlayerId, getObjectPath, removeCyclicReferences,
 		windowFade,
+		normaliseHsl,
 		emproper
 	}
 
 })();
+
+
 
 export { helpers };

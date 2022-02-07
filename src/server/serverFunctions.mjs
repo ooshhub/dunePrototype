@@ -32,13 +32,13 @@ export const server = (() => {
 			slog(`Host joined, initialising Lobby`);
 			if (Game.Server.getServerState() !== 'INIT_LOBBY') return slog(`Server was not ready for init lobby `, 'error');
 			Game.Lobby = new Lobby(Game.Server);
-			let initData = await Game.Lobby.initLobbyData();
+			const initData = await Game.Lobby.initLobbyData();
 			// slog([`Sending host lobby setup info`, initData]);
 			serverHub.trigger('host/responseLobbySetup', initData);
 		} else {
 			// slog(`Lobby request from ${playerData.pid}`);
 			if (Game.Lobby?.getLobbyState() !== 'OPEN') return slog(`getLobby Error: lobby is "${Game.Lobby.getLobbyState()}"`);
-			let lobbyData = await Game.Lobby.playerJoin(playerData);
+			const lobbyData = await Game.Lobby.playerJoin(playerData);
 			if (lobbyData.stack) {
 				return slog(lobbyData, 'error');
 			}

@@ -1,5 +1,5 @@
 /**
- * Colour functions
+ * Colour conversion functions
  */
 
 const verifyRgb = (rgb) => {
@@ -40,7 +40,7 @@ const rgbToHsl = (rgb) => {
 				c = v-Math.min(r,g,b),
 				f = (1-Math.abs(v+v-c-1));
 	const h = c && ((v==r) ? (g-b)/c : ((v==g) ? 2+(b-r)/c : 4+(r-g)/c)); 
-	return [60* (h<0 ? h+6 : h), Math.round((f ? c/f : 0)*100), Math.round((v+v-c)/2*100)];
+	return [Math.floor(60* (h<0 ? h+6 : h)), Math.round((f ? c/f : 0)*100), Math.round((v+v-c)/2*100)];
 }
 const hslToRgb = (hsl) => {
 	hsl = verifyHsl(hsl);
@@ -59,3 +59,5 @@ const hslToHex = (hsl) => {
 	const rgb = hslToRgb(hsl);
 	return rgb?.stack ? new Error(rgb) : rgbToHex(rgb);
 }
+
+export { hexToRgb, hexToHsl, rgbToHex, rgbToHsl, hslToHex, hslToRgb }
