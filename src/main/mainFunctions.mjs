@@ -64,11 +64,12 @@ export const main = (() => {
 	const renderMentatHtml = async ({ container, template, data }) => {
 		if (!template || !container || !data) return mlog(`Missing data for Mentat render`, 'warn');
 		let responseHtml = await nHelpers.compileHbs(`${CONFIG.PATH.HBS}/${template}`, {house: data});
+		// responseHtml = addTooltips(responseHtml);
 		if (responseHtml) mainHub.trigger(`renderer/responseMentat`, { target: container, html: responseHtml });
 		else mlog([`Error loading HTML`, responseHtml], 'error');
 	}
 
-	const inspectEl = async ({x,y}) => {
+	const inspectEl = async ({ x,y }) => {
 		if (Win.Main || !parseInt(x) || !parseInt(y)) {
 			Win.Main.inspectElement(x,y);
 		} else mlog(`Couldn't find main window or bad pos data: (${x}, ${y})`);

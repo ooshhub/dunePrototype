@@ -33,3 +33,9 @@
 			}
 		}
 }
+
+/* Mentat tooltips */
+.tt-target.tt-mentat {
+	@apply inline-block whitespace-nowrap text-blue-700;
+}
+

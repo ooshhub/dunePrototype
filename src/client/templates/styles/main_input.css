@@ -91,7 +91,7 @@ main#chat {
 /* Simple CSS Tooltips */
 @keyframes fadein {
   from { opacity: 0.0 }
-  to { opacity 1.0 }
+  to { opacity: 1.0 }
 }
 .tt-target {
 	@apply relative;
@@ -103,7 +103,7 @@ main#chat {
 }
 
 .tt-content {
-	@apply hidden absolute bg-dune-whiteSand whitespace-nowrap mono max-w-lg;
+	@apply hidden absolute bg-dune-whiteSand whitespace-nowrap font-mono max-w-lg;
 	@apply px-[1px] py-3 border-black rounded-sm text-sm;
 	bottom: 100%;
 	text-transform: none;

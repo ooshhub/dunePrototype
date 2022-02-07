@@ -51,7 +51,8 @@ export const MentatSystem = (() => {
 			return output;
 		});
 		// Add tooltips
-		abilityDescription = addTooltips(abilityDescription.join('\n'));
+		abilityDescription = abilityDescription.join('\n');
+		abilityDescription = addTooltips(abilityDescription);
 		output.description += `\n${statsDescription}`;
 		output.abilities += abilityDescription;
 		// Resolve filenames
