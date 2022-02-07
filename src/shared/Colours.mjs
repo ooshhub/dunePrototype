@@ -29,7 +29,7 @@ const hexToRgb = (hex) => {
 const rgbToHex = (rgb) => {
 	rgb = verifyRgb(rgb);
 	if (!rgb) return new Error(`rgbToHex failed: Bad RGB`);
-	const hexParts = rgb.map(x => parseInt(x)?.toString(16) ?? '00');
+	const hexParts = rgb.map(x => parseInt(x)?.toString(16).padStart(2, '0') ?? '00');
 	return `#${hexParts.join('')}`;
 }
 const rgbToHsl = (rgb) => {
@@ -59,5 +59,16 @@ const hslToHex = (hsl) => {
 	const rgb = hslToRgb(hsl);
 	return rgb?.stack ? new Error(rgb) : rgbToHex(rgb);
 }
+
+const color = `#991110`;
+
+const hsl = hexToHsl(color);
+console.log(hsl);
+
+const rgb = hslToRgb(hsl);
+console.log(rgb);
+
+const hex = rgbToHex(rgb);
+console.log(hex);
 
 export { hexToRgb, hexToHsl, rgbToHex, rgbToHsl, hslToHex, hslToRgb }

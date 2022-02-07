@@ -112,6 +112,11 @@ const lobby = (() => {
 			update.index = pIdx;
 			update.name = elName;
 		}
+		// Colour validation for House Colour
+		if (ev.target.type === 'color') {
+			let normalised = window.Dune.Helpers.normaliseHsl(elValue);
+			update.value = normalised ?? update.value;
+		}
 		renHub.trigger('server/updateLobby', { type: updateType, data: update });
 		// Load mentat data
 		if (elName === 'house') {

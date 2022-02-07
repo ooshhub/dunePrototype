@@ -175,7 +175,7 @@ const helpers = (() => {
 	/**
 	 * COLOUR FUNCTIONS
 	 */
-	const satMax = 100, satMin = 40, lumMax = 80, lumMin = 30;
+	const satMax = 100, satMin = 40, lumMax = 80, lumMin = 10;
 	const normaliseHsl = (hexColor) => {
 		const hsl = convert.hexToHsl(hexColor);
 		if (hsl?.stack) {
