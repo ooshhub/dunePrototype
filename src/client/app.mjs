@@ -105,7 +105,8 @@ let renHub, rlog;
 
 	// Load other modules
 	await helpers.parallelLoader([
-		{ name: 'howlerAudio', load: (await import('./audio/audio.mjs')).initAudio() }
+		{ name: 'howlerAudio', load: (await import('./audio/audio.mjs')).initAudio() },
+		{ name: 'chatSystem', load: (await import('./chat/chat.mjs')).initChat() }
 	]).then(res => {
 		if (res.failures === 0) rlog(res.msgs.join('\n'));
 		else rlog(res.errs.join('\n'), 'error');
