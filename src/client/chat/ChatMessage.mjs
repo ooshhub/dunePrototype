@@ -38,8 +38,8 @@ export class ChatMessage {
 				case 'w': {
 					const whisperTarget = (msg.match(/^("[^"]+?"|[^\s]+)/)||[])[1];
 					if (whisperTarget) {
-						const rxTarget = new RegExp(helpers.escapeRegex(whisperTarget.replace(/"/g, ''), 'i'));
-						for (let p in players) { if (rxTarget.test(players[p].name)) this.target = p; }
+						const rxTarget = new RegExp(helpers.escapeRegex(whisperTarget.replace(/"/g, '')), 'i');
+						for (let p in players) {/*  console.log(rxTarget, p); */ if (rxTarget.test(players[p].playerName)) this.target = p; }
 					}
 					if (!this.target) {
 						this.type = 'error';

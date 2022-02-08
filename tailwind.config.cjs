@@ -22,7 +22,10 @@ module.exports = {
 					cyanDark: '#1c4f4f',
 					green: '#00d01c',
 					greenBright: '#328600',
-					greenBrighter: '#00d21d'
+					greenBrighter: '#00d21d',
+					chatInput: '#ffffff',
+					chatMsg1: '#a7ac01',
+					chatMsg2: '#947900',
 				},
 			},
 		},

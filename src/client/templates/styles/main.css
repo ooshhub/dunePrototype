@@ -1,7 +1,4 @@
 :root {
-  --chatInput: #ffffff
-	--chatMsg1: #a7ac01;
-  --chatMsg2: #947900;
 }
 
 /*
@@ -53,11 +50,13 @@ main#chat .log {
 }
 
 main#chat .chat-message {
-  text-color: var(--chatMsg1);
+  --tw-text-opacity: 1;
+  color: rgb(167 172 1 / var(--tw-text-opacity));
 }
 
 main#chat .chat-message:nth-child(even) {
-  text-color: var(--chatMsg2)
+  --tw-text-opacity: 1;
+  color: rgb(148 121 0 / var(--tw-text-opacity));
 }
 
 main#chat .chat-message .chat-content {

@@ -1,7 +1,5 @@
 :root {
-	--chatInput: #ffffff
-	--chatMsg1: #a7ac01;
-	--chatMsg2: #947900;
+
 }
 
 /*
@@ -28,9 +26,9 @@ main#chat {
 	& .log { @apply m-2 max-h-full overflow-auto relative bottom-0;	}
 
 	& .chat-message {
-		text-color: var(--chatMsg1);
+		@apply text-dune-chatMsg1;
 
-		&:nth-child(even) { text-color: var(--chatMsg2) }
+		&:nth-child(even) { @apply text-dune-chatMsg2; }
 	
 		& .chat-content { @apply ml-1 }
 	}
