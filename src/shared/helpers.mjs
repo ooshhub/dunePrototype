@@ -197,6 +197,9 @@ const helpers = (() => {
 		let Words = words.map(w => `${w[0].toUpperCase()}${w.slice(1)}`);
 		return Words.join(' ');
 	}
+	const escapeRegex = (string) => {
+    return string.replace(/[-\\^$*+?.()|[\]{}]/g, '\\$&');
+}
 
 	return {
 		setLog,
@@ -204,7 +207,7 @@ const helpers = (() => {
 		bindAll, toArray, generatePlayerId, getObjectPath, removeCyclicReferences,
 		windowFade,
 		normaliseHsl,
-		emproper
+		emproper, escapeRegex
 	}
 
 })();

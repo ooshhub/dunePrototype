@@ -2,6 +2,7 @@
 import { EventHub } from '../shared/EventHub.mjs';
 import { DebugLogger } from '../shared/DebugLogger.mjs';
 import { server } from './serverFunctions.mjs';
+import { handleChat } from './chat/chatHub.mjs';
 
 const debug = 1;
 export const serverHub = new EventHub('serverHub');
@@ -50,6 +51,9 @@ export const initServerHub = async (gameServer) => {
 	});
 	serverHub.on('sendLobbyUpdate', Game.Server.sendToClient);
 	serverHub.on('exitLobby', server.exitLobby);
+
+	// Chat
+	serverHub.on('postMessage', handleChat);
 
 	slog(`===Server Hub online===`);
 	

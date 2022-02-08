@@ -60,15 +60,15 @@ const hslToHex = (hsl) => {
 	return rgb?.stack ? new Error(rgb) : rgbToHex(rgb);
 }
 
-const color = `#991110`;
+// const color = `#991110`;
 
-const hsl = hexToHsl(color);
-console.log(hsl);
+// const hsl = hexToHsl(color);
+// console.log(hsl);
 
-const rgb = hslToRgb(hsl);
-console.log(rgb);
+// const rgb = hslToRgb(hsl);
+// console.log(rgb);
 
-const hex = rgbToHex(rgb);
-console.log(hex);
+// const hex = rgbToHex(rgb);
+// console.log(hex);
 
 export { hexToRgb, hexToHsl, rgbToHex, rgbToHsl, hslToHex, hslToRgb }

@@ -91,6 +91,9 @@ const currentPlayer = {
 	./canvas/stageManager.mjs
 		renHub.on()
 
+	./chat/chat.mjs
+		renHub.on('chatMessage', getMessage);
+
 	*/
 
 	})();
