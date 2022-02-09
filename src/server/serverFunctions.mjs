@@ -1,5 +1,6 @@
 import { slog, serverHub } from './serverHub.mjs';
 import { Lobby } from './net/Lobby.mjs';
+import { DuneCore } from './core/DuneCore.mjs';
 
 export const server = (() => {
 
@@ -8,6 +9,10 @@ export const server = (() => {
 	const linkServer = (gameServer) => Game.Server = gameServer;
 	const checkHost = (pid) => Game.Server?.host?.pid === pid;
 
+
+	/**
+	 * LOBBY FUNCTIONS
+	 */
 	// Grab the lobby on player join / initialise on host join
 	const getLobby = async (playerData) => {
 		// If refresh only, send back refresh data
@@ -82,9 +87,46 @@ export const server = (() => {
 		}
 	}
 
+	const submitLobby = ({ pid }) => {
+		if (checkHost(pid)) {
+			const lobbyReady = Game.Lobby.validateLobby();
+			if (lobbyReady.stack) {
+				slog(lobbyReady);
+				slog(['Lobby failed Validation', lobbyReady.message], 'warn');
+				serverHub.trigger(`host/lobbyError`, lobbyReady);
+			} else if (lobbyReady) {
+				initialiseGameState();
+			} else {
+				slog(`Something went wrong`, 'error');
+			}
+		}
+	}
+
+	/**
+	 * GAME FUNCTIONS
+	 */
+	const initialiseGameState = async () => {
+		slog(`Generating new Dune Campaign...`);
+		const gameSeed = Game.Lobby.generateGameSeed();
+		Game.Core = new DuneCore(gameSeed);
+		if (Game.Core.stack) {
+			slog([`Error creating game!`, Game.Core], 'error');
+			// There was an error creating Game State, inform Host
+			// Set Lobby state back to open/full
+		} else if (Game.Core.coreState === 'INIT') {
+			// Notify all clients to load canvas
+			// Await ack from clients maybe ???
+			// On success, destroy Lobby
+			// Ack from clients on successful load ??? or just tie into player connection_error functionality
+			// When all players ACK, Core sets state to READY
+			slog(`Successfully created new Dune Game from seed, state: ${Game.Core.coreState}`, 'info');
+			slog(Game.Core);
+		}
+	}
+
 	return {
 		linkServer,
-		initLobby, updateLobby, getLobby, openLobby, exitLobby,
+		initLobby, updateLobby, getLobby, openLobby, exitLobby, submitLobby
 	}
 
 })();

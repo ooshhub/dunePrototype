@@ -86,6 +86,10 @@ const helpers = (() => {
 		})
 	}
 	const toArray = (inp) => Array.isArray(inp) ? inp : [inp];
+	const cloneObject = (inp) => {
+		try { return JSON.parse(JSON.stringify(inp)) }
+		catch(e) { return null }
+	}
 	// Generate a player ID
 	// Format is 
 	//  -first letter of process.env.USERNAME (or random letter if not found)
@@ -176,6 +180,7 @@ const helpers = (() => {
 	 * COLOUR FUNCTIONS
 	 */
 	const satMax = 100, satMin = 40, lumMax = 80, lumMin = 10;
+	// Disallow House colours too close to white
 	const normaliseHsl = (hexColor) => {
 		const hsl = convert.hexToHsl(hexColor);
 		if (hsl?.stack) {
@@ -204,7 +209,7 @@ const helpers = (() => {
 	return {
 		setLog,
 		timeout, watchCondition, asyncTimedLoad, parallelLoader,
-		bindAll, toArray, generatePlayerId, getObjectPath, removeCyclicReferences,
+		bindAll, toArray, cloneObject, generatePlayerId, getObjectPath, removeCyclicReferences,
 		windowFade,
 		normaliseHsl,
 		emproper, escapeRegex

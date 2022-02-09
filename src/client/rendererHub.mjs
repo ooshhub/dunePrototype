@@ -68,12 +68,17 @@ const currentPlayer = {
 		renHub.trigger('server/requestLobby', playerData);
 	});
 	
+	// TODO: standardise event names, fuckwit. Is it lobbyError or errorLobby?
 	// Lobby
 	renHub.on('responseLobbySetup', ren.setupLobby);
 	renHub.on('responseLobby', ren.joinLobby);
 	renHub.on('refreshLobby', ren.updateLobby);
 	/* *MAINMENU* renHub.on('initLobby', lobby.init); */
 	renHub.on('cancelLobby', ren.cancelLobby);
+	renHub.on('lobbyError', (err) => {
+		// TODO: This is where we need an error Modal - look at Modal Controller
+		rlog(err, 'error');
+	});
 
 	// Game Updates
 	renHub.on('updatePlayerList', ren.updatePlayerList);

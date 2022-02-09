@@ -38,7 +38,7 @@ export const initServerHub = async (gameServer) => {
 	serverHub.for('renderer', Game.Server.sendToClient);
 
 
-	// Setup server, lobby & game
+	// Setup server & lobby
 	serverHub.on('requestLobby', server.getLobby);
 	serverHub.on('setupLobby', server.initLobby);
 	serverHub.on('hostJoined', () => {
@@ -51,6 +51,7 @@ export const initServerHub = async (gameServer) => {
 	});
 	serverHub.on('sendLobbyUpdate', Game.Server.sendToClient);
 	serverHub.on('exitLobby', server.exitLobby);
+	serverHub.on('submitLobby', server.submitLobby);
 
 	// Chat
 	serverHub.on('postMessage', handleChat);

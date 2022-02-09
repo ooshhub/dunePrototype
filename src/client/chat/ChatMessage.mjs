@@ -1,8 +1,5 @@
 import { helpers } from '../../shared/helpers.mjs';
 
-const players = window.Dune.Players;
-const activePlayer = window.Dune.ActivePlayer;
-
 /* TEST DATA */
 // const players = {
 // 	p1: {
@@ -26,6 +23,10 @@ const activePlayer = window.Dune.ActivePlayer;
 export class ChatMessage {
 
 	constructor(msg) {
+
+		const players = window.Dune.Players;
+		const activePlayer = window.Dune.ActivePlayer;
+
 		this.type = null;
 		this.content = '';
 		if (!msg || typeof msg !== 'string') return;
@@ -39,7 +40,7 @@ export class ChatMessage {
 					const whisperTarget = (msg.match(/^("[^"]+?"|[^\s]+)/)||[])[1];
 					if (whisperTarget) {
 						const rxTarget = new RegExp(helpers.escapeRegex(whisperTarget.replace(/"/g, '')), 'i');
-						for (let p in players) {/*  console.log(rxTarget, p); */ if (rxTarget.test(players[p].playerName)) this.target = p; }
+						for (let p in players) { if (rxTarget.test(players[p].playerName)) this.target = p; }
 					}
 					if (!this.target) {
 						this.type = 'error';
@@ -47,7 +48,7 @@ export class ChatMessage {
 						this.from = 'system';
 					} else {
 						this.content = msg.replace(whisperTarget, '').trim();
-						this.type = 'whisper';
+						this.type = this.target === activePlayer.pid ? 'whisper-self' : 'whisper';
 					}
 					break;
 				}

@@ -3,26 +3,24 @@ import { ChatMessage } from './ChatMessage.mjs';
 
 const chatInput = $('main#chat #chatinput');
 const chatLog = $('main#chat .log');
-const players = window.Dune.Players;
-const player = window.Dune.ActivePlayer;
+
 
 const postMessage = async (msg) => {
 	rlog(`Message received: ${msg}`);
 	const message = msg ? new ChatMessage(msg) : null;
-	if (message.type === 'error') renderMessage(message);
+	if (message.type === 'error' || message.type === 'whisper-self') renderMessage(message);
 	else renHub.trigger('server/postMessage', message);
 }
 
 const renderMessage = async (msg) => {
-	rlog([`Chat Message received: `, msg]);
+	const players = window.Dune.Players;
+	const activePlayer = window.Dune.ActivePlayer;
+	// rlog([`Chat Message received: `, msg]);
 	if (!msg.type) return rlog([`Bad message data`]);
-	if (msg.type === 'whisper') {
-		if (msg.from === player.pid) msg.type = 'whisper-sent';
-		else player.lastWhisper = msg.from;
-	}
 	let msgHtml = `<div class="chat-message ${msg.type}">`;
-	if (msg.type === 'whisper-sent') msgHtml += `to ${players[msg.target]?.playerName??'Player'}: `;
-	else msgHtml += `${players[msg.from].playerName??'Player'}: `;
+	if (msg.type === 'whisper') activePlayer.lastWhisper = msg.from;
+	if (msg.type === 'whisper-sent' || msg.type === 'whisper-self') msgHtml += `to ${players[msg.target]?.playerName??'Player'}: `;
+	else if (msg.type === 'general' || msg.type === 'whisper') msgHtml += `${players[msg.from].playerName??'Player'}: `;
 	msgHtml +=`${msg.content}</div>`;
 	rlog(msgHtml);
 	chatLog.insertAdjacentHTML('beforeend', msgHtml);

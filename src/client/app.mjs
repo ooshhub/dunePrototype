@@ -3,6 +3,8 @@
 import { helpers } from '../shared/helpers.mjs';
 import { SessionState } from './net/SessionState.mjs';
 
+// TODO: replace with DuneStore class with getters & setters to protect data structure
+// SS: try Proxy or ServiceContainer
 const Dune = {
 	Houses: {},
   RenHub: null,
@@ -14,6 +16,7 @@ const Dune = {
 	Session: null,
 	ActivePlayer: {},
 }
+
 window.Dune = Dune;
 window.$ = (selector) => document.querySelector(selector);
 window.$$ = (selector) => document.querySelectorAll(selector);

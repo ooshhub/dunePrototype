@@ -16,7 +16,7 @@ export const MentatSystem = (() => {
 		let mentatEntry = processEntry(houseData) ?? null;
 		if (!mentatEntry) return rlog(`Error processing mentat entry.`, 'warn');
 		// Send off HTML request to main process
-		rlog([`Mentat request - template "${hbsTemplate}"`, mentatEntry]);
+		// rlog([`Mentat request - template "${hbsTemplate}"`, mentatEntry]);
 		renHub.trigger('main/requestMentatHtml', {container: target, template: hbsTemplate, data: mentatEntry});
 	}
 
@@ -27,7 +27,7 @@ export const MentatSystem = (() => {
 		if (entryData.mentat?.art) {
 			for (let link in entryData.art) {
 				let filePath = fetchFilePath(entryData.art[link]);
-				rlog(`Resolved ${entryData.art[link]} to ${filePath}`);
+				// rlog(`Resolved ${entryData.art[link]} to ${filePath}`);
 				output.art[link] = filePath;
 			}
 		}
@@ -67,14 +67,14 @@ export const MentatSystem = (() => {
 		const rxTooltip = /%%[^%]+%%/g;
 		let ttMatches = [...`${inputString}`.matchAll(rxTooltip)];
 		rlog([`tooltip matches: `,ttMatches.join(', ')]);
-		ttMatches.forEach((tt,i) => {
+		ttMatches.forEach((tt) => {
 			// rlog(tt[0]);
-			rlog(`${i} - ${tt[0]}`);
+			// rlog(`${i} - ${tt[0]}`);
 			const parts = tt[0]?.replace(/%/g, '').split(/\|/) || [];
 			if (parts.length === 2) {
 				const tip = ttIndex[parts[1]] ? ttIndex[parts[1]] : ttIndex.default;
 				const label = parts[0];
-				rlog(`Replacing ${tt[0]} with [${label}](${tip})`);
+				// rlog(`Replacing ${tt[0]} with [${label}](${tip})`);
 				const html = `<div class="tt-target tt-mentat">
 												<span>${label}</span>
 												<div class="tt-content tt-mentat">${tip}</div>

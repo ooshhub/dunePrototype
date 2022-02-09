@@ -104,9 +104,11 @@ main#chat {
 
 .tt-content {
 	@apply hidden absolute bg-dune-whiteSand whitespace-nowrap font-mono max-w-lg;
-	@apply px-[1px] py-3 border-black rounded-sm text-sm;
+	@apply px-[10px] py-[2px] rounded-sm text-black text-sm left-2/4;
+	border: 1px solid black;
 	bottom: 100%;
 	text-transform: none;
+	transform: translateX(-50%);
 }
 
 /* Z-Indexing */

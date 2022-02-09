@@ -256,4 +256,22 @@ export class Lobby {
 		else return false;
 	}
 
+	validateLobby() {
+		if (!['OPEN','FULL'].includes(this.getLobbyState())) return new Error(`Lobby is not ready: "${this.getLobbyState()}"`);
+		if (!this.arePlayersReady()) return new Error(`All players must be ready`);
+		slog([`Lobby options: `, this.#rulesetOptions, this.#playerList]);
+		// Validate houses
+		return true;
+	}
+
+	generateGameSeed() {
+		this.#setLobbyState('SUBMIT');
+		const seed = {
+			playerList: this.#playerList,
+			ruleset: this.#ruleset,
+			options: this.#rulesetOptions
+		}
+		return seed;
+	}
+
 }

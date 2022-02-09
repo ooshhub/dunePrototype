@@ -95,7 +95,7 @@ const lobby = (() => {
 
 	const create = () => {
 		let data = getFormData('.init');
-		rlog([`Sending back Lobby data:`, data]);
+		// rlog([`Sending back Lobby data:`, data]);
 		renHub.trigger('server/setupLobby', data);
 	}
 
@@ -108,7 +108,7 @@ const lobby = (() => {
 			let pIdx = parseInt(elName.replace(/\D/g, ''));
 			elName = elName.replace(/[\d-]/g, '');
 			if (!pIdx) return rlog([`Couldn't find player index in changed setting!`, ev], 'warn');
-			rlog(`Send update to server: player ${pIdx}: ${elName}/${elValue}}`);
+			// rlog(`Send update to server: player ${pIdx}: ${elName}/${elValue}}`);
 			update.index = pIdx;
 			update.name = elName;
 		}
@@ -121,7 +121,7 @@ const lobby = (() => {
 		// Load mentat data
 		if (elName === 'house') {
 			let mentatLink = ev.target.value;
-			rlog(`Found mentat link: ${mentatLink}`);
+			// rlog(`Found mentat link: ${mentatLink}`);
 			renHub.trigger('mentatLoad', { target: 'lobby', data: mentatLink });
 		}
 	}
@@ -131,7 +131,8 @@ const lobby = (() => {
 	const refresh = () => renHub.trigger('server/requestLobby', {refresh: true});
 
 	const submit = () => {
-		rlog(`submit lobby`);
+		rlog(`Submitting lobby...`);
+		renHub.trigger('server/submitLobby');
 	}
 
 	return { init, cancel, create, update, submit }
@@ -190,6 +191,7 @@ const menu = (() => {
 		else mainMenu.classList.remove('disabled-blur');
 	}
 
+	// TODO: create a Modal Controller to handle this, loading messages, error messages etc.
 	const modalUp = async (msg, buttonEvents, blurMain=true) => {
 		renHub.trigger('fadeElement', '#loading-modal', 'in', 750);
     if (blurMain) blurMainMenu(1);

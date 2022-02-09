@@ -1299,17 +1299,20 @@ main#chat {
   --tw-bg-opacity: 1;
   background-color: rgb(237 230 216 / var(--tw-bg-opacity));
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  left: 50%;
   border-radius: 0.125rem;
-  --tw-border-opacity: 1;
-  border-color: rgb(0 0 0 / var(--tw-border-opacity));
-  padding-left: 1px;
-  padding-right: 1px;
-  padding-top: 0.75rem;
-  padding-bottom: 0.75rem;
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-top: 2px;
+  padding-bottom: 2px;
   font-size: 0.875rem;
   line-height: 1.25rem;
+  --tw-text-opacity: 1;
+  color: rgb(0 0 0 / var(--tw-text-opacity));
+  border: 1px solid black;
   bottom: 100%;
   text-transform: none;
+  transform: translateX(-50%);
 }
 
 /* Z-Indexing */
