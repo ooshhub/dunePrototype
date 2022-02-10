@@ -7,7 +7,7 @@ import  unhandled  from 'electron-unhandled';
 
 export const CONFIG = { DEBUG: 1 };
 export const mainHub = new EventHub('mainHub');
-export const mlog = new DebugLogger('mainLog', mainHub, 1, 1);
+export const mlog = new DebugLogger('main', mainHub, 1, 1);
 export const electronRoot = electron;
 export const Win = {};
 

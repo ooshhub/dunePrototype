@@ -34,7 +34,7 @@ export const server = (() => {
 					Game.Lobby = null;
 				}
 			}
-			slog(`Host joined, initialising Lobby`);
+			// slog(`Host joined, initialising Lobby`);
 			if (Game.Server.getServerState() !== 'INIT_LOBBY') return slog(`Server was not ready for init lobby `, 'error');
 			Game.Lobby = new Lobby(Game.Server);
 			const initData = await Game.Lobby.initLobbyData();
@@ -54,7 +54,7 @@ export const server = (() => {
 
 	const initLobby = async ({ pid, ruleset, players }) => {
 		if (!checkHost(pid)) return slog(`Received Lobby data from non-host`, 'warn');
-		slog(`Received data: ${ruleset} and ${players}, initialising lobby.`);
+		// slog(`Received data: ${ruleset} and ${players}, initialising lobby.`);
 		let lobbySetup = await Game.Lobby.setupLobby(ruleset, players);
 		if (lobbySetup.stack) {
 			slog(['Error setting up lobby:', lobbySetup], 'error');
@@ -69,7 +69,7 @@ export const server = (() => {
 
 	// Update the lobby on host action / player selection
 	const updateLobby = ({ pid, type, data }) => {
-		slog([`Lobby update received`, data, type, pid]);
+		// slog([`Lobby update received`, data, type, pid]);
 		if (!type || !pid || !data) return;
 		let update = Game.Lobby.updateLobby(type, data, pid);
 		if (!update || update.stack) slog(update, 'error');
@@ -91,7 +91,7 @@ export const server = (() => {
 		if (checkHost(pid)) {
 			const lobbyReady = Game.Lobby.validateLobby();
 			if (lobbyReady.stack) {
-				slog(lobbyReady);
+				// slog(lobbyReady);
 				slog(['Lobby failed Validation', lobbyReady.message], 'warn');
 				serverHub.trigger(`host/lobbyError`, lobbyReady);
 			} else if (lobbyReady) {
@@ -120,7 +120,7 @@ export const server = (() => {
 			// Ack from clients on successful load ??? or just tie into player connection_error functionality
 			// When all players ACK, Core sets state to READY
 			slog(`Successfully created new Dune Game from seed, state: ${Game.Core.coreState}`, 'info');
-			slog(Game.Core);
+			slog(Game.Core.houseList);
 		}
 	}
 

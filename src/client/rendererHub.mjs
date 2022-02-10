@@ -12,7 +12,7 @@ const debugSources = {
 	socket: 1,
 	renderer: 1,
 }
-export const rlog = new DebugLogger('renderer', renHub, debugSources, 0);
+export const rlog = new DebugLogger('renderer', renHub, debugSources.renderer, 0);
 const debugRec = new DebugReceiver(renHub, debugSources);
 debugRec.registerHandlers();
 

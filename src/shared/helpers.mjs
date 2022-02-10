@@ -113,6 +113,17 @@ const helpers = (() => {
 		pid = `${pName[0]}_${pid.slice(2)}`;
 		return pid;
 	}
+	const generateHouseIds = (playerList) => {
+		const output = {};
+		let increment = 1;
+		for (let p in playerList) {
+			const pid = playerList[p].pid, houseInitial = playerList[p].house[0];
+			const hid = `${pid[0]}${houseInitial}_${increment}${pid.slice(2)}`;
+			Object.assign(output, { [pid]: hid });
+			increment ++;
+		}
+		return output;
+	}
 	// Convert a string path to a nested object reference
   // e.g. getObjectPath(myObj, 'config/player/playerName) returns myObj.config.player.playerName
   // Set createPath to false to disabled creating missing keys. Will return null if path not found
@@ -209,7 +220,7 @@ const helpers = (() => {
 	return {
 		setLog,
 		timeout, watchCondition, asyncTimedLoad, parallelLoader,
-		bindAll, toArray, cloneObject, generatePlayerId, getObjectPath, removeCyclicReferences,
+		bindAll, toArray, cloneObject, generatePlayerId, generateHouseIds, getObjectPath, removeCyclicReferences,
 		windowFade,
 		normaliseHsl,
 		emproper, escapeRegex

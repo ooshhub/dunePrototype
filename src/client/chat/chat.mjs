@@ -7,7 +7,7 @@ const chatLog = $('main#chat .log');
 const chatResize = $('main#chat .resize-handle');
 
 const postMessage = async (msg) => {
-	rlog(`Message received: ${msg}`);
+	// rlog(`Message received: ${msg}`);
 	const message = msg ? new ChatMessage(msg) : null;
 	if (message.type === 'error' || message.type === 'whisper-self') renderMessage(message);
 	else renHub.trigger('server/postMessage', message);
@@ -23,7 +23,7 @@ const renderMessage = async (msg) => {
 	if (msg.type === 'whisper-sent' || msg.type === 'whisper-self') msgHtml += `to ${players[msg.target]?.playerName??'Player'}: `;
 	else if (msg.type === 'general' || msg.type === 'whisper') msgHtml += `${players[msg.from].playerName??'Player'}: `;
 	msgHtml +=`${msg.content}</div>`;
-	rlog(msgHtml);
+	// rlog(msgHtml);
 	chatLog.insertAdjacentHTML('beforeend', msgHtml);
 }
 
@@ -34,9 +34,6 @@ const chatPaste = async (content) => {
 
 // TODO: restructure HTML to allow textarea input to expand
 // TODO: decide on combat/event log tab, and whether to fade out chatlog area on timer when blurred
-// const chatBlur = async () => {
-// 	// set fadeout timer on blur
-// }
 
 const allowResizeFrame = (target, handle) => {
 	const handleEl = typeof(handle) === 'string' ? $(handle) : handle;
@@ -64,7 +61,7 @@ const allowResizeFrame = (target, handle) => {
 		document.addEventListener('mouseup', () => {
 			document.removeEventListener('mousemove', resizeFrame);
 			chatBox.classList.remove('disabled');
-			if (sizeChanged) renHub.trigger('main/writeConfig', { path: 'ui/chatWindow', data: { x: chatBox.offsetWidth, y: chatBox.offsetHeight } } );
+			if (sizeChanged) renHub.trigger('main/writeConfig', { path: 'userSettings/ui/chatWindow', data: { x: chatBox.offsetWidth, y: chatBox.offsetHeight } } );
 			sizeChanged = false;
 		});
 	});
@@ -82,8 +79,9 @@ export const initChat = async () => {
 	});
 	chatInput.addEventListener('onbeforepaste', chatPaste);
 	// Restore chat box size, and allow resize
-	chatBox.style.width = window.Dune.CONFIG?.userSettings?.ui?.chatWindow?.x ?? chatBox.style.width;
-	chatBox.style.height = window.Dune.CONFIG?.userSettings?.ui?.chatWindow?.y ?? chatBox.style.height;
+	const dimensions = window.Dune.CONFIG?.userSettings?.ui?.chatWindow;
+	chatBox.style.width = dimensions?.x > 200 ? `${dimensions.x}px` : ``;
+	chatBox.style.height = dimensions?.y > 200 ? `${dimensions.y}px` : ``;
 	allowResizeFrame(chatBox, chatResize);
 	// register handler for chat blur
 	renHub.on('chatMessage', renderMessage);

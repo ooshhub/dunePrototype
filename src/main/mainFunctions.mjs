@@ -79,12 +79,13 @@ export const main = (() => {
 	// CONFIG & SETTINGS
 	*/
 	// TODO: allow array of changes
-	const modifyConfig = async ( { path, data, options } ) => {
+	const modifyConfig = async ( { path, data, options={} } ) => {
 		if (!data || !path) return mlog(`modifyConfig: no data received with request`, data);
 		let target = helpers.getObjectPath(CONFIG, path, options?.createPath||true);
+		mlog([`Writing to config...`, target, data]);
 		Object.assign(target, data);
 		mlog(CONFIG.userSettings);
-		if (!options?.noSave) saveConfig();
+		if (!options.noSave) saveConfig();
 	}
 	const getConfig = async () => mainHub.trigger('renderer/responseConfig', { CONFIG });
 	const saveConfig = async () => nHelpers.saveFile(`${CONFIG.PATH.USERDATA}/userSettings.json`, JSON.stringify(CONFIG.userSettings));
