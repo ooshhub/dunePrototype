@@ -6,7 +6,7 @@ export class Ruleset {
 			custom: ruleData.custom || false, // must be set to true to use non-core data
 			availableHouses: ruleData.availableHouses || ['atreides', 'harkonnen', 'guild', 'beneGesserit', 'emperor', 'fremen'],
 			players: ruleData.players || [2,3,4,5,6,7,8],
-			map: ruleData.map || 'dune',
+			map: ruleData.map || 'duneDefault',
 			storm: {
 				direction: ruleData?.storm.direction || 'clockwise',
 				range: ruleData?.storm.range || '2d6'

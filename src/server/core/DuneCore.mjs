@@ -32,7 +32,7 @@ export class DuneCore {
 		this.#roundController = new RoundController(seed.ruleset);
 		this.#cards = new CardDeckController(seed.decks, seed.serverOptions);
 		this.#turnLimit = seed.turnLimit > 0 ? seed.turnLimit : 15;
-		this.#map = new DuneMap(seed.map);
+		this.#map = new DuneMap();
 		this.#rulesetName = seed.name;
 		this.name = 'New Dune Game';
 	}
