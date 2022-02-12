@@ -19,5 +19,6 @@ export const ruleset = async () => {
 		},
 	});
 	await newRuleset.populateHouses();
-	return newRuleset;
+	await newRuleset.populateDecks();
+	return newRuleset;	
 }

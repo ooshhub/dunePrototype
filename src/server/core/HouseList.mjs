@@ -6,8 +6,8 @@ export class HouseList {
 	#houses = {};
 	
 	constructor(playerList, ruleset) {
-// ruleset.Houses[housename]
-		slog([playerList, ruleset]);
+		// slog([playerList, ruleset]);
+		
 		// List of House properties not needed by server
 		const trimHouseProperties = ['mentat', 'ruler'];
 
@@ -33,7 +33,7 @@ export class HouseList {
 		}
 	}
 
-	get houseList() { return this.#houses }
+	get list() { return this.#houses }
 
 	/**
 	 * Required methods....
