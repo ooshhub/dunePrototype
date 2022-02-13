@@ -2,6 +2,7 @@
 import { HouseList } from "./HouseList.mjs";
 import { RoundController } from "./RoundController.mjs";
 import { CardDeckController } from "./CardDeckController.mjs";
+import { DuneMap } from "./DuneMap.mjs";
 import { slog } from "../serverHub.mjs";
 
 export class DuneCore {
@@ -34,7 +35,8 @@ export class DuneCore {
 		this.#turnLimit = seed.turnLimit > 0 ? seed.turnLimit : 15;
 		this.#map = new DuneMap();
 		this.#rulesetName = seed.name;
-		this.name = 'New Dune Game';
+		this.name = seed.name || 'New Dune Game';
+		this.host = seed.host;
 	}
 
 	#setCoreState(newState) { this.#coreState = this.#validCoreStates[newState] ?? this.#coreState;	slog(`Core state set to "${this.coreState}"`); }
@@ -51,6 +53,11 @@ export class DuneCore {
 			houses: this.#houses.list,
 			cards: this.#cards.list,
 		}
+	}
+
+	toObj() {
+		const {...myObj} = this
+		return myObj;
 	}
 
 }

@@ -6,7 +6,7 @@ import { handleChat } from './chat/chatHub.mjs';
 
 const debug = 1;
 export const serverHub = new EventHub('serverHub');
-export const slog = new DebugLogger('server', serverHub, debug, 1);
+export const slog = new DebugLogger('server', serverHub, debug, 1, 'host');
 const Game = {};
 
 export const initServerHub = async (gameServer) => {

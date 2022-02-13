@@ -1,24 +1,24 @@
-const generateHouseIds = (playerList) => {
-	const output = {};
-	let increment = 1;
-	for (let p in playerList) {
-		const pid = playerList[p].pid, houseInitial = playerList[p].house[0];
-		const hid = `${pid[0]}${houseInitial}_${increment}${pid.slice(3)}`.slice(0,19);
-		Object.assign(output, { [pid]: hid });
-		increment ++;
+const camelise = (inp, options={enforceCase:true}) => {
+	if (typeof(inp) !== 'string') return;
+	const words = inp.split(/[\s_]+/g);
+	return words.map((w,i) => {
+		const wPre = i > 0 ? w[0].toUpperCase() : w[0].toLowerCase();
+		const wSuf = options.enforceCase ? w.slice(1).toLowerCase() : w.slice(1);
+		return `${wPre}${wSuf}`;
+	}).join('');
+}
+
+const deCamelise = (inp, options={includeNumerals:true}) => {
+	if (typeof(inp) !== 'string') return;
+	const rxJoins = options.includeNumerals ? /([\w])([A-Z0-9])/g : /([\w])([A-Z])/g ;
+	let arr, output = inp;
+	while ((arr = rxJoins.exec(inp))?.[0]) {
+		output = output.replace(arr[0], `${arr[1]} ${arr[2]}`);
+		rxJoins.lastIndex -= 1;
 	}
 	return output;
 }
 
-const players = {
-	1: {
-		pid: `o_dfij2893hf82hefh20dsg9`,
-		house: 'atreides'
-	},
-	2: {
-		pid: `f_fihsjh98gh3428gh0egjh093jg`,
-		house: 'harkonnen'
-	}
-}
+const str = `deCamelCaseAThing`;
 
-console.log(generateHouseIds(players));
+console.log(deCamelise(str));

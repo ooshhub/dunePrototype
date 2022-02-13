@@ -118,7 +118,7 @@ const helpers = (() => {
 		let increment = 1;
 		for (let p in playerList) {
 			const pid = playerList[p].pid, houseInitial = playerList[p].house[0];
-			const hid = `${pid[0]}${houseInitial}_${increment}${pid.slice(2)}`;
+			const hid = `${pid[0]}${houseInitial}_${increment}${pid.slice(2)}`.slice(0,19);
 			Object.assign(output, { [pid]: hid });
 			increment ++;
 		}
@@ -215,7 +215,26 @@ const helpers = (() => {
 	}
 	const escapeRegex = (string) => {
     return string.replace(/[-\\^$*+?.()|[\]{}]/g, '\\$&');
-}
+	}
+	const camelise = (inp, options={enforceCase:true}) => {
+		if (typeof(inp) !== 'string') return null;
+		const words = inp.split(/[\s_]+/g);
+		return words.map((w,i) => {
+			const wPre = i > 0 ? w[0].toUpperCase() : w[0].toLowerCase();
+			const wSuf = options.enforceCase ? w.slice(1).toLowerCase() : w.slice(1);
+			return `${wPre}${wSuf}`;
+		}).join('');
+	}
+	const deCamelise = (inp, options={includeNumerals:true}) => {
+		if (typeof(inp) !== 'string') return null;
+		const rxJoins = options.includeNumerals ? /([\w])([A-Z0-9])/g : /([\w])([A-Z])/g ;
+		let arr, output = inp;
+		while ((arr = rxJoins.exec(inp))?.[0]) {
+			output = output.replace(arr[0], `${arr[1]} ${arr[2]}`);
+			rxJoins.lastIndex -= 1;
+		}
+		return output;
+	}
 
 	return {
 		setLog,
@@ -223,7 +242,7 @@ const helpers = (() => {
 		bindAll, toArray, cloneObject, generatePlayerId, generateHouseIds, getObjectPath, removeCyclicReferences,
 		windowFade,
 		normaliseHsl,
-		emproper, escapeRegex
+		emproper, escapeRegex, camelise, deCamelise,
 	}
 
 })();

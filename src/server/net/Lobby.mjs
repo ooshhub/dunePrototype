@@ -13,6 +13,16 @@ export class Lobby {
 	#houseAvailable = [];
 	#lobbyState;
 
+	constructor(parentServer) {
+		this.name = parentServer.name;
+		this.host = parentServer.host;
+		this.host.index = 1; // set host to player 1
+		this.ruleset = null;
+		this.maxPlayers = null;
+		this.rulesetList = [];
+		this.#setLobbyState('INIT');
+	}
+
 	#setLobbyState(newState) {
 		const states = {
 			INIT: 'INIT',
@@ -163,16 +173,6 @@ export class Lobby {
 		};
 	}
 
-	constructor(parentServer) {
-		this.name = parentServer.name;
-		this.host = parentServer.host;
-		this.host.index = 1; // set host to player 1
-		this.ruleset = null;
-		this.maxPlayers = null;
-		this.rulesetList = [];
-		this.#setLobbyState('INIT');
-	}
-
 	// Initial lobby data for Host setup
 	async initLobbyData() {
 		await this.#getRulesetList();
@@ -267,6 +267,8 @@ export class Lobby {
 	generateGameSeed() {
 		this.#setLobbyState('SUBMIT');
 		const seed = {
+			name: this.name,
+			host: this.host,
 			playerList: this.#playerList,
 			ruleset: this.#ruleset,
 			options: this.#rulesetOptions

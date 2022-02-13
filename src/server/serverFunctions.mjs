@@ -108,6 +108,7 @@ export const server = (() => {
 	const initialiseGameState = async () => {
 		slog(`Generating new Dune Campaign...`);
 		const gameSeed = Game.Lobby.generateGameSeed();
+		slog([`Gameseed: `, gameSeed], 'info');
 		Game.Core = new DuneCore(gameSeed);
 		if (Game.Core.stack) {
 			slog([`Error creating game!`, Game.Core], 'error');
@@ -120,7 +121,8 @@ export const server = (() => {
 			// Ack from clients on successful load ??? or just tie into player connection_error functionality
 			// When all players ACK, Core sets state to READY
 			slog(`Successfully created new Dune Game from seed, state: ${Game.Core.coreState}`, 'info');
-			slog(Game.Core.houseList);
+			slog(Game.Core.listAll);
+			slog(Game.Core.toObj());
 		}
 	}
 

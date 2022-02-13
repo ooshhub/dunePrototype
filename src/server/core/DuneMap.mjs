@@ -1,15 +1,36 @@
+import { helpers } from "../../shared/helpers.mjs";
+
 export class DuneMap {
 
 	#regions = [];
 
 	constructor(mapData) {
 		mapData = typeof(mapData) === 'object' ? mapData : defaultMap;
+		this.name = mapData.name;
+		this.id = mapData.id;
+		mapData.regions?.forEach(r => this.#regions.push(new MapRegion(r)));
 	}
 
+	get list() { return  { regions: this.#regions } }
+
+}
+
+class MapRegion {
+	constructor(data) {
+		Object.assign(this, {
+			name: data.name || helpers.deCamelise(data.id) || `New Region`,
+			id: data.id || helpers.camelise(data.name) || 'newRegion',
+			terrain: data.terrain || 'rock',
+			spiceBloom: data.spiceBloom ?? false,
+			stormSectors: helpers.toArray(data.stormSectors) || [],
+			borders: helpers.toArray(data.borders) || [],
+		});
+	}
 }
 
 const defaultMap = {
 	name: 'Arrakis Default',
+	id: 'arrakisDefault',
 	regions: [
 		{
 			name: 'Polar Sink',
