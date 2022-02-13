@@ -7,13 +7,14 @@ export class GameRound {
 	#exitMethods = [];
 
 	constructor(roundData) {
-		const data = (typeof(roundData) === 'string') ? defaultRounds[roundData] : roundData;
+		const data = typeof(roundData) === 'string' ? defaultRounds[roundData] : roundData;
 		if (!data?.index > -1) return null;
 		Object.assign(this, {
 			name: data.name,
-			id: data.id
+			id: data.id,
+			index: data.index,
 		});
-		helpers.bindAll();
+		helpers.bindAll(this);
 	}
 
 	async startRound() {

@@ -1,7 +1,7 @@
 export const spice = {
 	name: 'Spice Deck',
 	description: 'Standard Spice Deck',
-	schema: '0.1',
+	schema: 0.1,
 	id: 'spice',
 	cards: [
 		{

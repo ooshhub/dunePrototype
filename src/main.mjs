@@ -38,7 +38,7 @@ const startElectron = async () => {
 		const winDefaults = {
 			title: `${electron.app.name} - v${currentVersion}`,
 			backgroundColor: '#201900',
-			icon: `${CONFIG.PATH.ROOT}/assets/icons/iconAlpha.ico`,
+			icon: electron.app.isPackaged ? `${CONFIG.PATH.ROOT}/assets/icons/iconAlpha.ico` : `${CONFIG.PATH.ROOT}/assets/icons/iconAlphaRed.ico`,
 			menuBarVisible: false,
 			show: false,
 			opacity: 0.0,

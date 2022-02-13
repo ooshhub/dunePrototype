@@ -33,7 +33,7 @@ export class Ruleset {
 		if (this.custom) {
 			// Deal with custom loading
 		} else {
-			const defaultDecks = await import('./decks/defaultDecks.mjs');
+			const { defaultDecks } = await import('./decks/defaultDecks.mjs');
 			for (let deck in defaultDecks) {
 				this.decks[deck] = defaultDecks[deck];
 			}

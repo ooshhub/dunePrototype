@@ -31,7 +31,7 @@ export class DuneCore {
 		this.#setCoreState('INIT');
 		this.#houses = new HouseList(seed.playerList, seed.ruleset);
 		this.#roundController = new RoundController(seed.ruleset);
-		this.#cards = new CardDeckController(seed.decks, seed.serverOptions);
+		this.#cards = new CardDeckController(seed.ruleset.decks, seed.serverOptions);
 		this.#turnLimit = seed.turnLimit > 0 ? seed.turnLimit : 15;
 		this.#map = new DuneMap();
 		this.#rulesetName = seed.name;
@@ -56,7 +56,7 @@ export class DuneCore {
 	}
 
 	toObj() {
-		const {...myObj} = this
+		const myObj = JSON.parse(JSON.stringify(this));
 		return myObj;
 	}
 
