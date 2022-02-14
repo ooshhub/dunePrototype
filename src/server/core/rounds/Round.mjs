@@ -8,7 +8,7 @@ export class GameRound {
 
 	constructor(roundData) {
 		const data = typeof(roundData) === 'string' ? defaultRounds[roundData] : roundData;
-		if (!data?.index > -1) return null;
+		if (!(data.index > -1)) return null;
 		Object.assign(this, {
 			name: data.name,
 			id: data.id,

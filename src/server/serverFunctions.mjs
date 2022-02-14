@@ -122,7 +122,6 @@ export const server = (() => {
 			// When all players ACK, Core sets state to READY
 			slog(`Successfully created new Dune Game from seed, state: ${Game.Core.coreState}`, 'info');
 			slog(Game.Core.listAll);
-			slog(Game.Core.toObj());
 		}
 	}
 

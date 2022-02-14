@@ -21,7 +21,7 @@ export class RoundController {
 		} else {
 			this.#defaultRounds.forEach((round) => {
 				const newRound = new GameRound(round);
-				if (newRound.index > -1) this.#rounds[newRound.index] = newRound;
+				if (newRound) this.#rounds[newRound.index] = newRound;
 			});
 			// TODO: validate round indices to ensure contiguous numbers
 

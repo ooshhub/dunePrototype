@@ -28,7 +28,7 @@ export class CardDeck {
 						name: card.name,
 						// Whatever other card logic ends up being needed
 					};
-					this.cards.all.push({
+					this.#cards.all.push({
 						id: card.id, // 'id' is sent to client when they take a card, to match assets/help info etc.
 						uid: `${card.id}_${`${i}`.padStart(2, '0')}`, // 'uid' is the card instance for server-side logical representation of deck
 						data: this.#cardData[card.id], // Not really needed, but could leave a pointer here... there's only 50-odd cards in the game
