@@ -246,7 +246,7 @@ export class Lobby {
 
 	arePlayersReady() {
 		const players = this.getPlayerCount();
-		// DISABLE FOR TESTING
+		// DISABLED FOR TESTING
 		// if (players < 2) return false;
 		let ready = 0;
 		for (let p in this.#playerList) {
@@ -260,7 +260,7 @@ export class Lobby {
 		if (!['OPEN','FULL'].includes(this.getLobbyState())) return new Error(`Lobby is not ready: "${this.getLobbyState()}"`);
 		if (!this.arePlayersReady()) return new Error(`All players must be ready`);
 		slog([`Lobby options: `, this.#rulesetOptions, this.#playerList]);
-		// Validate houses
+		// TODO: validation process
 		return true;
 	}
 

@@ -7,12 +7,14 @@ export class HouseList {
 	
 	constructor(playerList, ruleset) {
 		// slog([playerList, ruleset]);
+		const numPlayers = Object.keys(playerList).length;
 		
 		// List of House properties not needed by server
 		const trimHouseProperties = ['mentat', 'ruler'];
 
 		// Generate house ids
 		const houseIds = helpers.generateHouseIds(playerList);
+		const playerDots = this.#generatePlayerDots(numPlayers);
 
 		for (let player in playerList) {
 			const newHouse = {};
@@ -23,9 +25,12 @@ export class HouseList {
 			slog([`Generating House setup for player ${player}: ${houseName}`, targetHouse]);
 
 			if (!targetHouse) return new Error(`HouseList error: Could not find House "${targetHouse}"`);
-			newHouse.hid = hid;
-			newHouse.rulesetName = houseName;
-			newHouse.lastPlayer = playerList[player].pid;
+			Object.assign(newHouse, {
+				hid: hid,
+				rulesetName: houseName,
+				lastPlayer: playerList[player].pid,
+				playerDot: playerDots.shift(),
+			});
 			for (let prop in targetHouse) {
 				if (!trimHouseProperties.includes(prop)) newHouse[prop] = targetHouse[prop];
 			}
@@ -34,6 +39,14 @@ export class HouseList {
 	}
 
 	get list() { return this.#houses }
+
+	#generatePlayerDots(numPlayers, sectors) {
+		const stormSectors = sectors ?? 18;
+		const dotProgression = stormSectors/(numPlayers);
+		const dots = [];
+		for (let i=0; i<numPlayers; i++) { dots.push(i*dotProgression); }
+		return dots;
+	}
 
 	/**
 	 * Required methods....

@@ -17,6 +17,8 @@ export class DuneMap {
 
 class MapRegion {
 	constructor(data) {
+		// TODO: still need to handle anchor coordinates for dropping tokens.
+		// How to handle 6 players all moving to a single sector of a small Region???
 		Object.assign(this, {
 			name: data.name || helpers.deCamelise(data.id) || `New Region`,
 			id: data.id || helpers.camelise(data.name) || 'newRegion',
@@ -31,6 +33,10 @@ class MapRegion {
 const defaultMap = {
 	name: 'Arrakis Default',
 	id: 'arrakisDefault',
+	initialSetup: {
+		treachery: { x:500, y:500 },
+		spice: { x:800, y:500 },
+	},
 	regions: [
 		{
 			name: 'Polar Sink',

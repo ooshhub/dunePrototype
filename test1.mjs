@@ -1,24 +1,34 @@
-const camelise = (inp, options={enforceCase:true}) => {
-	if (typeof(inp) !== 'string') return;
-	const words = inp.split(/[\s_]+/g);
-	return words.map((w,i) => {
-		const wPre = i > 0 ? w[0].toUpperCase() : w[0].toLowerCase();
-		const wSuf = options.enforceCase ? w.slice(1).toLowerCase() : w.slice(1);
-		return `${wPre}${wSuf}`;
-	}).join('');
-}
-
-const deCamelise = (inp, options={includeNumerals:true}) => {
-	if (typeof(inp) !== 'string') return;
-	const rxJoins = options.includeNumerals ? /([\w])([A-Z0-9])/g : /([\w])([A-Z])/g ;
-	let arr, output = inp;
-	while ((arr = rxJoins.exec(inp))?.[0]) {
-		output = output.replace(arr[0], `${arr[1]} ${arr[2]}`);
-		rxJoins.lastIndex -= 1;
+const determinePlayerOne = (stormPosition, dots) => {
+	const nearestIndex = dots.findIndex(v => v >= stormPosition);
+	if (dots[nearestIndex] === stormPosition) {
+		return nearestIndex;
+	} else {
+		const splitRoll = Math.random();
+		const playerOneIndex = splitRoll > dots[nearestIndex]%1 ? nearestIndex : nearestIndex - 1;
+		console.log(`First player is player ${playerOneIndex}`);
+		const newArray = [];
+		newArray.push(players.splice(playerOneIndex, players.length - playerOneIndex).concat(players));
+		return newArray;
 	}
-	return output;
 }
 
-const str = `deCamelCaseAThing`;
+const assignPlayerDots = (numPlayers) => {
+	const stormSectors = 18;
+	const dotProgression = stormSectors/(numPlayers);
+	const dots = [];
+	for (let i=0; i<numPlayers; i++) {
+		dots.push(i*dotProgression);
+	}
+	return dots;
+}
 
-console.log(deCamelise(str));
+const names = ['a','b','c','d','e','f'];
+
+const players = Array(6).fill().map((x,i) => names[i]);
+console.log(players);
+
+const playerDots = assignPlayerDots(5);
+console.log(playerDots);
+
+const turnOrder = determinePlayerOne(7, playerDots);
+console.log(turnOrder.join(', '));

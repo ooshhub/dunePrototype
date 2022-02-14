@@ -8,8 +8,9 @@ export class Ruleset {
 			players: ruleData.players || [2,3,4,5,6,7,8],
 			map: ruleData.map || 'duneDefault',
 			storm: {
-				direction: ruleData?.storm?.direction || 'antiClockwise',
-				range: ruleData?.storm?.range || '2d6'
+				direction: ruleData.storm?.direction || 'antiClockwise',
+				range: ruleData.storm?.range || '2d6',
+				sectors: ruleData.storm?.sectors ?? 18,
 			},
 			Houses: {},
 			decks: {},
