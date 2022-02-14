@@ -11,6 +11,7 @@ export class DuneCore {
 	#validCoreStates = { INIT: 'INIT', READY: 'READY', BUSY: 'BUSY', AWAIT_PLAYER: 'AWAIT_HOUSE', ERROR: 'ERROR', PLAYER_DISCONNECT: 'PLAYER_DISCONNECT' };
 
 	#rulesetName = '';
+	#validator = {}; // Validate PlayerTurn on submission
 
 	#houses = {};
 	// #playerList = {}; // Core should only interact with Houses, not directly with Players

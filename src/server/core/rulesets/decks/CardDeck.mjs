@@ -3,7 +3,7 @@ import { slog } from "../../../serverHub.mjs";
 export class CardDeck {
 
 	// Keep public for testing
-	cards = {
+	#cards = {
 		all: [],
 		available: [],
 		discarded: [],
@@ -40,21 +40,23 @@ export class CardDeck {
 
 	get count() {
 		return {
-			all: this.deck.all.length,
-			available: this.deck.available.length,
-			discarded: this.deck.discarded.length,
-			loaned: this.deck.loaned.length
+			all: this.#cards.all.length,
+			available: this.#cards.available.length,
+			discarded: this.#cards.discarded.length,
+			loaned: this.#cards.loaned.length
 		}
 	}
 
+	get list() { return { cards: this.#cards, cardData: this.#cardData } }
+
 	shuffle(recallAll = false) {
-		const cardsToShuffle = recallAll ? this.deck.all : this.deck.available.concat(this.deck.discarded);
-		this.deck.available = [];
+		const cardsToShuffle = recallAll ? this.#cards.all : this.#cards.available.concat(this.#cards.discarded);
+		this.#cards.available = [];
 		for (let n=cardsToShuffle.length-1; n>=0; n--) {
 			const cardIndex = Math.floor(Math.random()*n);
 			const card = cardsToShuffle.splice(cardIndex, 1);
 			slog(`Shuffling card ${cardIndex}`);
-			this.deck.available.push(card);
+			this.#cards.available.push(card);
 		}
 		return 1;
 	}
