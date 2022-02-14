@@ -23,7 +23,7 @@ export class DuneCore {
 
 	#cards = {}; // Store status of all card decks & cards
 
-	#roundController;
+	#roundController = {};
 
 	#turnCounter = 0;
 	#turnLimit;
@@ -54,11 +54,6 @@ export class DuneCore {
 			houses: this.#houses.list,
 			cards: this.#cards.list,
 		}
-	}
-
-	toObj() {
-		const myObj = JSON.parse(JSON.stringify(this));
-		return myObj;
 	}
 
 }
