@@ -16,8 +16,8 @@ const atreides = new House({
 			placed: {
 				arrakeen: 10
 			},
-			reserve: 10,
-			movement: 3
+			reserve: 10, // not required
+			movement: 3 // should be auto calculated
 		},
 		startingSpice: 10,
 		freeRevival: 2,

@@ -13,6 +13,10 @@ export class DuneMap {
 
 	get list() { return  { regions: this.#regions } }
 
+	get regionList() { return Object.keys(this.#regions) }
+
+	isRegion(regionId) { return this.#regions[regionId] ? true : false }
+
 }
 
 class MapRegion {
