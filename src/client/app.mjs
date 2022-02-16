@@ -98,10 +98,10 @@ let renHub, rlog;
 				// rlog(prevStore?.ui);
 				shown = prevStore?.ui?.shown?.length ? prevStore.ui.shown : ['main#mainmenu'];
 				// rlog([`Restoring UI elements from store: `, shown]);
-				renHub.trigger('fadeElement', shown, 'in', 500);
+				renHub.trigger('fadeElement', shown, 'in', 1000);
 		}
-		
 		renHub.trigger('main/coreLoadComplete');
+		$('input[name="unpackaged"]').value = 1;
 	}).catch(e => err = e);
 	if (err) return rlog(['Client load had errors.', err], 'error');
 	rlog(Dune.CONFIG);

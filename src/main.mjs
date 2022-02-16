@@ -87,7 +87,7 @@ const startElectron = async () => {
 		maximize: true
 	});
 	Win.Main = mainFrame;
-	mainHub.trigger('mainWindowReady', { win: mainFrame, app: electron.app });
+	mainHub.trigger('mainWindowReady', { win: mainFrame });
 
 	let coreLoad = 0;
 	mainHub.once('coreLoadComplete', () => coreLoad = 1);

@@ -1241,6 +1241,13 @@ Ensure the default browser behavior of the `hidden` attribute.
   }
 }
 
+/*  NPM unpackaged border highlight for testing multiple instances */
+
+input[name="unpackaged"][value="1"] ~ main {
+  border: 1px solid #ff8e00;
+  box-sizing: border-box;
+}
+
 /* CANVAS */
 
 main#gamecanvas {
