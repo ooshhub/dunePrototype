@@ -254,6 +254,25 @@ export class SocketServer {
 		} else this.#slog(`Illegal maxPlayer value supplied`, 'error');
 	}
 
+	async createHouseList(houseList) {
+		this.#slog('Creating HID link list...');
+		let err = 0;
+		for (let house in houseList) {
+			const pid = houseList[house].lastPlayer;
+			if (!pid || !this.#playerList[pid]) {
+				this.#slog(`serverError: ${pid} does not exist in player list`);
+				err++;
+			} else {
+				this.#houseList[house] = {
+					name: houseList.name,
+					currentPlayer: this.#playerList[pid]
+				}
+			}
+		}
+		this.#slog(`Added houses to server: ${Object.keys(this.#houseList).join(`, `)}`);
+		return err;
+	}
+
 	initServer(customUpgradeMiddleware, customMessaging = []) {
 		// Immediate middleware to upgrade http request ==> websocket
 		// Cannot attach as private method, causes crashes

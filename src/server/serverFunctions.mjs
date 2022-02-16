@@ -106,7 +106,7 @@ export const server = (() => {
 	 * GAME FUNCTIONS
 	 */
 	const initialiseGameState = async () => {
-		slog(`Generating new Dune Campaign...`);
+		// slog(`Generating new Dune Campaign...`);
 		const gameSeed = Game.Lobby.generateGameSeed();
 		slog([`Gameseed: `, gameSeed], 'info');
 		Game.Core = new DuneCore(gameSeed);
@@ -121,7 +121,19 @@ export const server = (() => {
 			// Ack from clients on successful load ??? or just tie into player connection_error functionality
 			// When all players ACK, Core sets state to READY
 			slog(`Successfully created new Dune Game from seed, state: ${Game.Core.coreState}`, 'info');
-			slog(Game.Core.listAll);
+			// slog(Game.Core.listAll);
+			const gameInitData = {
+				board: Game.Core.boardState,
+				houses: Game.Core.houseList,
+				trays: Game.Core.trayContents
+			};
+			slog(gameInitData);
+			const houseErrors = await Game.Server.createHouseList(gameInitData.houses);
+			if (houseErrors > 0) slog(`Server failed to create houseList`, 'error');
+			for (let house in gameInitData.houses) {
+				slog(`sending gamestate to ${house}`);
+				serverHub.trigger('client/initGameBoard', { board: gameInitData.board, houses: gameInitData.houses, tray: gameInitData.trays, targets: house });
+			}
 		}
 	}
 

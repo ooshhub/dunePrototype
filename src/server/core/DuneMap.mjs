@@ -2,13 +2,13 @@ import { helpers } from "../../shared/helpers.mjs";
 
 export class DuneMap {
 
-	#regions = [];
+	#regions = {};
 
 	constructor(mapData) {
 		mapData = typeof(mapData) === 'object' ? mapData : defaultMap;
 		this.name = mapData.name;
 		this.id = mapData.id;
-		mapData.regions?.forEach(r => this.#regions.push(new MapRegion(r)));
+		mapData.regions?.forEach(r => this.#regions[r.id] = new MapRegion(r));
 	}
 
 	get list() { return  { regions: this.#regions } }
@@ -26,6 +26,7 @@ class MapRegion {
 			spiceBloom: data.spiceBloom ?? false,
 			stormSectors: helpers.toArray(data.stormSectors) || [],
 			borders: helpers.toArray(data.borders) || [],
+			// Still needs: coordinates of token anchor(s)
 		});
 	}
 }

@@ -80,6 +80,9 @@ const currentPlayer = {
 		rlog(err, 'error');
 	});
 
+	// Game Setup
+	renHub.on('initGameBoard', (data) => rlog([`Received setup data from server`, data], 'info'));
+
 	// Game Updates
 	renHub.on('updatePlayerList', ren.updatePlayerList);
 

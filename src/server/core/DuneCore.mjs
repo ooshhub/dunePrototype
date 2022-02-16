@@ -16,10 +16,10 @@ export class DuneCore {
 	#houses = {};
 	// #playerList = {}; // Core should only interact with Houses, not directly with Players
 
-	#map = {};
+	#duneMap = {};
 
 	#board = {}; // Store status of all tokens on the map
-	#trays = {}; // Store status of all tokens in player trays/hands
+	#trays = {}; // Store status of all tokens in player trays/hands.
 
 	#cards = {}; // Store status of all card decks & cards
 
@@ -34,10 +34,22 @@ export class DuneCore {
 		this.#roundController = new RoundController(seed.ruleset);
 		this.#cards = new CardDeckController(seed.ruleset.decks, seed.serverOptions);
 		this.#turnLimit = seed.turnLimit > 0 ? seed.turnLimit : 15;
-		this.#map = new DuneMap();
+		this.#duneMap = new DuneMap();
 		this.#rulesetName = seed.name;
 		this.name = seed.name || 'New Dune Game';
 		this.host = seed.host;
+		this.#initBoardAndTrays();
+	}
+
+	#initBoardAndTrays() {
+		for (let house in this.#houses) {
+			const setup = this.#houses[house].stats;
+			// Add tokens to map region
+			// TODO: deal with Fremen token placement choice as a "turn 0" before proper game start
+			const placedTokens = Object.entries(setup.startingPosition.placed);
+			// Add other tokens to house tray
+			// Add spice to house tray
+		}
 	}
 
 	#setCoreState(newState) { this.#coreState = this.#validCoreStates[newState] ?? this.#coreState;	slog(`Core state set to "${this.coreState}"`); }
@@ -45,11 +57,15 @@ export class DuneCore {
 
 	get houseList() { return this.#houses.list }
 
+	get boardState() { return this.#board }
+
+	get trayContents() { return this.#trays }
+
 	get listAll() {
 		return {
 			name: this.name,
 			ruleset: this.#rulesetName,
-			map: this.#map.list,
+			map: this.#duneMap.list,
 			round: this.#roundController.list,
 			houses: this.#houses.list,
 			cards: this.#cards.list,
