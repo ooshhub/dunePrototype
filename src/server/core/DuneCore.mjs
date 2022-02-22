@@ -4,6 +4,7 @@ import { RoundController } from "./RoundController.mjs";
 import { CardDeckController } from "./CardDeckController.mjs";
 import { DuneMap } from "./DuneMap.mjs";
 import { slog } from "../serverHub.mjs";
+import { helpers } from "../../shared/helpers.mjs";
 
 export class DuneCore {
 
@@ -18,7 +19,8 @@ export class DuneCore {
 
 	#duneMap = {};
 
-	#board = { regions: {} }; // Store status of all tokens on the map
+	#board = {}; // Store status of all tokens on the map
+	#tanks = {}; // Store status of all tokens in Tleilaxu Tanks
 	#trays = {}; // Store status of all tokens in player trays/hands.
 
 	#cards = {}; // Store status of all card decks & cards
@@ -35,7 +37,7 @@ export class DuneCore {
 		this.#cards = new CardDeckController(seed.ruleset.decks, seed.serverOptions);
 		this.#turnLimit = seed.turnLimit > 0 ? seed.turnLimit : 15;
 		this.#duneMap = new DuneMap();
-		this.#board.regions = this.#duneMap.regionList;
+		this.#duneMap.regionList.forEach(r => this.#board[r] = {});
 		this.#rulesetName = seed.name;
 		this.name = seed.name || 'New Dune Game';
 		this.host = seed.host;
@@ -44,24 +46,38 @@ export class DuneCore {
 
 	#initBoardAndTrays() {
 		for (let house in this.#houses) {
+			slog(`Setting up ${house}...`);
 			const setup = this.#houses[house].stats;
 			// Add tokens to map region
 			// TODO: deal with Fremen token placement choice as a "turn 0" before proper game start
 			const placedTokens = Object.entries(setup.startingPosition.placed) ?? [];
-			let reserveTokens = setup.soldiers || 20;
+			let startSoldiers = setup.soldiers || 20;
 			placedTokens.forEach(p => {
 				if (this.#duneMap.isRegion(p[0])) {
 					// Might need to do another turn 0 to deal with elite troop placement?
 					const placedSoldiers = p[1];
-					this.#board.regions[p[0]][house] = { soldiers: placedSoldiers }
-					reserveTokens -= placedSoldiers;
+					this.#board[p[0]][house] = { soldiers: placedSoldiers }
+					startSoldiers -= placedSoldiers;
 				}
 			});
+			// Set up tray
+			this.#trays[house] = { soldiers: 0, elites: 0, spice: 0, leaders: [] }
 			// Add other tokens to house tray
-			this.#addToTray({ hid: house, type: 'soldier', quantity: reserveTokens });
-
-			// Add spice to house tray
+			let tokenArray = [
+				{ type: 'soldiers', quantity: startSoldiers },
+				{ type: 'elites', quantity: setup.eliteSoldiers ?? 0 },
+				{ type: 'spice', quantity: setup.startingSpice }
+			];
+			this.#houses[house].leaders.forEach(l => {
+				tokenArray.push({
+					type: 'leader',
+					quantity: 1,
+					data: l
+				});
+			});
+			this.#modifyTray(house, tokenArray);
 		}
+		slog([`Finished setting up trays`, this.#trays]);
 	}
 
 	#setCoreState(newState) { this.#coreState = this.#validCoreStates[newState] ?? this.#coreState;	slog(`Core state set to "${this.coreState}"`); }
@@ -69,10 +85,23 @@ export class DuneCore {
 
 	isHouse(hid) { return this.#houses[hid] ? true : false }
 
-	// add to a house tray, { hid: houseId, type: solder/leader/etc, quantity: 1 }
-	#addToTray( hid, {  }) {
-		if (!this.isHouse(hid)) return slog(`coreError: house ${hid} does not exist`, 'error');
-		if (!)
+	// add to a house tray, hid: houseId, { type: solder/leader/etc, quantity: 1 }
+	#modifyTray(hid, tokenArray) {
+		if (!this.#trays[hid]) return slog(`coreError: house ${hid} does not exist`, 'error');
+		tokenArray = helpers.toArray(tokenArray);
+		tokenArray.forEach(tok => {
+			if (this.#trays[hid][tok.type] && !isNaN(tok.quantity)) {
+				if (tok.type === 'leader') {
+					if (tok.quantity > 0) this.#trays[hid].leaders.push(tok.data);
+					else {
+						const idx = this.#trays.leaders.findIndex(ldr => ldr.id === tok.data.id);
+						this.#trays.leaders.splice(idx, 1);
+					}
+				} else {
+					this.#trays[hid][tok.type] += tok.quantity;
+				}
+			} else slog([`trayError: bad token input`, tok]);
+		});
 	}
 
 	get houseList() { return this.#houses.list }

@@ -22,6 +22,13 @@ const atreides = new House({
 		startingSpice: 10,
 		freeRevival: 2,
 	},
+	leaders: [
+		{ name: 'Dr. Wellington Yueh', strength: 1 },
+		{ name: 'Duncan Idaho', strength: 2 },
+		{ name: 'Gurney Halleck', strength: 4 },
+		{	name: 'Lady Jessica',	strength: 5 },
+		{ name: 'Thufir Hawat', strength: 5 }
+	],
 	abilities: [ // TODO: Move to HouseAbility class
 		{
 			name: 'Prescience',
@@ -92,6 +99,13 @@ const harkonnen = new House({
 		startingSpice: 10,
 		freeRevival: 2,
 	},
+	leaders: [
+		{ name: 'Umman Kudu', strength: 1 },
+		{ name: 'Captain Iakin Nefud', strength: 2 },
+		{ name: 'Piter de Vries', strength: 3 },
+		{	name: 'Beast Rabban',	strength: 4 },
+		{ name: 'Feyd Rautha', strength: 6 }
+	],
 	abilities: [ // TODO: Move to HouseAbility class
 		{
 			name: 'Treacherous',

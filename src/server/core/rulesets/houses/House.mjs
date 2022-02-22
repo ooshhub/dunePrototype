@@ -1,3 +1,5 @@
+import { Leader } from "./Leader.mjs";
+
 export class House {
 
 	constructor(houseData) {
@@ -10,6 +12,7 @@ export class House {
 				avatar: houseData.ruler?.avatar || 'default/leader'
 			},
 			stats: houseData.stats ?? {},
+			leaders: (houseData.leaders ?? []).map((l,i) => new Leader(l,i)),
 			abilities: houseData.abilities ?? [],
 			alliance: houseData.alliance ?? [],
 			advanced: houseData.advanced ?? {},
