@@ -68,13 +68,14 @@ export class DuneCore {
 				{ type: 'elites', quantity: setup.eliteSoldiers ?? 0 },
 				{ type: 'spice', quantity: setup.startingSpice }
 			];
-			this.#houses[house].leaders.forEach(l => {
+			this.#houses[house].leaders.forEach(leader => {
 				tokenArray.push({
 					type: 'leader',
 					quantity: 1,
-					data: l
+					data: leader
 				});
 			});
+			slog([`Sending array to house tray:`, tokenArray]);
 			this.#modifyTray(house, tokenArray);
 		}
 		slog([`Finished setting up trays`, this.#trays]);
