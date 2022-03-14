@@ -186,7 +186,7 @@ const helpers = (() => {
 			}, timeStep);
 		});
 	}
-
+	
 	/**
 	 * COLOUR FUNCTIONS
 	 */

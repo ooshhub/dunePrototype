@@ -61,7 +61,6 @@ const hslToHex = (hsl) => {
 }
 
 // const color = `#991110`;
-
 // const hsl = hexToHsl(color);
 // console.log(hsl);
 

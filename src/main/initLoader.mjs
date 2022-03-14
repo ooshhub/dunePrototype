@@ -9,7 +9,7 @@ export const initConfig = async (configReference) => {
 	let externalPath = electronApp.isPackaged ? electronApp.getPath('exe').replace(/\\[^\\]+$/, '') : rootPath;
 	if (!rootPath) return new Error(`initConfig error: no root path to Electron found.`);
 	const config = {
-		CORE: {
+		CORE: {			
 			PACKAGED: electronApp.isPackaged
 		},
 		NET: {
