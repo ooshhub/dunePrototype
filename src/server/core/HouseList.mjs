@@ -3,7 +3,7 @@ import { helpers } from "../../shared/helpers.mjs";
 
 export class HouseList {
 
-	#houses = {};
+	// #houses = {};
 	
 	constructor(playerList, ruleset) {
 		// slog([playerList, ruleset]);
@@ -34,11 +34,11 @@ export class HouseList {
 			for (let prop in targetHouse) {
 				if (!trimHouseProperties.includes(prop)) newHouse[prop] = targetHouse[prop];
 			}
-			this.#houses[hid] = newHouse;
+			this[hid] = newHouse;
 		}
 	}
 
-	get list() { return this.#houses }
+	get list() { return this }
 
 	#generatePlayerDots(numPlayers, sectors) {
 		const stormSectors = sectors ?? 18;

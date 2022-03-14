@@ -46,7 +46,7 @@ export class DuneCore {
 
 	#initBoardAndTrays() {
 		for (let house in this.#houses) {
-			slog(`Setting up ${house}...`);
+			// slog(`Setting up ${house}...`);
 			const setup = this.#houses[house].stats;
 			// Add tokens to map region
 			// TODO: deal with Fremen token placement choice as a "turn 0" before proper game start
@@ -61,7 +61,7 @@ export class DuneCore {
 				}
 			});
 			// Set up tray
-			this.#trays[house] = { soldiers: 0, elites: 0, spice: 0, leaders: [] }
+			this.#trays[house] = { soldiers: 0, elites: 0, spice: 0, leaders: [] };
 			// Add other tokens to house tray
 			let tokenArray = [
 				{ type: 'soldiers', quantity: startSoldiers },
@@ -70,7 +70,7 @@ export class DuneCore {
 			];
 			this.#houses[house].leaders.forEach(leader => {
 				tokenArray.push({
-					type: 'leader',
+					type: 'leaders',
 					quantity: 1,
 					data: leader
 				});
@@ -91,8 +91,8 @@ export class DuneCore {
 		if (!this.#trays[hid]) return slog(`coreError: house ${hid} does not exist`, 'error');
 		tokenArray = helpers.toArray(tokenArray);
 		tokenArray.forEach(tok => {
-			if (this.#trays[hid][tok.type] && !isNaN(tok.quantity)) {
-				if (tok.type === 'leader') {
+			if (this.#trays[hid][tok.type] != null && tok.quantity > -1) {
+				if (tok.type === 'leaders') {
 					if (tok.quantity > 0) this.#trays[hid].leaders.push(tok.data);
 					else {
 						const idx = this.#trays.leaders.findIndex(ldr => ldr.id === tok.data.id);
