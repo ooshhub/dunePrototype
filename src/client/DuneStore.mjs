@@ -19,7 +19,7 @@ export class DuneStore {
 	get Houses() { return this.#Houses }
 	set Houses(houseData) {
 		if (typeof(houseData) === 'object') {
-			if 
+			// do things
 		}
 	}
 }
