@@ -1,48 +1,21 @@
-export class Container {
-
-	#tray = new Tray();
-	#board = new Board();
-
-	constructor() {
-		Object.assign(this, {
-			name: 'myContainer',
-			description: 'Fuck you'
-		});
-	}
-
-	obby = {
-		one: 'this',
-		two: 'that',
-		three: () => {}
-	}
-
-	get privateFields() { return [this.#tray, this.#board] }
-
-}
-
-class Tray {
-
-	#contents = ['tok1', 'tok2'];
-
-	constructor() {
-		Object.assign(this, {
-			name: 'myTray'
-		})
-	}
-
-
-}
-
-class Board {
-
-	#regions = {
-		blap: 'flip',
-		erg: 'spopwop'
-	}
-
-	constructor() {
-		Object.assign(this, {
-			name: 'myBoard'
-		});
+const _Dune = {
+	houses: {
+		one: 'atreides',
+		two: 'harkonnen',
+	},
+	players: {
+		one: 1,
+		two: 2
 	}
 }
+
+const Dune = new Proxy(_Dune, {
+	// get(...args) {
+	// },
+	set() { return null }
+});
+
+Dune.houses.one = 'blah';
+// Succeeds, proxy set() only traps {houses}
+// Can only stop this with a get() trap, but that stops everything
+console.log(Dune.houses)

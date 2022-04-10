@@ -11,7 +11,7 @@ export class DuneMap {
 		mapData.regions?.forEach(r => this.#regions[r.id] = new MapRegion(r));
 	}
 
-	get list() { return  { regions: this.#regions } }
+	get appendFields() { return { _regions: this.#regions } }
 
 	get regionList() { return Object.keys(this.#regions) }
 

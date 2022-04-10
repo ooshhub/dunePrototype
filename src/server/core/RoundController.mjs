@@ -35,7 +35,7 @@ export class RoundController {
 		this.#determineTurnOrder(0);
 	}
 
-	get list() { return Array.from(this.#rounds) }
+	get appendFields() { return { _defaultRounds: this.#defaultRounds, _hidList: this.#hidList, _dotList: this.#dotList, _rounds: this.#rounds, _currentRound: this.#currentRound } }
 
 	get current() { return this.#currentRound }
 

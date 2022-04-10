@@ -1,6 +1,9 @@
 import { slog, serverHub } from './serverHub.mjs';
 import { Lobby } from './net/Lobby.mjs';
 import { DuneCore } from './core/DuneCore.mjs';
+import { Serialiser } from '../shared/Serialiser.mjs';
+
+// Alpha: move most of this to ServerInterface class. Lobby can probably get its own interface.
 
 export const server = (() => {
 
@@ -68,7 +71,7 @@ export const server = (() => {
 	const openLobby = () => Game.Lobby?.openLobby();
 
 	// Update the lobby on host action / player selection
-	const updateLobby = ({ pid, type, data }) => {
+	const updateLobby = ({ pid, type, data }) => { 
 		// slog([`Lobby update received`, data, type, pid]);
 		if (!type || !pid || !data) return;
 		let update = Game.Lobby.updateLobby(type, data, pid);
@@ -110,6 +113,8 @@ export const server = (() => {
 		const gameSeed = Game.Lobby.generateGameSeed();
 		slog([`Gameseed: `, gameSeed], 'info');
 		Game.Core = new DuneCore(gameSeed);
+		const CoreClone = Serialiser.serialise(Game.Core);
+		slog(CoreClone);
 		if (Game.Core.stack) {
 			slog([`Error creating game!`, Game.Core], 'error');
 			// There was an error creating Game State, inform Host
@@ -127,11 +132,11 @@ export const server = (() => {
 				houses: Game.Core.houseList,
 				trays: Game.Core.trayContents
 			};
-			slog(gameInitData);
+			// slog(gameInitData);
 			const houseErrors = await Game.Server.createHouseList(gameInitData.houses);
 			if (houseErrors > 0) slog(`Server failed to create houseList`, 'error');
 			for (let house in gameInitData.houses) {
-				slog(`sending gamestate to ${house}`);
+				// slog(`sending gamestate to ${house}`);
 				serverHub.trigger('client/initGameBoard', { board: gameInitData.board, houses: gameInitData.houses, tray: gameInitData.trays, targets: house });
 			}
 		}

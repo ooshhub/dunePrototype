@@ -44,6 +44,8 @@ export class DuneCore {
 		this.#initBoardAndTrays();
 	}
 
+	get appendFields() { return { _rulesetName: this.#rulesetName, _houses: this.#houses, _duneMap: this.#duneMap, _board: this.#board, _tanks: this.#tanks, _trays: this.#trays, _cards: this.#cards } }
+
 	#initBoardAndTrays() {
 		for (let house in this.#houses) {
 			// slog(`Setting up ${house}...`);
@@ -75,10 +77,10 @@ export class DuneCore {
 					data: leader
 				});
 			});
-			slog([`Sending array to house tray:`, tokenArray]);
+			// slog([`Sending array to house tray:`, tokenArray]);
 			this.#modifyTray(house, tokenArray);
 		}
-		slog([`Finished setting up trays`, this.#trays]);
+		// slog([`Finished setting up trays`, this.#trays]);
 	}
 
 	#setCoreState(newState) { this.#coreState = this.#validCoreStates[newState] ?? this.#coreState;	slog(`Core state set to "${this.coreState}"`); }

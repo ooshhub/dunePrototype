@@ -12,10 +12,6 @@ export class CardDeckController {
 		}
 	}
 
-	get list() {
-		const output = {name: this.name, decks: {} };
-		for (let d in this.#decks) { output.decks[d] = this.#decks[d].list }
-		return output;
-	}
+	get appendFields() { return { _decks: this.#decks } }
 
 }
