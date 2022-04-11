@@ -68,8 +68,7 @@ const getUserSettings = async (configReference) => {
 	} catch(e) {
 		err=e;
 	}
-	let outcome = err ?? true;
-	return outcome;
+	return err ?? true;
 }
 
 // Get public facing IP

@@ -93,6 +93,8 @@ export const ren = (() => {
 	/*
 	// LOBBY AND GAME START
 	*/
+	// Alpha: Move this to LobbyInterface or LobbyView class
+	//
 	const joinServer = async ({ serverOptions }) => {
 		rlog([`Joining server with options: `, serverOptions]);
 		if (window.Dune.Client?.io) {
