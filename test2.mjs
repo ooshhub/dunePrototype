@@ -1,20 +1,27 @@
-class test {
-	
-	#pid = 'aaa';
-	#houses = {
-		one: {
-			pid: 'aaa'
-		},
-		two: {
-			pid: 'a',
-			stuff: 'hello cunt'
-		}
-	}
-
-	get currentHouse() { return (this.#pid && this.#houses) ? Object.entries(this.#houses).map(h=> h[1]?.pid === this.#pid ? h[1] : null).filter(v=>v)[0] : null }
-
+const obj = {
+  one: {
+    name: 'bob',
+    id: 123,
+    desc: 'blah',
+  },
+  two: {
+    name: 'alice',
+    id: 532,
+    desc: 'flaps'
+  }
 }
 
-const testcase = new test();
+const data = {
+  one: {
+    name: 'bob B'
+  }
+}
 
-console.log(testcase.currentHouse)
+for (const id in data) {
+  // Object.assign(obj[id], data[id]);
+  obj[id] = data[id];
+}
+
+console.log(obj)
+
+console.log('brk');

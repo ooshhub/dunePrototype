@@ -26,9 +26,9 @@ export const ren = (() => {
 	// Update CONFIG in browser window
 	const updateConfig = ({ CONFIG }) => {
 		rlog([`Received game data: `, CONFIG]);
-		window.Dune.CONFIG = CONFIG;
+		window.Dune.config = CONFIG;
 	}
-	const updatePlayerList = (playerData) => window.Dune.Players = playerData;
+	const updatePlayerList = (playerData) => window.Dune.update('players', playerData);
 
 
 	/**
@@ -57,7 +57,7 @@ export const ren = (() => {
 				$(el).style['z-index'] = newZ;
 			}
 		}));
-		window.Dune.Session?.update(0, 'ui');
+		window.Dune.session?.update(0, 'ui');
 		return 1;
 	}
 	const fadeSection = async (element, direction, length=1000, timeStep = 1) => {
@@ -97,14 +97,14 @@ export const ren = (() => {
 	//
 	const joinServer = async ({ serverOptions }) => {
 		rlog([`Joining server with options: `, serverOptions]);
-		if (window.Dune.Client?.io) {
+		if (window.Dune.client?.io) {
 			rlog(`Closing old Client...`);
-			window.Dune.Client.close()
-			window.Dune.Client = null;
+			window.Dune.client.close()
+			window.Dune.client = null;
 			await helpers.timeout(200);
 		}
 		const DuneClient = new SocketClient(serverOptions);
-		window.Dune.Client = DuneClient;
+		window.Dune.client = DuneClient;
 		DuneClient.registerEventHub(renHub);
 		rlog([`Created socket Client`, DuneClient]);
 		let connected = await DuneClient.connectToGame();
@@ -113,7 +113,7 @@ export const ren = (() => {
 	}
 
 	const setupLobby = async (newLobby) => {
-		if (window.Dune.Client.clientState === 'INIT_LOBBY') {
+		if (window.Dune.client.clientState === 'INIT_LOBBY') {
 			rlog([`Received fresh Lobby for setup`, newLobby], 'info');
 			renHub.trigger('main/requestHtml', { req: 'lobby', data: newLobby });
 			let lobbyReady = await helpers.watchCondition(() => $('#lobby header'), 'Lobby HTML found', 6000);
@@ -128,14 +128,14 @@ export const ren = (() => {
 	const joinLobby = async ({ lobbyData, playerData, initFlag, houseData }) => {
 		rlog([`Received lobby data:`, lobbyData, playerData, houseData], 'info');
 		// Validate data
-		if (houseData) window.Dune.Houses = houseData;
+		if (houseData) window.Dune.update('houses', houseData);
 		renHub.trigger('main/requestHtml', { req: 'lobby', data: lobbyData });
 		if (await helpers.watchCondition(() => $('.player-list'))) {
 			renHub.trigger('refreshLobby', { playerData: playerData });
 			if (!$('#lobby').classList.contains('show')) renHub.trigger('showElement', '#lobby');
 			if ($('#loading-modal').classList.contains('show')) renHub.trigger('mainMenuModalDown');
-			window.Dune.Client?.inLobby();
-			window.Dune.Session?.update('LOBBY');
+			window.Dune.client?.inLobby();
+			window.Dune.session?.update('LOBBY');
 			if (initFlag) renHub.trigger('server/hostJoined');
 		} else {
 			rlog(`Lobby failed to load`);
@@ -171,7 +171,7 @@ export const ren = (() => {
 						else if (targetInput) targetInput.value = playerData[p][k];
 					}
 				});
-				if (playerData[p].pid === window.Dune.ActivePlayer.pid) targetRow.classList.remove('disabled');
+				if (playerData[p].pid === window.Dune.pid) targetRow.classList.remove('disabled');
 			});
 		}
 		if (update) {
@@ -193,18 +193,18 @@ export const ren = (() => {
 	const cancelLobby = async () => {
 		rlog('Exiting current lobby...');
 		renHub.trigger('server/exitLobby');
-		await window.Dune.Client.destroy()
+		await window.Dune.client.destroy()
 			.catch(e => rlog(e, 'error'));
-		window.Dune.Client = null;
+		window.Dune.client = null;
 		renHub.trigger('hideElement', ['main#chat', '#mentat-lobby']);
 		destroyClient();
 		// do more stuff???
 	}
 
 	const destroyClient = async () => {
-		window.Dune.Client?.destroy?.(); // doesnt exist yet
-		window.Dune.Client = null;
-		window.Dune.Session?.update('MENU');
+		window.Dune.client?.destroy?.(); // doesnt exist yet
+		window.Dune.client = null;
+		window.Dune.session?.update('MENU');
 	}
 
 	return {

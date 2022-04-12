@@ -2,20 +2,23 @@
 // Dependencies
 import { helpers } from '../shared/helpers.mjs';
 import { SessionState } from './net/SessionState.mjs';
+import { DuneStore } from './DuneStore.mjs';
 
 // TODO: replace with DuneStore class with getters & setters to protect data structure
 // SS: try Proxy or ServiceContainer
-const Dune = {
-	Houses: {},
-  RenHub: null,
-	Players: {},
-	Layers: {},
-	Helpers: helpers,
-	Client: null,
-	CONFIG: null,
-	Session: null,
-	ActivePlayer: {},
-}
+// const Dune = {
+// 	Houses: {},
+//   RenHub: null,
+// 	Players: {},
+// 	Layers: {},
+// 	Helpers: helpers,
+// 	Client: null,
+// 	CONFIG: null,
+// 	Session: null,
+// 	ActivePlayer: {},
+// }
+
+const Dune = new DuneStore();
 
 window.Dune = Dune;
 window.$ = (selector) => document.querySelector(selector);
@@ -30,8 +33,8 @@ let renHub, rlog;
 		.then(imp => {
 			rlog = imp.rlog;
 			renHub = imp.renHub;
-			window.Dune.RenHub = renHub;
-			window.Dune.Helpers.rlog = rlog
+			Dune.renHub = renHub;
+			Dune.logger = rlog;
 		})
 		.catch(e => {
 			console.error(e);
@@ -45,21 +48,21 @@ let renHub, rlog;
 	} else return console.error('Aborting client load due to errors.');
 
 	// Check for existing session
-	await helpers.watchCondition(() => Dune.CONFIG);
-	Dune.Session = new SessionState(Dune.CONFIG?.userSettings?.player);
+	await helpers.watchCondition(() => Dune.config);
+	Dune.session = new SessionState(Dune.config?.userSettings?.player);
 	const resumeSession = sessionStorage.getItem('DuneSession');
 	rlog([`Previous Session Store: `, JSON.parse(resumeSession)]);
 	let prevSession, currentState, reconnectObject, prevStore;
 	if (resumeSession) {
-		prevSession = await Dune.Session.restore(resumeSession);
+		prevSession = await Dune.session.restore(resumeSession);
 		// rlog([`Prev Session:`, prevSession]);
 		currentState = prevSession.state;
 		reconnectObject = prevSession.reconnect;
 		prevStore = prevSession.store;
 		// rlog([`Prev Store:`, prevStore]);
 	} else {
-		Dune.Session.init(Dune.CONFIG?.userSettings?.player);
-		currentState = Dune.Session.getSessionState();
+		Dune.session.init(Dune.config?.userSettings?.player);
+		currentState = Dune.session.getSessionState();
 	}
 
 
@@ -85,12 +88,12 @@ let renHub, rlog;
 			case 'GAME':
 				rlog([`Attempting to reconnect to server: `, { serverOptions: reconnectObject }]);
 				renHub.trigger('joinServer', { serverOptions: reconnectObject });
-				if (await helpers.watchCondition(() => Dune.Client?.socket?.connected, 'Reconnect Successful?', 5000)) {
+				if (await helpers.watchCondition(() => Dune.client?.socket?.connected, 'Reconnect Successful?', 5000)) {
 					if (currentState === 'LOBBY') renHub.trigger('server/requestLobby', reconnectObject);
 					// ELSE retrieve canvas state
 				} else {
 					rlog(`Reconnect attempt failed.`);
-					Dune.Session?.update?.('MENU');
+					Dune.session?.update?.('MENU');
 				}
 				// Falls through
 			case 'MENU':
@@ -104,7 +107,7 @@ let renHub, rlog;
 		$('input[name="unpackaged"]').value = 1;
 	}).catch(e => err = e);
 	if (err) return rlog(['Client load had errors.', err], 'error');
-	rlog(Dune.CONFIG);
+	rlog(Dune.config);
 
 	// Load other modules
 	await helpers.parallelLoader([

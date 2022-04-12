@@ -37,7 +37,7 @@ const currentPlayer = {
 				pid: currentPlayer.pid,
 				hid: currentPlayer.hid });
 		} catch(e) { rlog(`Bad data object sent to server, could not attach ids`, 'warn') }
-		window.Dune?.Client?.sendToServer?.(event, data, ...args);
+		window.Dune?.client?.sendToServer?.(event, data, ...args);
 	});
 	// Self-routing
 	renHub.for('renderer', (event, ...args) => renHub.trigger(event, ...args));
@@ -57,14 +57,14 @@ const currentPlayer = {
 	renHub.on('joinServer', ren.joinServer);
 	renHub.on('serverKick', (reason) => {
 		rlog([`Kicked from server: ${reason}`]);
-		window.Dune.Session?.setServerStatus(false);
+		window.Dune.session?.setServerStatus(false);
 	});
 	// Successful connect - save server settings & session state
 	renHub.on('authSuccess', (playerData) => {
 		Object.assign(currentPlayer, playerData);
-		window.Dune.ActivePlayer = currentPlayer;
-		window.Dune.Session?.update();
-		window.Dune.Session?.setServerStatus(true, playerData.setSessionToken);
+		// window.Dune.ActivePlayer = currentPlayer;
+		window.Dune.session?.update();
+		window.Dune.session?.setServerStatus(true, playerData.setSessionToken);
 		renHub.trigger('server/requestLobby', playerData);
 	});
 	

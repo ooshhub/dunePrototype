@@ -10,14 +10,16 @@ export class DuneStore {
 	#pid = null;
 	#houses = {};
 	#players = {};
+	#board = {};
+	#tray = {};
 	#session = null;
 	#config = null;
 	#eventHub = null;
+	#logger = () => {};
 
-	constructor(additionalData) {
+	constructor(storeConfig = {}) {
 		Object.assign(this, {
-			name: additionalData.name || 'Dune Client Store',
-			description: additionalData.description || `Storage for client-side campaign data, including temporary debug data`,
+			name: storeConfig.name || 'Dune Client Store',
 		});
 	}
 
@@ -35,19 +37,33 @@ export class DuneStore {
 	get session() { return this.#session } // Access through class methods
 	get renHub() { return this.#eventHub }	// Access through class methods
 
-	// Setters only work to initialise object
+	// Setters only work once to initialise object
 	set config(data) { { this.#config = (this.#config === null && data.PATH) ? data : this.#config } }
 	set session(newSession) { this.#session = (this.#session === null && newSession.constructor?.name === 'SessionStore') ? newSession : this.#session }
 	set renHub(newHub) { this.#eventHub = (this.#eventHub === null && newHub.constructor.name === 'EventHub') ? newHub : this.#eventHub }
+	set logger(logFunction) { this.#logger = typeof(logFunction) === 'function' ? logFunction : console.log }
 
 	// Serialiser data
 	get privateFields() { return { _houses: this.#houses, _players: this.#players, _session: this.#session, _config: this.#config, _eventHub: this.#eventHub } }
 
 	// Updates for dynamic game data
-	#updateHouses(data) {}
-	#updatePlayers(data) {}
-	#updateBoard(data) {}
-	#updateTray(data) {}
+	// TODO: add validation to each data type
+	#updateHouses(data) {
+		for (const house in data) { Object.assign(this.#houses[house], data[house]) }
+		this.log(`${this.name}: updated Houses`);
+	}
+	#updatePlayers(data) {
+		for (const player in data) { Object.assign(this.#players[player], data[player]) }
+		this.log(`${this.name}: updated Players`);
+	}
+	#updateBoard(data) {
+		Object.assign(this.#board, data);
+		this.log(`${this.name}: updated Board`);
+	}
+	#updateTray(data) {
+		Object.assign(this.#tray, data);
+		this.log(`${this.name}: updated Tray`);
+	}
 
 	// Exposed update path
 	update(targetProperty, data={}) {
@@ -70,9 +86,11 @@ export class DuneStore {
 				default: 
 					console.warn(`${this.name}: Unrecognised update property/data write attempt: ${target}`);
 			}
-		})
+		});
 	}
 
-	log() {	console.info(Serialiser.serialise(this)); }
+	log(...args) { this.#logger(...args) }
+
+	list() {	console.info(Serialiser.serialise(this)); }
 
 }
