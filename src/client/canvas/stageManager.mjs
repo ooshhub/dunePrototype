@@ -17,10 +17,10 @@ export const initCanvas = async () => {
 		height: windowSize.height,
 		backgroundColor: backgroundColor
 	});
-	await window.Dune.Helpers.watchCondition(() => $('#canvas'));
+	await window.Dune.helpers.watchCondition(() => $('#canvas'));
 	$('#canvas').append(pixiApp);
 	// Set up Stage & main Layers
-	Dune.Layers.Stage = pixiApp.stage;
+	Dune.layers.Stage = pixiApp.stage;
 	// SET UP LAYERS
 	let backgroundLayer = new Layer(pixiApp.stage, 'Background');
 	let tokenLayer = new Layer(pixiApp.stage, 'Token');

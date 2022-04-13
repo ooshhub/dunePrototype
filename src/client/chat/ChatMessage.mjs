@@ -24,8 +24,8 @@ export class ChatMessage {
 
 	constructor(msg) {
 
-		const players = window.Dune.Players;
-		const activePlayer = window.Dune.ActivePlayer;
+		const players = window.Dune.players;
+		const activePlayer = window.Dune.currentPlayer;
 
 		this.type = null;
 		this.content = '';

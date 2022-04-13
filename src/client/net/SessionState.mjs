@@ -28,12 +28,12 @@ export class SessionState {
 		rlog(this.#store.ui);
 	}
 	async #updateServerStatus() {
-		if (!window.Dune?.Client?.player) return rlog(`SessionState: failed to find server info on SocketClient`, 'warn');
-		Object.assign(this.#store.server, window.Dune.Client.serverOptions);
+		if (!window.Dune?.client?.player) return rlog(`SessionState: failed to find server info on SocketClient`, 'warn');
+		Object.assign(this.#store.server, window.Dune.client.serverOptions);
 	}
 	async #updatePlayerStatus() {
-		if (!window.Dune.ActivePlayer?.pid) return rlog(`SessionState: failed to find player details`, 'error');
-		Object.assign(this.#store.player, window.Dune.ActivePlayer);
+		if (!window.Dune.currentPlayer?.pid) return rlog(`SessionState: failed to find player details`, 'error');
+		Object.assign(this.#store.player, window.Dune.currentPlayer);
 	}
 
 	async #saveToStorage() {

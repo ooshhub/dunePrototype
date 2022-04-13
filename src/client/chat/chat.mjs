@@ -14,8 +14,8 @@ const postMessage = async (msg) => {
 }
 
 const renderMessage = async (msg) => {
-	const players = window.Dune.Players;
-	const activePlayer = window.Dune.ActivePlayer;
+	const players = window.Dune.players;
+	const activePlayer = window.Dune.currentPlayer;
 	// rlog([`Chat Message received: `, msg]);
 	if (!msg.type) return rlog([`Bad message data`]);
 	let msgHtml = `<div class="chat-message ${msg.type}">`;
@@ -79,7 +79,7 @@ export const initChat = async () => {
 	});
 	chatInput.addEventListener('onbeforepaste', chatPaste);
 	// Restore chat box size, and allow resize
-	const dimensions = window.Dune.CONFIG?.userSettings?.ui?.chatWindow;
+	const dimensions = window.Dune.config?.userSettings?.ui?.chatWindow;
 	chatBox.style.width = dimensions?.x > 200 ? `${dimensions.x}px` : ``;
 	chatBox.style.height = dimensions?.y > 200 ? `${dimensions.y}px` : ``;
 	allowResizeFrame(chatBox, chatResize);

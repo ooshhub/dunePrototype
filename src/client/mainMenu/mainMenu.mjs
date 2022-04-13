@@ -1,5 +1,5 @@
 // Main menu scripts
-// import { helpers } from '../../shared/helpers.mjs';
+import { helpers } from '../../shared/helpers.mjs';
 import { rlog, renHub } from '../rendererHub.mjs';
 
 const $$ = window.$$;
@@ -7,7 +7,7 @@ const $ = window.$;
 
 
 export const initMainMenu = async () => {
-	await window.Dune.Helpers.watchCondition(() => document.readyState);
+	await helpers.watchCondition(() => document.readyState);
 	// Main menu buttons
 	$$('button.expandable').forEach(b => b.addEventListener('click', menu.toggleMenuItem));
 	$$('input.toggle').forEach(t => t.value = 0);
@@ -41,7 +41,7 @@ export const initMainMenu = async () => {
 		$(`input[name="${input}"]`).addEventListener('change', (ev) => {
 			renHub.trigger('main/writeConfig', { path: `userSettings/${settingsKeys[input]}`, data: {[input]: ev.target.value||'', options: { createPath: true } } });
 			if (input === 'playerName') {
-				let newId = window.Dune.Helpers.generatePlayerId(ev.target.value);
+				let newId = helpers.generatePlayerId(ev.target.value);
 				if (newId) {
 					renHub.trigger('main/writeConfig', { path: `userSettings/player`, data: { pid: newId } } );
 					$(`input[name="pid"]`).value = newId;
@@ -67,7 +67,7 @@ const lobby = (() => {
 			update(ev, 'updatePlayer');
 		}));
 		// Handlers for server option changes
-		if (window.Dune.ActivePlayer?.isHost && $('.server-options')) {
+		if (window.Dune.currentPlayer?.isHost && $('.server-options')) {
 			$$(`${formTags.map(tag => `.server-options ${tag}`).join(', ')}`)?.forEach(el => el.addEventListener('change', (ev) => {
 				update(ev, 'updateOptions');
 			}));
@@ -114,7 +114,7 @@ const lobby = (() => {
 		}
 		// Colour validation for House Colour
 		if (ev.target.type === 'color') {
-			let normalised = window.Dune.Helpers.normaliseHsl(elValue);
+			let normalised = helpers.normaliseHsl(elValue);
 			update.value = normalised ?? update.value;
 		}
 		renHub.trigger('server/updateLobby', { type: updateType, data: update });
@@ -126,7 +126,7 @@ const lobby = (() => {
 		}
 	}
 
-	const copyServerLink = () => renHub.trigger('main/writeClipboard', window.Dune.Client?.serverOptions?.hostUrl);
+	const copyServerLink = () => renHub.trigger('main/writeClipboard', window.Dune.client?.serverOptions?.hostUrl);
 
 	const refresh = () => renHub.trigger('server/requestLobby', {refresh: true});
 

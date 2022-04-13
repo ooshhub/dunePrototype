@@ -93,7 +93,7 @@ const startElectron = async () => {
 	mainHub.once('coreLoadComplete', () => coreLoad = 1);
 
 	mainFrame.once('ready-to-show', async () => {
-		await helpers.watchCondition(() => coreLoad, '', 10000).then(async (res) => {
+		await helpers.watchCondition(() => coreLoad, '', 1000).then(async (res) => {
 			if (res) {
 				mainFrame.show();
 				mainFrame.focus();

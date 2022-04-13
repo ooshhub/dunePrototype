@@ -49,6 +49,9 @@ let renHub, rlog;
 
 	// Check for existing session
 	await helpers.watchCondition(() => Dune.config);
+	// const newSession = new SessionState(Dune.config?.userSettings?.player);
+	// rlog(newSession.constructor.name);
+	// Dune.session = newSession;
 	Dune.session = new SessionState(Dune.config?.userSettings?.player);
 	const resumeSession = sessionStorage.getItem('DuneSession');
 	rlog([`Previous Session Store: `, JSON.parse(resumeSession)]);

@@ -12,6 +12,6 @@ export class Layer extends pixi.Container {
 		});
 		Object.assign(this, newLayer);
 		stageLayer.addChild(this);
-		window.Dune.Layers[name] = this;
+		window.Dune.layers[name] = this;
 	}
 }

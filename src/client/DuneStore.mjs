@@ -24,6 +24,7 @@ export class DuneStore {
 	}
 
 	// Probably only exposed for debug. Try not to reference this in other code.
+	//TODO: move client to private method, is referenced a lot
 	layers = {};
 	client = null;
 	helpers = helpers;
@@ -39,12 +40,12 @@ export class DuneStore {
 
 	// Setters only work once to initialise object
 	set config(data) { { this.#config = (this.#config === null && data.PATH) ? data : this.#config } }
-	set session(newSession) { this.#session = (this.#session === null && newSession.constructor?.name === 'SessionStore') ? newSession : this.#session }
+	set session(newSession) { this.#session = (this.#session === null && newSession.constructor?.name === 'SessionState') ? newSession : this.#session }
 	set renHub(newHub) { this.#eventHub = (this.#eventHub === null && newHub.constructor.name === 'EventHub') ? newHub : this.#eventHub }
 	set logger(logFunction) { this.#logger = typeof(logFunction) === 'function' ? logFunction : console.log }
 
 	// Serialiser data
-	get privateFields() { return { _houses: this.#houses, _players: this.#players, _session: this.#session, _config: this.#config, _eventHub: this.#eventHub } }
+	get appendFields() { return { _houses: this.#houses, _players: this.#players, _session: this.#session, _config: this.#config, _eventHub: this.#eventHub } }
 
 	// Updates for dynamic game data
 	// TODO: add validation to each data type
