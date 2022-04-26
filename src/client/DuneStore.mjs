@@ -25,7 +25,9 @@ export class DuneStore {
 
 	// Probably only exposed for debug. Try not to reference this in other code.
 	//TODO: move client to private method, is referenced a lot
+	// TODO: create lobbyUpdate() method for lobby data
 	layers = {};
+	lobby = {};
 	client = null;
 	helpers = helpers;
 
@@ -71,6 +73,9 @@ export class DuneStore {
 		Object.assign(this.#tray, data);
 		this.log(`${this.name}: updated Tray`);
 	}
+	// #updateLobby(data) {
+	// 	Object.assign(this.lobby, )
+	// }
 
 	// Exposed update path
 	update(targetProperty, data={}) {

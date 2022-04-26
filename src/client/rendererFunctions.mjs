@@ -128,7 +128,7 @@ export const ren = (() => {
 	const joinLobby = async ({ lobbyData, playerData, initFlag, houseData }) => {
 		rlog([`Received lobby data:`, lobbyData, playerData, houseData], 'info');
 		// Validate data
-		if (houseData) window.Dune.update('houses', houseData);
+		if (houseData) window.Dune.lobby.houses = houseData;
 		renHub.trigger('main/requestHtml', { req: 'lobby', data: lobbyData });
 		if (await helpers.watchCondition(() => $('.player-list'))) {
 			renHub.trigger('refreshLobby', { playerData: playerData });
@@ -207,10 +207,17 @@ export const ren = (() => {
 		window.Dune.session?.update('MENU');
 	}
 
+	// START GAME
+	const setupGameBoard = (data) => {
+		rlog([`Received setup data from server`, data], 'info')
+		window.Dune.update('all', data);
+	}
+
 	return {
 		insertHtml, updateConfig, updatePlayerList,
 		transitionSection, fadeSection,
-		joinServer, joinLobby, setupLobby, updateLobby, cancelLobby
+		joinServer, joinLobby, setupLobby, updateLobby, cancelLobby,
+		setupGameBoard,
 	}
 	
 })();

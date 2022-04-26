@@ -11,7 +11,7 @@ export const MentatSystem = (() => {
 		// Fetch the template for the target element
 		let hbsTemplate = `mentat${helpers.emproper(target)}.hbs`;
 		// Fetch the required data from the help file
-		let houseData = window.Dune.houses?.[data];
+		let houseData = window.Dune.lobby?.houses?.[data];
 		if (!houseData) return rlog(`No house found`, 'warn');
 		let mentatEntry = processEntry(houseData) ?? null;
 		if (!mentatEntry) return rlog(`Error processing mentat entry.`, 'warn');

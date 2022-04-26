@@ -136,7 +136,7 @@ export const server = (() => {
 			const houseErrors = await Game.Server.createHouseList(gameInitData.houses);
 			if (houseErrors > 0) slog(`Server failed to create houseList`, 'error');
 			for (let house in gameInitData.houses) {
-				// slog(`sending gamestate to ${house}`);
+				slog(`sending gamestate to ${house}`);
 				serverHub.trigger('client/initGameBoard', { board: gameInitData.board, houses: gameInitData.houses, tray: gameInitData.trays, targets: house });
 			}
 		}
