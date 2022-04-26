@@ -1,7 +1,7 @@
 import { helpers } from '../shared/helpers.mjs';
 
 export const fetchFilePath = (assetPath, custom = false) => {
-	const assetsPrefix = window.Dune?.CONFIG?.PATH?.ASSETS;
+	const assetsPrefix = window.Dune?.config?.PATH?.ASSETS;
 	if (!assetPath || typeof assetPath !== 'string') return null;
 	if (custom) {
 		// Custom graphics loader

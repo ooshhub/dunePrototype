@@ -183,7 +183,7 @@ const menu = (() => {
 					zIndex = z > zIndex ? z : zIndex;
 				});
 				let mainZ = getComputedStyle(mainMenu)?.getPropertyValue('z-index');
-				rlog(`Max z was ${zIndex}, mainmenu was ${mainZ}`);
+				// rlog(`Max z was ${zIndex}, mainmenu was ${mainZ}`);
 				toggle = (mainZ > zIndex) ? 0 : 1;
 			}
 		}
@@ -193,13 +193,13 @@ const menu = (() => {
 
 	// TODO: create a Modal Controller to handle this, loading messages, error messages etc.
 	const modalUp = async (msg, buttonEvents, blurMain=true) => {
-		renHub.trigger('fadeElement', '#loading-modal', 'in', 750);
+		renHub.trigger('fadeElement', '#loading-modal', 'in', 1000);
     if (blurMain) blurMainMenu(1);
     $('#loading-modal .launch-message').innerHTML = msg||'Launching...';
 		$('#loading-modal .modal-button').dataset.events = buttonEvents;
   }
   const modalDown = async (unBlur) => {
-		renHub.trigger('fadeElement', '#loading-modal', 'out', 750);
+		renHub.trigger('fadeElement', '#loading-modal', 'out', 1000);
 		let actions = $('#loading-modal .modal-button').dataset?.events;
 		if (actions) {
 			actions = actions.split('|');

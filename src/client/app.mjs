@@ -110,7 +110,7 @@ let renHub, rlog;
 		$('input[name="unpackaged"]').value = 1;
 	}).catch(e => err = e);
 	if (err) return rlog(['Client load had errors.', err], 'error');
-	rlog(Dune.config);
+	// rlog(Dune.config);
 
 	// Load other modules
 	await helpers.parallelLoader([

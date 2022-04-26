@@ -60,8 +60,8 @@ export const ren = (() => {
 		window.Dune.session?.update(0, 'ui');
 		return 1;
 	}
-	const fadeSection = async (element, direction, length=1000, timeStep = 1) => {
-		rlog(`Fading ${direction} ${element}...`);
+	const fadeSection = async (element, direction, length=1500, timeStep = 1) => {
+		// rlog(`Fading ${direction} ${element}...`);
 		let start = Date.now();
 		let target = $(element);
 		if (!target || !/^(in|out)$/.test(direction)) return rlog(`fadeSection() error: bad selector or direction, "${element}", "${direction}"`);
@@ -96,7 +96,7 @@ export const ren = (() => {
 	// Alpha: Move this to LobbyInterface or LobbyView class
 	//
 	const joinServer = async ({ serverOptions }) => {
-		rlog([`Joining server with options: `, serverOptions]);
+		// rlog([`Joining server with options: `, serverOptions]);
 		if (window.Dune.client?.io) {
 			rlog(`Closing old Client...`);
 			window.Dune.client.close()
@@ -106,7 +106,7 @@ export const ren = (() => {
 		const DuneClient = new SocketClient(serverOptions);
 		window.Dune.client = DuneClient;
 		DuneClient.registerEventHub(renHub);
-		rlog([`Created socket Client`, DuneClient]);
+		// rlog([`Created socket Client`, DuneClient]);
 		let connected = await DuneClient.connectToGame();
 		if (!connected) rlog(['Connection to server failed', serverOptions], 'warn');
 		else renHub.trigger('writeConfig', { path: 'net', data: { lastIp: serverOptions.hostIp, lastPort: serverOptions.hostIp }});
@@ -191,7 +191,7 @@ export const ren = (() => {
 	}
 
 	const cancelLobby = async () => {
-		rlog('Exiting current lobby...');
+		// rlog('Exiting current lobby...');
 		renHub.trigger('server/exitLobby');
 		await window.Dune.client.destroy()
 			.catch(e => rlog(e, 'error'));

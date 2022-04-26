@@ -1,6 +1,7 @@
 import * as natuPnP from 'nat-upnp';
 import request from 'request';
 import { networkInterfaces } from 'os';
+import { helpers } from '../../shared/helpers.mjs';
 
 const client = natuPnP.default.createClient();
 const localIp = [];
@@ -54,16 +55,19 @@ export const checkPort = async (port) => {
 	});
 }
 
-export const getMapping = async () => {
-	return new Promise((res, rej) => {
-		client.getMappings((err, response) => {
-			if (err) rej(err)
-			else res(response);
-		});
-	}).catch(e => {
-		console.log(`mapping error`, e);
-		return null;
-	});
+export const getMapping = async (timer=1000) => {
+	return await Promise.race([
+		new Promise((res, rej) => {
+			client.getMappings((err, response) => {
+				if (err) rej(err)
+				else res(response);
+			});
+		}).catch(e => {
+			console.log(`mapping error`, e);
+			return null;
+		}),
+		helpers.timeout(timer)
+	]);
 }
 
 export const newMap = async (port, ttl) => {

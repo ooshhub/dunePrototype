@@ -25,14 +25,14 @@ export class SessionState {
 		if (!$('main#mainmenu')) return rlog(`SessionState: failed to find Document`, 'error');
 		this.#store.ui.shown = Array.from($$('.show'))?.map(el => { if (el.id) return `${el.tagName}#${el.id}` });
 		this.#store.ui.hidden = Array.from($$('.hide'))?.map(el => { if (el.id) return `${el.tagName}#${el.id}` });
-		rlog(this.#store.ui);
+		// rlog(this.#store.ui);
 	}
 	async #updateServerStatus() {
 		if (!window.Dune?.client?.player) return rlog(`SessionState: failed to find server info on SocketClient`, 'warn');
 		Object.assign(this.#store.server, window.Dune.client.serverOptions);
 	}
 	async #updatePlayerStatus() {
-		if (!window.Dune.currentPlayer?.pid) return rlog(`SessionState: failed to find player details`, 'error');
+		if (!window.Dune.currentPlayer) return rlog(`SessionState: failed to find player details`, 'error');
 		Object.assign(this.#store.player, window.Dune.currentPlayer);
 	}
 
@@ -66,7 +66,7 @@ export class SessionState {
 	}
 
 	init(playerData) {
-		this.player = playerData;
+		this.#store.player = playerData;
 		this.#setSessionState('MENU');
 		this.#store.ui.shown.push('main#mainmenu');
 	}

@@ -1,3 +1,5 @@
+// import { helpers } from "./helpers.mjs";
+
 export class Serialiser {
 
   // Simple copy object
@@ -8,7 +10,6 @@ export class Serialiser {
     let appendPrivates = {};
     const privateFields = this[whitelistName] || {};
     for (const field in privateFields) {
-			console.log(field);
       appendPrivates[field] = privateFields[field];
     }
     return appendPrivates;
@@ -35,11 +36,16 @@ export class Serialiser {
       publicBlacklist: options.publicBlacklist || 'blockFields'
     });
     // Main process
+    const seen = new WeakSet();
     const processObject = (targetObj) => {
+      if (seen.has(targetObj)) return;
+      seen.add(targetObj);
       const processKeys = (baseObj) => {
         for (const prop in baseObj) {
           if (blacklist.includes(prop)) continue; // Skip blocked public fields
-          if (typeof(baseObj[prop]) === 'object' && baseObj[prop] !== null) output[prop] = processObject(baseObj[prop]); // Recursion for nested objects
+          if (typeof(baseObj[prop]) === 'object' && baseObj[prop] !== null) {
+            output[prop] = processObject(baseObj[prop]); // Recursion for nested objects
+          }
           else {
             if (typeof(baseObj[prop]) === 'function' && options.includeMethods) {
               const cloneFunc = this.#copyFunction(baseObj[prop]); // optional method copy
@@ -55,7 +61,7 @@ export class Serialiser {
         toAppend = {},
         blacklist = targetObj[options.publicBlacklist] || [];
       // Grab whitelisted private fields, if any
-      if (/* conName !== 'Object' && */ conName !== 'Array') Object.assign(toAppend, this.#processPrivates.bind(targetObj)(options.privateWhitelist));
+      if (conName !== 'Object' && conName !== 'Array') Object.assign(toAppend, this.#processPrivates.bind(targetObj)(options.privateWhitelist));
       processKeys(targetObj);
       processKeys(toAppend);
       return output;

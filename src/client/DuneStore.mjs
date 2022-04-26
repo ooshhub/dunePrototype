@@ -39,22 +39,28 @@ export class DuneStore {
 	get renHub() { return this.#eventHub }	// Access through class methods
 
 	// Setters only work once to initialise object
-	set config(data) { { this.#config = (this.#config === null && data.PATH) ? data : this.#config } }
+	set config(data) { this.#config = (this.#config === null && data.PATH) ? data : this.#config }
 	set session(newSession) { this.#session = (this.#session === null && newSession.constructor?.name === 'SessionState') ? newSession : this.#session }
 	set renHub(newHub) { this.#eventHub = (this.#eventHub === null && newHub.constructor.name === 'EventHub') ? newHub : this.#eventHub }
 	set logger(logFunction) { this.#logger = typeof(logFunction) === 'function' ? logFunction : console.log }
 
 	// Serialiser data
-	get appendFields() { return { _houses: this.#houses, _players: this.#players, _session: this.#session, _config: this.#config, _eventHub: this.#eventHub } }
+	get appendFields() { return { _tray: this.#tray, _houses: this.#houses, _players: this.#players, _session: this.#session, _config: this.#config, _eventHub: this.#eventHub } }
+	get blockFields() { return [] }
 
 	// Updates for dynamic game data
 	// TODO: add validation to each data type
 	#updateHouses(data) {
-		for (const house in data) { Object.assign(this.#houses[house], data[house]) }
+		for (const house in data) {
+			this.#houses[house] = this.#houses[house] ?? {};
+			Object.assign(this.#houses[house], data[house]) }
 		this.log(`${this.name}: updated Houses`);
 	}
 	#updatePlayers(data) {
-		for (const player in data) { Object.assign(this.#players[player], data[player]) }
+		for (const player in data) {
+			this.#players[player] = this.#players[player] ?? {};
+			Object.assign(this.#players[player], data[player]);
+		}
 		this.log(`${this.name}: updated Players`);
 	}
 	#updateBoard(data) {
@@ -68,6 +74,7 @@ export class DuneStore {
 
 	// Exposed update path
 	update(targetProperty, data={}) {
+		this.log([`DuneStore update: ${targetProperty}`, data]);
 		const targetArray = targetProperty === 'all' ? Object.keys(data) : helpers.toArray(targetProperty);
 		targetArray.forEach(target => {
 			const dataRef = data[target] ?? data;
@@ -92,6 +99,10 @@ export class DuneStore {
 
 	log(...args) { this.#logger(...args) }
 
-	list() {	console.info(Serialiser.serialise(this)); }
+	list() {
+		const list = Serialiser.serialise(this);
+		// console.info(helpers.removeCyclicReferences(list));
+		console.info(list);
+	}
 
 }

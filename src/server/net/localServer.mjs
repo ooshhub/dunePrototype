@@ -15,7 +15,7 @@ export const startLocalServer = async (serverOptions) => {
 	const localServer = new SocketServer(serverOptions);
 	await initServerHub(localServer);
 	slog(`===Local Server Created===`);
-	const mapping = await setupMapping(localServer.config.port, 7200).catch(e => {
+	const mapping = await setupMapping(localServer.config.port, 64).catch(e => {
 		// slog([`uPnP Error:`, e.message]);
 		return {err: e};
 	});
