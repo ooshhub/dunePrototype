@@ -137,6 +137,7 @@ export class SocketClient {
 	async destroy() {
 		this.#setClientState('CLOSING');
 		this.socket.close();
+		window.Dune?.destroyClient?.();
 		return 1
 	}
 

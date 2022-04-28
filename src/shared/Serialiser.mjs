@@ -38,13 +38,14 @@ export class Serialiser {
     // Main process
     const seen = new WeakSet();
     const processObject = (targetObj) => {
-      if (seen.has(targetObj)) return;
+      // if (seen.has(targetObj)) return;
       seen.add(targetObj);
       const processKeys = (baseObj) => {
         for (const prop in baseObj) {
           if (blacklist.includes(prop)) continue; // Skip blocked public fields
           if (typeof(baseObj[prop]) === 'object' && baseObj[prop] !== null) {
-            output[prop] = processObject(baseObj[prop]); // Recursion for nested objects
+            if (seen.has(baseObj[prop])) { output[prop] = baseObj[prop]; continue }// MAYBE FIX???
+            else output[prop] = processObject(baseObj[prop]); // Recursion for nested objects
           }
           else {
             if (typeof(baseObj[prop]) === 'function' && options.includeMethods) {

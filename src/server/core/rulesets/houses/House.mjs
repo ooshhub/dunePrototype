@@ -4,7 +4,8 @@ export class House {
 
 	constructor(houseData) {
 		let newData = {
-			name: houseData.name || 'NewCunts',
+			name: houseData.name || 'newCunts',
+			displayName: houseData.displayName || 'NewCunts',
 			title: houseData.title || 'House NewCunts',
 			defaultColor: houseData.defaultColor || '#ffffff',
 			ruler: {

@@ -1,6 +1,6 @@
 import { rlog, renHub } from '../rendererHub.mjs';
 import { helpers } from '../../shared/helpers.mjs';
-import { fetchFilePath } from '../../assets/assetDirectory.mjs';
+import { fetchAssetPath } from '../../assets/assetDirectory.mjs';
 import { ttIndex } from './tooltips.mjs';
 
 export const MentatSystem = (() => {
@@ -11,7 +11,7 @@ export const MentatSystem = (() => {
 		// Fetch the template for the target element
 		let hbsTemplate = `mentat${helpers.emproper(target)}.hbs`;
 		// Fetch the required data from the help file
-		let houseData = window.Dune.houses?.[data];
+		let houseData = window.Dune.lobby.houses?.[data];
 		if (!houseData) return rlog(`No house found`, 'warn');
 		let mentatEntry = processEntry(houseData) ?? null;
 		if (!mentatEntry) return rlog(`Error processing mentat entry.`, 'warn');
@@ -26,7 +26,7 @@ export const MentatSystem = (() => {
 		// Process art directory path to filepath
 		if (entryData.mentat?.art) {
 			for (let link in entryData.art) {
-				let filePath = fetchFilePath(entryData.art[link]);
+				let filePath = fetchAssetPath(entryData.art[link]);
 				// rlog(`Resolved ${entryData.art[link]} to ${filePath}`);
 				output.art[link] = filePath;
 			}
@@ -57,8 +57,8 @@ export const MentatSystem = (() => {
 		output.abilities += abilityDescription;
 		// Resolve filenames
 		output.art = {
-			portrait: fetchFilePath(entryData.mentat?.art?.portrait),
-			background: fetchFilePath(entryData.mentat?.art?.background)
+			portrait: fetchAssetPath(entryData.mentat?.art?.portrait),
+			background: fetchAssetPath(entryData.mentat?.art?.background)
 		}
 		return output;
 	}

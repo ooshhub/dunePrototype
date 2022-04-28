@@ -32,14 +32,15 @@ export class SessionState {
 		Object.assign(this.#store.server, window.Dune.client.serverOptions);
 	}
 	async #updatePlayerStatus() {
-		if (!window.Dune.currentPlayer) return rlog(`SessionState: failed to find player details`, 'error');
+		if (!window.Dune.currentPlayer) return rlog(`SessionState: failed to find player details`, 'warn');
 		Object.assign(this.#store.player, window.Dune.currentPlayer);
+		if (window.Dune.currentHouse) Object.assign(this.#store.house, window.Dune.currentHouse);
 	}
 
 	async #saveToStorage() {
 		let payload = { state: this.getSessionState(), store: this.#store };
 		window.sessionStorage.setItem('DuneSession', JSON.stringify(payload));
-		rlog(`SessionState: session stored.`);
+		// rlog(`SessionState: session stored.`);
 	}
 	
 	// Change to sessionId later
@@ -57,10 +58,7 @@ export class SessionState {
 				path: '',
 				password: '',
 			},
-			house: {
-				houseName: null,
-				hid: null
-			},
+			house: {},
 		};
 		helpers.bindAll(this);
 	}
@@ -75,10 +73,8 @@ export class SessionState {
 		this.#setSessionState('RESTORING');
 		// rlog(['Restoring session...', previousSession]);
 		const { state, store } = JSON.parse(previousSession);
-		// rlog([`Store:`, store]);
-		// try { sessionObj = JSON.parse(previousSession) } catch(e) { rlog(['SessionState: error parsing previous state',e], 'error') }
-		// let { state, store } = sessionObj;
-		// rlog(state, store);
+		// Restore HID if found in previous session
+		if (store.house?.hid) window.Dune.update(undefined, {hid: store.house.hid });
 		if (state && store?.player?.pid) Object.assign(this.#store, JSON.parse(previousSession).store);
 		let returnData = { state: state, store: store, reconnect: this.getServerReconnectObject() }
 		this.#setSessionState(`${state}`);

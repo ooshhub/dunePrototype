@@ -2,7 +2,8 @@
 import { House } from './House.mjs';
 
 const atreides = new House({
-	name: 'Atreides',
+	name: 'atreides',
+	displayName: 'Atreides',
 	title: 'House Atreides',
 	ruler: {
 		name: `Paul Muad'Dib`,
@@ -78,7 +79,8 @@ const atreides = new House({
 });
 
 const harkonnen = new House({
-	name: 'Harkonnen',
+	name: 'harkonnen',
+	displayName: 'Harkonnen',
 	title: 'House Harkonnen',
 	defaultColor: `#000000`,
 	ruler: {

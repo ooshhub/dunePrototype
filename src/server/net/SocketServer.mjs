@@ -62,6 +62,7 @@ export class SocketServer {
 
 	#initDefaultMessaging() {
 		this.io.on('connection', async (socket) => {
+			if (this.getServerState() === 'DESTROYING') return this.destroy();
 			let cleanIp = socket.handshake.address.replace(/\./g, '_').replace(/[^\d_]/g, '');
 			// this.#slog(`===UPGRADED CONNECTION FROM ${socket.handshake.address} ===`);
 			let playerDetails = socket.handshake.auth;
@@ -81,6 +82,12 @@ export class SocketServer {
 					if (this.sessionToken !== socket.handshake.auth.sessionToken) {
 						this.#slog(`Session Token is invalid, removing player.`);
 						return this.#destroyPlayer(playerDetails.pid, `Bad session token`);
+					}
+					// Find applicable house for a reconnecting player
+					if (Object.keys(this.#houseList)?.length) {
+						this.#slog(playerDetails.pid);
+						playerDetails.hid = this.#findPlayerHouse(playerDetails.pid) ?? null;
+						if (!playerDetails.hid) return this.#slog(`Reconnecting player is not in houseList. Dropping player.`);
 					}
 				} else {
 					// No reconnect flag
@@ -102,6 +109,7 @@ export class SocketServer {
 			playerDetails.socket = socket;
 			// Add player to server, init handlers
 			this.#playerList[playerDetails.pid] = playerDetails;
+			if (playerDetails.hid) this.#houseList[playerDetails.hid].currentPlayer = this.#playerList[playerDetails.pid];
 			// Check number of players in lobby
 			if (Object.keys(this.#playerList).length >= this.config.maxPlayers) this.#setServerState('FULL');
 			// Update clients with new player list
@@ -128,6 +136,13 @@ export class SocketServer {
 
 	// TODO: grab the socket id and look it up in the playerList
 	#checkPlayerIsHost(playerId) { return (playerId === this.host.pid) ? true : false; }
+
+	#findPlayerHouse(pid) {
+		for (const house in this.#houseList) {
+			this.#slog(this.getHouseList());
+			if (this.#houseList[house].lastPlayer === pid) return house;
+		}
+	}
 
 	// Supply playerData to check specific player, otherwise all players are checked
 	async #healthCheckAck(socket) {
@@ -241,6 +256,12 @@ export class SocketServer {
 		// console.log(output);
 		return output;
 	}
+	getHouseList(houseId) {
+		let output = {};
+		if (this.#houseList[houseId]) output = helpers.removeCyclicReferences(this.#houseList[houseId]);
+		else output = helpers.removeCyclicReferences(this.#houseList);
+		return output;
+	}
 
 	getServerState() { return this.#serverState }
 	hostJoinedLobby() { this.#setServerState('OPEN') }
@@ -255,7 +276,6 @@ export class SocketServer {
 	}
 
 	async createHouseList(houseList) {
-		this.#slog('Creating HID link list...');
 		let err = 0;
 		for (let house in houseList) {
 			const pid = houseList[house].lastPlayer;
@@ -264,12 +284,14 @@ export class SocketServer {
 				err++;
 			} else {
 				this.#houseList[house] = {
-					name: houseList.name,
+					name: houseList[house].name,
+					lastPlayer: pid,
 					currentPlayer: this.#playerList[pid]
 				}
 			}
 		}
 		this.#slog(`Added houses to server: ${Object.keys(this.#houseList).join(`, `)}`);
+		// this.#slog(this.getHouseList());
 		return err;
 	}
 
