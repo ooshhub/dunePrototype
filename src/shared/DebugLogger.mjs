@@ -6,10 +6,11 @@
 // 		logToConsole: whether to also log directly to console.log()
 export class DebugLogger {
 	constructor(sourceName, eventHubLink, debugFlagLink = 1, logToConsole = 0, receiverHub = 'renderer') {
-		return async (msgs, style='log') => {
+		return async (msgs, style='log', includeStack) => {
+			const stackString = (style === 'error' || includeStack) ? new Error().stack : '';
 			if (!console[style] || debugFlagLink === 0) return;
 			msgs = Array.isArray(msgs) ? msgs : [msgs];
-			eventHubLink.trigger(`${receiverHub}/${sourceName}Log`, {msgs: msgs, style: style});
+			eventHubLink.trigger(`${receiverHub}/${sourceName}Log`, {msgs: msgs, style: style, stack: stackString });
 			if (logToConsole) console[style](...msgs);
 		};
 	}
@@ -29,15 +30,21 @@ export class DebugReceiver {
 		clientSockets: 'background: green; color: black; padding:1px 5px 1px 5px; border-radius: 3px', 
 		renderer: 'background: orange; color: black; padding:1px 5px 1px 5px; border-radius: 3px',
 		default: 'background: darkgreen; color: black; padding:1px 5px 1px 5px; border-radius: 3px',
+		stack: `color: pink; font-weight: bold; background: #4e2c34; padding: 0px 6px 0px 6px; border: 1px solid darkred; border-radius: 2px;`,
 	}
 	#registeredHandlers = [];
 	#logStyles = {};
 	#logSources = {};
 	#hubReference = null;
 
-	#processLog(logSource, { msgs, style } ) {
+	#processLog(logSource, { msgs, style, stack } ) {
 		if (this.#logSources[logSource]) {
-			(console[style]||console.log)(`%cFrom ${logSource}:`, this.#logStyles[logSource]||this.#logStyles.default||'', ...msgs);
+			(console[style]||console.log)(`%c${logSource}:`, this.#logStyles[logSource]||this.#logStyles.default||'', ...msgs);
+			if (style === 'error' || stack) {
+				console.groupCollapsed('%c-= stack.trace =-', this.#logStyles.stack);
+				console.log(stack);
+				console.groupEnd();
+			}
 		}
 	}
 

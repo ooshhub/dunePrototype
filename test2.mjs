@@ -1,27 +1,4 @@
-const obj = {
-  one: {
-    name: 'bob',
-    id: 123,
-    desc: 'blah',
-  },
-  two: {
-    name: 'alice',
-    id: 532,
-    desc: 'flaps'
-  }
-}
+let er = new Error('Cunt').stack
+let stack = er.stack;
 
-const data = {
-  one: {
-    name: 'bob B'
-  }
-}
-
-for (const id in data) {
-  // Object.assign(obj[id], data[id]);
-  obj[id] = data[id];
-}
-
-console.log(obj)
-
-console.log('brk');
+console.log(er);
