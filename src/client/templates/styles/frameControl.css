@@ -1,0 +1,18 @@
+@keyframes fc-fadein {
+  0%: { opacity: 0.0; display: block }
+  100% { opacity: 1.0 }
+}
+@keyframes fc-fadeout {
+  0%: { opacity: 1.0; }
+  100% { opacity: 0.0;  display: none }
+}
+
+.fc-fadein-slow { animation: fc-fadein 3s }
+.fc-fadein-med { animation: fc-fadein 1s }
+.fc-fadein-fast { animation: fc-fadein 0.5s }
+.fc-fadein-snap { animation: fc-fadein 0.1s }
+
+.fc-fadeout-slow { animation: fc-fadein 3s }
+.fc-fadeout-med { animation: fc-fadein 1s }
+.fc-fadeout-fast { animation: fc-fadein 0.5s }
+.fc-fadeout-snap { animation: fc-fadein 0.1s }

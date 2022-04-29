@@ -1,6 +1,7 @@
 @import './ui.css';
 @import './mainmenu.css';
 @import './mentat.css';
+@import './frameControl.css';
 
 @font-face {
   font-family: dune;
