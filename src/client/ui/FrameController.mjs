@@ -1,11 +1,10 @@
 export class FrameController {
 
-  #name = null;
-  #container = null;
+  #containers = {}; // Collection of elements the controller can throw popups in
 
   #popupTemplates = {};
 
-  #activeFrames = [];
+  #activePopups = [];
   #visibleFrames = [];
   #hiddenFrames = [];
 
@@ -18,17 +17,33 @@ export class FrameController {
     prefix: `fc-`,
     show: 'fadein-',
     hide: `fadeout-`,
-    fadeSpeeds: ['med', 'slow', 'fast', 'snap'], // index 0 is default speed
+    fadeSpeeds: ['normal', 'slow', 'fast', 'snap'], // index 0 is default speed
+    popup: `popup-`,
+    info: `info`,
+    error: `error`,
+    query: `query`,
   };
+
+  #templates = {
+    info: ``,
+    error: ``,
+    query: ``,
+  }
 
   #rx = { }
 
   #logger = console.log;
 
+  // containers = {} collection of {name: HTMLElement|Selector} pairs, elements the controller can throw popups in
+
   constructor(controllerData = {}) {
-    this.#name = controllerData.name,
-    this.#container = this.#resolveSelectors(controllerData.container)[0];
-    if (!this.#name || !this.#container) return new Error(`Invalid name or container supplied, ${this.constructor.name} not created.`);
+    this.name = controllerData.name;
+    // Find container elements for popups
+    for (const element in controllerData.containers) {
+      const targetArray = this.#resolveSelectors(controllerData.containers[element], false);
+      if (targetArray.length) this.#containers[element] = { target: targetArray[0], zIndexMax: 0 }
+    }
+    if (!Object.keys(this.#containers).length) console.warn(`${this.constructor.name} Warning: No Container elements were found, popups will be disabled.`);
     // Set config values if present, or use default
     const initConfig = typeof(controllerData.config ) === 'object' ? controllerData.config : {};
     for (const key in this.#config) this.#config[key].value = (initConfig[key] && this.#config[key].validate(initConfig[key])) ? initConfig[key] : this.#config[key].default;
@@ -40,7 +55,6 @@ export class FrameController {
     });
   }
 
-  get name() { return this.#name }
   get logger() { return this.#config.debug ? this.#logger : () => {} }
 
   // Inserts new stylesheet
@@ -59,7 +73,7 @@ export class FrameController {
     const targets = this.#resolveSelectors(elements, selectAll);
     if (targets) {
       Promise.all(targets.map(el => {
-        el.class.value = el.class.value.replace(this.#rx[reverseDirection]).trim()
+        el.class.value = el.class.value.replace(this.#rx[reverseDirection]).trim(); // remove opposing classes
         el.class.value += ` ${this.#classes.prefix}${this.#classes[direction]}${speed}`;
       }));
     }
@@ -67,8 +81,15 @@ export class FrameController {
   showElements(elements, speed, selectAll) { this.#fadeElements(elements, 'show', speed, selectAll) }
   hideElements(elements, speed, selectAll) { this.#fadeElements(elements, 'hide', speed, selectAll) }
 
+  // Create a popup and attach to #container
+  // Returns a Promise, can be awaited to halt process until a response is received.
   async #createPopup(popupData = {}) {
-    // Create a popup and attach to #container
+    if (!popupData.container || !this.#containers[popupData.container]) return console.error(`${this.constructor.name} Error: No target or bad target for popup`, popupData);
+    const newPopup = document.createElement('div');
+    if (this.popupData.template) newPopup.innerHTML = this.popupData.template;
+    else {
+      newPopup.class.value = `${this.#classes.prefix}${this.#classes.popup}`;
+    }
   }
 
   #destroyPopup() {}

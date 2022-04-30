@@ -8,11 +8,11 @@
 }
 
 .fc-fadein-slow { animation: fc-fadein 3s }
-.fc-fadein-med { animation: fc-fadein 1s }
+.fc-fadein-normal { animation: fc-fadein 1s }
 .fc-fadein-fast { animation: fc-fadein 0.5s }
 .fc-fadein-snap { animation: fc-fadein 0.1s }
 
 .fc-fadeout-slow { animation: fc-fadein 3s }
-.fc-fadeout-med { animation: fc-fadein 1s }
+.fc-fadeout-normal { animation: fc-fadein 1s }
 .fc-fadeout-fast { animation: fc-fadein 0.5s }
 .fc-fadeout-snap { animation: fc-fadein 0.1s }
