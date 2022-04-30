@@ -88,7 +88,9 @@ export class FrameController {
     const newPopup = document.createElement('div');
     if (this.popupData.template) newPopup.innerHTML = this.popupData.template;
     else {
+      
       newPopup.class.value = `${this.#classes.prefix}${this.#classes.popup}`;
+      
     }
   }
 
