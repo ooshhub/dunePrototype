@@ -3,16 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="./fonts/fa/css/all.min.css"/>
   <title>duneTest</title>
 </head>
 <body>
 <div class="dunebody">
 
-  <dialog class="testclass">
-    <header class="">
-      <span>%title%</span>
+  <div id="fuckyou" class="testclass error">
+    <header>
+      <span>Critical error</span>
       <div class="controls">
         <button class="system close">
           <i class="fas fa-times"></i>
@@ -21,20 +20,138 @@
     </header>
     <div class="body">
       <section class="top">
-        <div class="message">%msg%</div>
-        <div class="error message">%errorMsg%</div>
-        <div class="info message">%infoMsg</div>
+        <div class="error message">Something real bad happened.</div>
+      </section>
+      <section class="bottom">
+        <div class="error-icon"><img src="./assets/humanShit.png"/></div>
+      </section>
+    </div>
+    <footer class="">
+      <button class="popup red">OK</button>
+    </footer>
+  </div>
+
+  <div class="testclass alert">
+    <header class="">
+      <span>Bad smell detected</span>
+      <div class="controls">
+        <button class="system close">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </header>
+    <div class="body">
+      <section class="top">
+        <div class="message alert">You smell funny.<br>Not funny like a clown, either.</div>
       </section>
       <section class="bottom">
         <div class="loading-spinner"><img src="./assets/doubleRing.svg"/></div>
       </section>
     </div>
     <footer class="">
-      <button class="neon red">Cancel</button>
-      <button class="neon green">Yes Cunt</button>
+      <button class="popup green">OK</button>
+    </footer>
+  </div>
+
+  <dialog class="testclass query">
+    <header class="">
+      <span>Response required</span>
+      <div class="controls">
+        <button class="system close">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </header>
+    <div class="body">
+      <section class="top">
+        <div class="query message">Would you like a wristy?</div>
+      </section>
+      <section class="bottom">
+        <div class="loading-spinner"><img src="./assets/doubleRing.svg"/></div>
+      </section>
+    </div>
+    <footer class="">
+      <button class="popup red">No</button>
+      <button class="popup blue">Maybe</button>
+      <button class="popup green">Yes</button>
     </footer>
   </dialog>
 
 </div>
 </body>
+
+<script defer>
+
+  const dragElement = (dragTarget, dragHandle, options={}) => {
+
+    const target = typeof(dragTarget) === 'object' && dragTarget.tagName  ? dragTarget : document.querySelector(dragTarget),
+      handle = dragHandle ? typeof(dragHandle) === 'object' && dragHandle.tagName ? dragHandle : document.querySelector(dragHandle) : target;
+
+    let dragOptions = {
+        axes: options.axes||[1,1], // X,Y controls: 0 - no drag, 1 - top/left bound drag, 2- bottom/right bound drag
+        boundingElement: options.boundingElement||document.documentElement,
+        boundingMinMax: options.boundingMinMax||[0,0,0,0], // Manual pixel offsets relative to bounding element
+        mouseButtons: options.mouseButtons||[1,2,3] // mouse buttons to allow for drag
+    }
+    let posXi = 0, posXf = 0, posYi = 0, posYf = 0;
+    let minX, minY, maxX, maxY;
+    let boundWidth, boundHeight;
+    let finalLTRB = [null,null,null,null]; // left, top, right, bottom
+
+    const getBounds = () => {
+        boundWidth = dragOptions.boundingElement.clientWidth;
+        boundHeight = dragOptions.boundingElement.clientHeight;
+        minX = (dragOptions.axes[0] === 1) ? dragOptions.boundingMinMax[0] : (0 - dragOptions.boundingMinMax[2]);
+        minY = (dragOptions.axes[1] === 1) ? dragOptions.boundingMinMax[1] : (0 - dragOptions.boundingMinMax[3]);
+        maxX = (dragOptions.axes[0] === 1) ? boundWidth + dragOptions.boundingMinMax[2] : (boundWidth - dragOptions.boundingMinMax[0]);
+        maxY = (dragOptions.axes[1] === 1) ? boundHeight + dragOptions.boundingMinMax[3] : (boundHeight - dragOptions.boundingMinMax[1]);
+        console.log(minX, minY, maxX, maxY);
+    }
+
+    const elementGrab = (ev) => {
+        ev.preventDefault();
+        getBounds();
+        posXi = ev.clientX;
+        posYi = ev.clientY;
+        document.addEventListener('mouseup', elementRelease);
+        document.addEventListener('mousemove', elementDrag);
+    }
+
+    const elementDrag = (ev) => {
+        ev.preventDefault();
+        target.dataset.dragging = true;
+        posXf = posXi - ev.clientX;
+        posYf = posYi - ev.clientY;
+        posXi = ev.clientX;
+        posYi = ev.clientY;
+
+
+        finalLTRB[0] = `${Math.min(Math.max((target.offsetLeft - posXf), minX), maxX)}px`;
+
+        finalLTRB[1] = `${Math.min(Math.max((target.offsetTop - posYf), minY), maxY)}px`;
+
+        // console.log(`${target.offsetLeft} - ${posXf} = ${target.offsetLeft - 10}`);
+
+        // target.style.left = `${finalLTRB[0]}px`;
+
+
+        Object.assign(target.style, { left: finalLTRB[0], top: finalLTRB[1]})
+    }
+
+    const elementRelease = () => {
+      document.removeEventListener('mousemove', elementDrag);
+      document.removeEventListener('mouseup', elementRelease);
+      setTimeout(() => {
+        target.dataset.dragging = false;
+      }, 500);
+    }
+
+    handle.addEventListener('mousedown', (ev) => {if (dragOptions.mouseButtons.includes(ev.which)) elementGrab(ev)});
+  }
+
+  document.querySelectorAll('div.testclass, dialog.testclass').forEach(el => dragElement(el, el.querySelector('header')));
+
+
+
+</script>
 </html>
