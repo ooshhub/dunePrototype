@@ -40,6 +40,7 @@
 .testclass {
   position: absolute;
   top: 12rem;
+  left: -15rem;
   display: block;
 	
   min-width: 20rem;
@@ -48,7 +49,7 @@
   border: 2px solid var(--duneCyan);
   background-color: #ad9c37;
   box-shadow: 0px 0px 12px var(--duneCyanDark);
-	  text-align: center;
+  text-align: center;
 }
 
 .testclass header, footer {
@@ -79,9 +80,9 @@
 }
 
 .dunebody button {
-  font-family: 'dune';
+
+  fnt-family: 'dune';
   cursor: pointer;
-  font-weight: 700;
 	height: 1.5rem;
 	line-height: 1rem;
 	margin: auto;
@@ -129,17 +130,25 @@ button.neon.red {
 }
 
 button.neon.green:hover {
-	color: #01cc01;
-	border-color: #01cc01;	
-  text-shadow: 0px 0px 12px var(--duneCyanBrighter2);
-  box-shadow: 0px 0px 8px 0px var(--duneGreenBrighter), 0px 0px 3px 0px var(--duneGreenBrighter) inset;
-  transition: color 0.5s, border 0.5s, text-shadow 1s, box-shadow 1s;
+	color: var(--duneGreen);
+  text-shadow: 0px 0px 1px var(--duneGreen);
+  transition: color 0.5s, text-shadow 1s, box-shadow 0.05s 0.05s
 }
 
 button.neon.red:hover {
-color: #d30808;
-	border-color: #d30808;
-  text-shadow: 0px 0px 8px #f00;
-  box-shadow: 0px 0px 8px 0px #f00, 0px 0px 2px 0px #f00 inset;
-  transition: color 0.5s, border 0.5s, text-shadow 1s, box-shadow 1s;
+	
+}
+
+.testclass button.neon {
+  background-color: rgb(237 230 216 / 100);
+	  box-shadow: 0px 0px 4px var(--duneBrown) inset;
+	border: 1px solid black;
+	padding: 0px 0.5rem 0px 0.5rem;
+	transition: box-shadow 0.5s 0.5s;
+}
+
+.testclass button.neon:active {
+  box-shadow: 0px 0px 8px var(--duneBrown) inset;
+	border: 1px solid black;
+	transition: box-shadow 0.0s;
 }
