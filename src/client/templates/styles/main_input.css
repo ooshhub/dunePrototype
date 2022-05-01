@@ -150,3 +150,56 @@ body {
 	font-family: corbel;
 	font-weight: bold
 }
+
+/* Neon Buttons */
+
+button {
+
+	@apply font-bold uppercase cursor-pointer my-1;
+	text-shadow: 0px 0px 12px var(--duneCyanBrighter2);
+	transition: color 0.5s, text-shadow 1s;
+
+	&.mainmenu {
+		@apply text-2xl text-dune-cyan border-0;
+	}
+
+	&.system {
+		@apply flex items-center text-sm justify-center rounded-sm h-6 w-6 mx-1;
+		@apply text-black bg-dune-whiteSand border-dune-brown;
+		box-shadow: 0px 0px 4px var(--duneBrown) inset;
+	}
+	
+	&.expandable:hover {
+		@apply text-dune-cyanBright transition-colors duration-500;
+		text-shadow: 0px 0px 26px var(--duneCyanBrighter);
+		transition: color 0.5s, text-shadow 1s;
+	}
+	&.neon {
+		@apply text-base rounded py-1 px-2 w-max mx-auto;
+		transition: color 0.5s, border 0.5s, text-shadow 1s, box-shadow 1s;
+	
+		&.green {
+			@apply border-dune-greenBright text-dune-green border-2;
+			box-shadow: 0px 0px 3px 0px green, 0px 0px 2px 0px greem inset;
+			text-shadow: 0px 0px 0px darkgreen;
+		}
+		&.red {
+			@apply border-red-900 text-red-700;
+			box-shadow: 0px 0px 3px 0px #ff0000, 0px 0px 2px 0px red inset;
+			text-shadow: 0px 0px 8px darkred;
+		}
+
+		&.green:hover {
+			@apply text-dune-greenBrighter border-dune-greenBrighter;
+			text-shadow: 0px 0px 12px var(--duneCyanBrighter2);
+			box-shadow: 0px 0px 8px 0px var(--duneGreenBrighter), 0px 0px 3px 0px var(--duneGreenBrighter) inset;
+			transition: color 0.5s, border 0.5s, text-shadow 1s, box-shadow 1s;
+		}
+		&.red:hover {
+			@apply text-red-600 border-x-red-700;
+			text-shadow: 0px 0px 12px red;
+			box-shadow: 0px 0px 8px 0px #d10000, 0px 0px 3px 0px #d10000 inset;
+			transition: color 0.5s, border 0.5s, text-shadow 1s, box-shadow 1s;
+		}
+	}
+}

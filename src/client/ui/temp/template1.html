@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  
+
+<dialog class="testclass">
+  <header class="">
+    <span>%title%</span>
+    <div class="controls">
+      <button class="system close">
+        <i class="fas fa-close"></i>
+      </button>
+    </div>
+  </header>
+  <div class="body">
+    <section class="top">
+      <div class="message">%msg%</div>
+      <div class="error message">%errorMsg%</div>
+      <div class="info message">%infoMsg</div>
+    </section>
+    <section class="bottom">
+      <div class="loading-spinner"><img src="./assets/doubleRing.svg"/>%spinner%</div>
+    </section>
+  </div>
+  <footer class="">
+    <button class="neon red">Cancel</button>
+		<button class="neon green">Continue</button>
+  </footer>
+</dialog>
+
+</body>
+</html>
