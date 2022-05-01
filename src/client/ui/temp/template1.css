@@ -1,0 +1,145 @@
+@font-face {
+  font-family: dune;
+  src: url("fonts/NEON CLUB MUSIC.otf") format("opentype");
+}
+@font-face {
+  font-family: dune;
+  font-weight: bold;
+  src: url("fonts/NEON CLUB MUSIC_bold.otf") format("opentype");
+}
+@font-face {
+  font-family: dune;
+  font-weight: lighter;
+  src: url("fonts/NEON CLUB MUSIC_light.otf") format("opentype");
+}
+@font-face {
+  font-family: dune;
+  font-style: italic;
+  src: url("fonts/NEON CLUB MUSIC_italic.otf") format("opentype");
+}
+:root {
+	--duneBrown: #201900;
+    --duneCyan: #0ed5d5;
+    --duneCyanBright: #03fbfb;
+    --duneCyanBrighter: #7bffff;
+    --duneCyanDark: #1c4f4f;
+    --duneGreen: #00d01c;
+    --duneGreenBright: #328600;
+    --duneGreenBrighter: #00d21d;
+}
+
+.loading-spinner img {
+	width: 50px;
+}
+
+.dunebody {
+	background-color: #c6af96;
+	height: 1000px;
+}
+
+.testclass {
+  position: absolute;
+  top: 12rem;
+  display: block;
+	
+  min-width: 20rem;
+  padding: 0px 3px 0px 3px;
+  border-radius: 1rem;
+  border: 2px solid var(--duneCyan);
+  background-color: #ad9c37;
+  box-shadow: 0px 0px 12px var(--duneCyanDark);
+	  text-align: center;
+}
+
+.testclass header, footer {
+  position: relative;
+  height: 2rem;
+  font-size: 1.125rem;
+	vertical-align: middle;
+	line-height: 2rem;
+}
+
+.testclass header .controls {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  top: 50%;
+  right: 1%;
+  transform: translate(0%, -50%);
+}
+
+.testclass .body {
+  overflow-y: auto;
+  background-color: whitesmoke;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  max-height: 16rem;
+	border: 1px solid black;
+}
+
+.dunebody button {
+  font-family: 'dune';
+  cursor: pointer;
+  font-weight: 700;
+	height: 1.5rem;
+	line-height: 1rem;
+	margin: auto;
+  text-transform: uppercase;
+  text-shadow: 0px 0px 12px var(--duneCyanBrighter2);
+  transition: color 0.5s, text-shadow 1s;
+	background: none;
+	border: 1px solid;
+	border-radius: 3px;
+}
+
+
+.dunebody button.system {
+  margin-left: 0.25rem;
+  margin-right: 0.25rem;
+  display: flex;
+  height: 1.5rem;
+  width: 1.5rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.125rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  background-color: rgb(237 230 216 / 100);
+  color: rgb(0 0 0 / var(--tw-text-opacity));
+  box-shadow: 0px 0px 4px var(--duneBrown) inset;
+}
+
+button.neon {
+  transition: color 0.5s, border 0.5s, text-shadow 1s, box-shadow 1s;
+}
+
+button.neon.green {
+border: 1px solid green;
+	color: green;
+  box-shadow: 0px 0px 3px 0px green, 0px 0px 2px 0px green inset;
+  text-shadow: 0px 0px 1px darkgreen;
+}
+
+button.neon.red {
+	border: 1px solid darkred;
+	color: darkred;
+  box-shadow: 0px 0px 2px 0px #b30000, 0px 0px 2px 0px red inset;
+  text-shadow: 0px 0px 1px darkred;
+}
+
+button.neon.green:hover {
+	color: #01cc01;
+	border-color: #01cc01;	
+  text-shadow: 0px 0px 12px var(--duneCyanBrighter2);
+  box-shadow: 0px 0px 8px 0px var(--duneGreenBrighter), 0px 0px 3px 0px var(--duneGreenBrighter) inset;
+  transition: color 0.5s, border 0.5s, text-shadow 1s, box-shadow 1s;
+}
+
+button.neon.red:hover {
+color: #d30808;
+	border-color: #d30808;
+  text-shadow: 0px 0px 8px #f00;
+  box-shadow: 0px 0px 8px 0px #f00, 0px 0px 2px 0px #f00 inset;
+  transition: color 0.5s, border 0.5s, text-shadow 1s, box-shadow 1s;
+}
