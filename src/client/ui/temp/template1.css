@@ -38,15 +38,12 @@
 	position: relative;
 }
 
-dialog.testclass {
-	border-color: red;
-	left: 0px;
-	direction: ltr;
-	position: absolute;
-	min-width: 100px;
-	max-width: 200px;
-	width: 200px;
-	
+.testclass.error {
+	border: 2px solid red
+}
+
+.testclass.alert {
+  border: 2px solid var(--duneGreen);
 }
 
 .testclass {
@@ -55,7 +52,7 @@ dialog.testclass {
 	display: block;
 
   padding: 0px 3px 0px 3px;
-  border-radius: 1rem;
+  border-radius: 4px;
   border: 2px solid var(--duneCyan);
   background-color: #ad9c37;
   box-shadow: 0px 0px 12px var(--duneCyanDark);
@@ -89,11 +86,11 @@ dialog.testclass {
   line-height: 1.5rem;
   max-height: 16rem;
 	border: 1px solid black;
+	padding: 0.5rem;
 }
 
 .dunebody button {
 
-  fnt-family: 'dune';
   cursor: pointer;
 	height: 1.5rem;
 	line-height: 1rem;
@@ -125,30 +122,33 @@ dialog.testclass {
 
 button.popup {
   transition: color 0.5s, border 0.5s, text-shadow 1s, box-shadow 1s;
+	
 }
 
 button.popup.green {
-border: 1px solid green;
 	color: green;
-  box-shadow: 0px 0px 3px 0px green, 0px 0px 2px 0px green inset;
-  text-shadow: 0px 0px 1px darkgreen;
+  	text-shadow: 0px 0px 1px darkgreen;
 }
 
 button.popup.red {
-	border: 1px solid darkred;
 	color: darkred;
-  box-shadow: 0px 0px 2px 0px #b30000, 0px 0px 2px 0px red inset;
-  text-shadow: 0px 0px 1px darkred;
+	text-shadow: 0px 0px 1px darkred;
+}
+
+button.popup:hover {
+  transition: color 0.25s, text-shadow 0.5s, box-shadow 0.05s 0.05s;
+	color: var(--duneCyan);
+  text-shadow: 0px 0px 1px #109810;
 }
 
 button.popup.green:hover {
-	color: var(--duneGreen);
-  text-shadow: 0px 0px 1px var(--duneGreen);
-  transition: color 0.5s, text-shadow 1s, box-shadow 0.05s 0.05s
+	color: #1dc31d;
+  text-shadow: 0px 0px 1px #109810;
 }
 
-button.neon.red:hover {
-	
+button.popup.red:hover {
+	color: #c51515;
+  text-shadow: 0px 0px 1px red;
 }
 
 .testclass button.popup {

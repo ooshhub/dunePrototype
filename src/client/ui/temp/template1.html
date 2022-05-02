@@ -9,7 +9,7 @@
 <body>
 <div class="dunebody">
 
-  <div id="fuckyou" class="testclass error">
+  <div class="testclass error">
     <header>
       <span>Critical error</span>
       <div class="controls">
@@ -23,7 +23,7 @@
         <div class="error message">Something real bad happened.</div>
       </section>
       <section class="bottom">
-        <div class="error-icon"><img src="./assets/humanShit.png"/></div>
+        <div class="error-icon modal-icon"><img src="./assets/humanShit.png"/></div>
       </section>
     </div>
     <footer class="">
@@ -45,7 +45,7 @@
         <div class="message alert">You smell funny.<br>Not funny like a clown, either.</div>
       </section>
       <section class="bottom">
-        <div class="loading-spinner"><img src="./assets/doubleRing.svg"/></div>
+        <div class="loading-spinner modal-icon"><img class="" src="./assets/doubleRing.svg"/></div>
       </section>
     </div>
     <footer class="">
@@ -53,7 +53,7 @@
     </footer>
   </div>
 
-  <dialog class="testclass query">
+  <div class="testclass query">
     <header class="">
       <span>Response required</span>
       <div class="controls">
@@ -67,7 +67,7 @@
         <div class="query message">Would you like a wristy?</div>
       </section>
       <section class="bottom">
-        <div class="loading-spinner"><img src="./assets/doubleRing.svg"/></div>
+        <div class="modal-icon loading-spinner"><img src="./assets/doubleRing.svg"/></div>
       </section>
     </div>
     <footer class="">
@@ -75,7 +75,7 @@
       <button class="popup blue">Maybe</button>
       <button class="popup green">Yes</button>
     </footer>
-  </dialog>
+  </div>
 
 </div>
 </body>
@@ -88,9 +88,8 @@
       handle = dragHandle ? typeof(dragHandle) === 'object' && dragHandle.tagName ? dragHandle : document.querySelector(dragHandle) : target;
 
     let dragOptions = {
-        axes: options.axes||[1,1], // X,Y controls: 0 - no drag, 1 - top/left bound drag, 2- bottom/right bound drag
+        bound: options.bound ?? true, // set to false to disable binding the draggabale element to the container
         boundingElement: options.boundingElement||document.documentElement,
-        boundingMinMax: options.boundingMinMax||[0,0,0,0], // Manual pixel offsets relative to bounding element
         mouseButtons: options.mouseButtons||[1,2,3] // mouse buttons to allow for drag
     }
     let posXi = 0, posXf = 0, posYi = 0, posYf = 0;
@@ -100,17 +99,14 @@
 
     const getBounds = () => {
         boundWidth = dragOptions.boundingElement.clientWidth;
-        boundHeight = dragOptions.boundingElement.clientHeight;
-        minX = (dragOptions.axes[0] === 1) ? dragOptions.boundingMinMax[0] : (0 - dragOptions.boundingMinMax[2]);
-        minY = (dragOptions.axes[1] === 1) ? dragOptions.boundingMinMax[1] : (0 - dragOptions.boundingMinMax[3]);
-        maxX = (dragOptions.axes[0] === 1) ? boundWidth + dragOptions.boundingMinMax[2] : (boundWidth - dragOptions.boundingMinMax[0]);
-        maxY = (dragOptions.axes[1] === 1) ? boundHeight + dragOptions.boundingMinMax[3] : (boundHeight - dragOptions.boundingMinMax[1]);
-        console.log(minX, minY, maxX, maxY);
+        boundHeight = dragOptions.boundingElement.clientHeight;        
+        minX = 0, minY = 0, maxX = boundWidth - target.offsetWidth, maxY = boundHeight - target.offsetHeight;
+        console.info(minX, minY, maxX, maxY);
     }
 
     const elementGrab = (ev) => {
         ev.preventDefault();
-        getBounds();
+        if (dragOptions.bound) getBounds();
         posXi = ev.clientX;
         posYi = ev.clientY;
         document.addEventListener('mouseup', elementRelease);
@@ -125,17 +121,11 @@
         posXi = ev.clientX;
         posYi = ev.clientY;
 
-
-        finalLTRB[0] = `${Math.min(Math.max((target.offsetLeft - posXf), minX), maxX)}px`;
-
-        finalLTRB[1] = `${Math.min(Math.max((target.offsetTop - posYf), minY), maxY)}px`;
-
-        // console.log(`${target.offsetLeft} - ${posXf} = ${target.offsetLeft - 10}`);
-
-        // target.style.left = `${finalLTRB[0]}px`;
+        finalLTRB[0] = dragOptions.bound ? Math.min(Math.max((target.offsetLeft - posXf), minX), maxX) : target.offsetLeft - posXf;
+        finalLTRB[1] = dragOptions.bound ? Math.min(Math.max((target.offsetTop - posYf), minY), maxY) : target.offsetTop - posYf;
 
 
-        Object.assign(target.style, { left: finalLTRB[0], top: finalLTRB[1]})
+        Object.assign(target.style, { left: `${finalLTRB[0]}px`, top: `${finalLTRB[1]}px` });
     }
 
     const elementRelease = () => {
@@ -149,8 +139,40 @@
     handle.addEventListener('mousedown', (ev) => {if (dragOptions.mouseButtons.includes(ev.which)) elementGrab(ev)});
   }
 
-  document.querySelectorAll('div.testclass, dialog.testclass').forEach(el => dragElement(el, el.querySelector('header')));
+  const resolveSelector = (targetElementOrSelector) => {
+  return typeof(targetElementOrSelector) === 'object' && targetElementOrSelector.tagName ? targetElementOrSelector
+  : typeof(targetElementOrSelector) === 'string' ? document.querySelector(targetElementOrSelector)
+  : null;
+}
 
+const getSiblingZindices = (targetElement, siblingFilter = '.testclass') => {
+  const parent = typeof(targetElement) === 'object' && targetElement.tagName ? targetElement.parentNode
+    : typeof(targetElement) === 'string' ? document.querySelector(targetElement)?.parentNode
+    : null;
+  if (!parent) {
+    console.warn(`Invalide target element:`, targetElement);
+    return [];
+  }
+  const siblings = siblingFilter ? parent.querySelectorAll(siblingFilter)
+    : parent.childNodes;
+  return Array.from(siblings).map(el => {
+    const style = window.getComputedStyle(el);
+    return parseInt(style.getPropertyValue('z-index')) || 0;
+  });
+}
+
+const bringToFront = (targetElement) => {
+  console.log(targetElement);
+  const target = resolveSelector(targetElement);
+  if (!target) return console.warn(`No target element found for selector "${targetElement}"`);
+  const zArray = getSiblingZindices(target);
+  target.style['z-index'] = (Math.max(...zArray) || 0) + 1;
+}
+
+document.querySelectorAll('div.testclass').forEach(el => {
+  dragElement(el, el.querySelector('header'));
+  el.addEventListener('mousedown', () => bringToFront(el));
+});
 
 
 </script>
