@@ -134,11 +134,17 @@ const helpers = { generateUID: () => `-fakeid` }
     });
   }
 
+  // Default behaviour is close frame on any button click. Must be overridden if not desired.
+  // Also needs to be applied to .control-close button in top right
   #closeFrame(ev) {
-    const targetParentClass = this.#activeTemplate.properties?.classes?.default
-    const parentFrame = ev.target.closest('.fc-dune');
+    const targetParentClass = this.#activeTemplate.properties?.classes?.default ?? this.#fallbackContainerClass;
+    const parentFrame = ev.target.closest(targetParentClass);
     if (parentFrame) parentFrame.remove();
+    else console.warn(`${this.constructor.name}: Could not close current frame, bad container class or frame not found`);
   }
+
+  // Return data either directly through parent class, or via eventhub. Async/await version TBD
+  #returnData() { }
 
   create(templateData = {}) {
     const template = (templateData.template && this.this.templateNames.includes(templateData.template)) ? templateData.template : this.#defaultTemplate;
