@@ -2,14 +2,15 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" >
+  <!-- <meta http-equiv="Content-Security-Policy" content="default-src *; script-src * "> -->
   <link rel="stylesheet" href="./fonts/fa/css/all.min.css"/>
   <title>duneTest</title>
 </head>
 <body>
 <div class="dunebody">
 
-  <div class="testclass error">
+<!--   <div class="testclass error">
     <header>
       <span>Critical error</span>
       <div class="controls">
@@ -75,11 +76,13 @@
       <button class="popup blue">Maybe</button>
       <button class="popup green">Yes</button>
     </footer>
-  </div>
+  </div> -->
 
 </div>
 </body>
 
+<script src="../TemplateEngine.mjs"></script>
+<script src="../templates_dune.mjs"></script>
 <script defer>
 
   const dragElement = (dragTarget, dragHandle, options={}) => {
@@ -101,7 +104,7 @@
         boundWidth = dragOptions.boundingElement.clientWidth;
         boundHeight = dragOptions.boundingElement.clientHeight;        
         minX = 0, minY = 0, maxX = boundWidth - target.offsetWidth, maxY = boundHeight - target.offsetHeight;
-        console.info(minX, minY, maxX, maxY);
+        // console.info(minX, minY, maxX, maxY);
     }
 
     const elementGrab = (ev) => {
@@ -145,16 +148,16 @@
   : null;
 }
 
-const getSiblingZindices = (targetElement, siblingFilter = '.testclass') => {
+const getSiblingZindices = (targetElement, siblingFilter = '.fc-dune') => {
   const parent = typeof(targetElement) === 'object' && targetElement.tagName ? targetElement.parentNode
     : typeof(targetElement) === 'string' ? document.querySelector(targetElement)?.parentNode
     : null;
   if (!parent) {
-    console.warn(`Invalide target element:`, targetElement);
+    console.warn(`Invalid target element:`, targetElement);
     return [];
   }
   const siblings = siblingFilter ? parent.querySelectorAll(siblingFilter)
-    : parent.childNodes;
+    : parent.childNodes || [];
   return Array.from(siblings).map(el => {
     const style = window.getComputedStyle(el);
     return parseInt(style.getPropertyValue('z-index')) || 0;
@@ -162,18 +165,27 @@ const getSiblingZindices = (targetElement, siblingFilter = '.testclass') => {
 }
 
 const bringToFront = (targetElement) => {
-  console.log(targetElement);
   const target = resolveSelector(targetElement);
   if (!target) return console.warn(`No target element found for selector "${targetElement}"`);
   const zArray = getSiblingZindices(target);
   target.style['z-index'] = (Math.max(...zArray) || 0) + 1;
 }
 
-document.querySelectorAll('div.testclass').forEach(el => {
-  dragElement(el, el.querySelector('header'));
-  el.addEventListener('mousedown', () => bringToFront(el));
-});
+// document.querySelectorAll('div.testclass').forEach(el => {
+//   dragElement(el, el.querySelector('header'));
+//   el.addEventListener('mousedown', () => bringToFront(el));
+// });
 
+const TE = new TemplateEngine(templates);
+
+const newFrame = (frameData={}, container = '.dunebody') => {
+  const frame = TE.create(frameData),
+    target = document.querySelector(container) ?? document.body;
+  target.append(frame);
+  dragElement(frame);
+  frame.addEventListener('mousedown', () => bringToFront(frame));
+  return 1;
+}
 
 </script>
 </html>

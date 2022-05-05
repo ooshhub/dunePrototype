@@ -1,8 +1,11 @@
+import { TemplateEngine } from './TemplateEngine.mjs';
+
 export class FrameController {
 
   #containers = {}; // Collection of elements the controller can throw popups in
 
-  #popupTemplates = {};
+  #Template = {};
+  #templateTypes = [];
 
   #activePopups = [];
   #visibleFrames = [];
@@ -23,12 +26,6 @@ export class FrameController {
     error: `error`,
     query: `query`,
   };
-
-  #templates = {
-    info: ``,
-    error: ``,
-    query: ``,
-  }
 
   #rx = { }
 
@@ -53,6 +50,8 @@ export class FrameController {
       show: new RegExp(`${this.#classes.prefix}${this.#classes.show}\\w+`, 'g'),
       hide: new RegExp(`${this.#classes.prefix}${this.#classes.hide}\\w+`, 'g'),
     });
+    // Load templates for popups
+    this.#Template = new TemplateEngine('dune');
   }
 
   get logger() { return this.#config.debug ? this.#logger : () => {} }
@@ -86,7 +85,7 @@ export class FrameController {
   async #createPopup(popupData = {}) {
     if (!popupData.container || !this.#containers[popupData.container]) return console.error(`${this.constructor.name} Error: No target or bad target for popup`, popupData);
     const newPopup = document.createElement('div');
-    if (this.popupData.template) newPopup.innerHTML = this.popupData.template;
+    if (this.popupData.customTemplate) newPopup.outerHTML = this.popupData.customTemplate;
     else {
       
       newPopup.class.value = `${this.#classes.prefix}${this.#classes.popup}`;

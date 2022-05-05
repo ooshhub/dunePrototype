@@ -38,15 +38,20 @@
 	position: relative;
 }
 
-.testclass.error {
+.fc-dune.error {
 	border: 2px solid red
 }
 
-.testclass.alert {
+.fc-dune.alert {
   border: 2px solid var(--duneGreen);
 }
 
-.testclass {
+.fc-dune .modal-icon img {
+	max-width: 50px;
+	max-height: 50px;
+}
+
+.fc-dune {
   position: absolute;
   user-select: none;
 	display: block;
@@ -59,7 +64,7 @@
   text-align: center;
 }
 
-.testclass header, footer {
+.fc-dune header, footer {
   position: relative;
   height: 2rem;
   font-size: 1.125rem;
@@ -67,9 +72,9 @@
 	line-height: 2rem;
 }
 
-.testclass header { cursor: move }
+.fc-dune header { cursor: move }
 
-.testclass header .controls {
+.fc-dune header .controls {
   position: absolute;
   display: flex;
   align-items: center;
@@ -78,7 +83,7 @@
   transform: translate(0%, -50%);
 }
 
-.testclass .body {
+.fc-dune .body {
   overflow-y: auto;
   background-color: whitesmoke;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
@@ -120,38 +125,40 @@
   box-shadow: 0px 0px 4px var(--duneBrown) inset;
 }
 
-button.popup {
+button.fc-modal {
   transition: color 0.5s, border 0.5s, text-shadow 1s, box-shadow 1s;
+	color: var(--duneCyanDark);
+  	text-shadow: 0px 0px 1px darkgreen;
 	
 }
 
-button.popup.green {
+button.fc-modal.green {
 	color: green;
   	text-shadow: 0px 0px 1px darkgreen;
 }
 
-button.popup.red {
+button.fc-modal.red {
 	color: darkred;
 	text-shadow: 0px 0px 1px darkred;
 }
 
-button.popup:hover {
+button.fc-modal:hover {
   transition: color 0.25s, text-shadow 0.5s, box-shadow 0.05s 0.05s;
 	color: var(--duneCyan);
   text-shadow: 0px 0px 1px #109810;
 }
 
-button.popup.green:hover {
+button.fc-modal.green:hover {
 	color: #1dc31d;
   text-shadow: 0px 0px 1px #109810;
 }
 
-button.popup.red:hover {
+button.fc-modal.red:hover {
 	color: #c51515;
   text-shadow: 0px 0px 1px red;
 }
 
-.testclass button.popup {
+.fc-dune button.fc-modal {
   background-color: rgb(237 230 216 / 100);
 	  box-shadow: 0px 0px 4px var(--duneBrown) inset;
 	border: 1px solid black;
@@ -159,7 +166,7 @@ button.popup.red:hover {
 	transition: box-shadow 0.5s 0.5s;
 }
 
-.testclass button.popup:active {
+.fc-dune button.fc-modal:active {
   box-shadow: 0px 0px 8px var(--duneBrown) inset;
 	border: 1px solid black;
 	transition: box-shadow 0.0s;
