@@ -108,7 +108,7 @@
     }
 
     const elementGrab = (ev) => {
-        ev.preventDefault();
+        // ev.preventDefault();
         if (dragOptions.bound) getBounds();
         posXi = ev.clientX;
         posYi = ev.clientY;
@@ -117,7 +117,7 @@
     }
 
     const elementDrag = (ev) => {
-        ev.preventDefault();
+        // ev.preventDefault();
         target.dataset.dragging = true;
         posXf = posXi - ev.clientX;
         posYf = posYi - ev.clientY;
@@ -182,9 +182,29 @@ const newFrame = (frameData={}, container = '.dunebody') => {
   const frame = TE.create(frameData),
     target = document.querySelector(container) ?? document.body;
   target.append(frame);
-  dragElement(frame);
+  dragElement(frame, frame.querySelector('header'));
   frame.addEventListener('mousedown', () => bringToFront(frame));
-  return 1;
+  return frame.id;
+}
+
+const newBlockingFrame = async (frameData={}, container = '.dunebody') => {
+  return new Promise(res => {
+    frameData.messageTop = `<select name="house"><option value="atreides">Atreides</option><option value="harkonnen">Harkonnen</option></select>`;
+    const frame = TE.create(frameData),
+      target = document.querySelector(container) ?? document.body;
+    target.append(frame);
+    dragElement(frame, frame.querySelector('header'));
+    frame.addEventListener('mousedown', () => bringToFront(frame));
+    // return frame.id;
+    const returnDataHandler = (ev) => {
+      if (ev.detail.id === frame.id) {
+        console.log(`correct id found`);
+        res(ev.detail);
+        target.removeEventListener('returnModalData', returnDataHandler);
+      }
+    }
+    target.addEventListener('returnModalData', returnDataHandler);
+  });
 }
 
 </script>

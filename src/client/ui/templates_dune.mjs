@@ -1,22 +1,25 @@
+// Stand-in function, replace with proper import of RendererHub
+const renHub = (eventName, data) => { document.querySelector('.dunebody')?.dispatchEvent(new CustomEvent(eventName, {detail: data})) }
+
 /* export */ const templates = {
   default: {
     html: `
-    <div class="{%type%}">
+    <div>
       <header>
         <span>{%title%}</span>
         <div class="controls">
-          <button class="system close">
+          <button class="system close" name="close">
             <i class="fas fa-times"></i>
           </button>
         </div>
       </header>
       <div class="body">
         <section class="top">
-          <div class="message {%type%}">{%messageTop%}</div>
+          <div class="message">{%messageTop%}</div>
         </section>
         <section class="bottom">
           <div class="modal-icon">{%icon%}</div>
-          <div class="message {%type%}">{%messageBottom%}</div>
+          <div class="message">{%messageBottom%}</div>
         </section>
       </div>
       <footer>
@@ -25,10 +28,6 @@
     `,
     properties: {
       replacers: {
-        type: {
-          validate: (v) => ['alert', 'error', 'prompt'].includes(v),
-          default: 'alert',
-        },
         title: {
           default: 'Bingbong',
         },
@@ -46,6 +45,10 @@
       attributes: {},
       classes: {
         default: 'fc-dune',
+        type: {
+          validate: (v) => ['alert', 'error', 'prompt'].includes(v),
+          default: 'alert',
+        }, 
       },
       dataset: {}
     },
@@ -56,11 +59,6 @@
       // Standard properties
       action: {
         type: ['function'],
-        default: (ev) => {
-          console.log(ev);
-          const parentFrame = ev.target.closest('.fc-dune');
-          if (parentFrame) parentFrame.remove();
-        }
       },
       label: {
         type: ['string'],
@@ -70,7 +68,7 @@
       closeFrame: {
         type: ['boolean'],
         default: true,
-        target: this.properties.classes.default,
+        controlButton: 'button.system.close',
         validate: (v) => {
           return (v === true || v > 0) ? true
             : (v === false || v === 0) ? false
@@ -78,8 +76,10 @@
         }
       },
       returnData: {
-
-      }
+        type: ['boolean'],
+        default: true,
+        action: (...args) => renHub('returnModalData', ...args),
+      },
       // HTML attributes
       attributes: {
         value: {
@@ -107,9 +107,16 @@
       defaultButtons: [
         {
           label: 'OK',
+          name: 'ok',
         }
       ]
     }
     // `<button class="popup red">OK</button>`
   }
+}
+
+/* export */ const presets = {
+  alert: {},
+  prompt: {},
+  error: {},
 }
