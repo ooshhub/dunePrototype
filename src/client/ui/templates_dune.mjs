@@ -1,7 +1,5 @@
-// Stand-in function, replace with proper import of RendererHub
-const renHub = (eventName, data) => { document.querySelector('.dunebody')?.dispatchEvent(new CustomEvent(eventName, {detail: data})) }
-
-/* export */ const templates = {
+// Template Engine template & presets for Dune
+export const templates = {
   default: {
     html: `
     <div>
@@ -15,7 +13,7 @@ const renHub = (eventName, data) => { document.querySelector('.dunebody')?.dispa
       </header>
       <div class="body">
         <section class="top">
-          <div class="message">{%messageTop%}</div>
+          <div class="message">{%message%}</div>
         </section>
         <section class="bottom">
           <div class="modal-icon">{%icon%}</div>
@@ -27,11 +25,22 @@ const renHub = (eventName, data) => { document.querySelector('.dunebody')?.dispa
     </div>
     `,
     properties: {
+      // Whether or not the close button appears top right
+      closeFrame: {
+        type: ['boolean'],
+        default: true,
+        controlButton: 'button.system.close',
+        validate: (v) => {
+          return (v === true || v > 0) ? true
+            : (v === false || v === 0) ? true
+            : null;
+        }
+      },
       replacers: {
         title: {
           default: 'Bingbong',
         },
-        messageTop: {
+        message: {
           default: `There's an alert going on.`,
         },
         messageBottom: {
@@ -44,9 +53,10 @@ const renHub = (eventName, data) => { document.querySelector('.dunebody')?.dispa
       },
       attributes: {},
       classes: {
-        default: 'fc-dune',
+        root: 'fc-dune-modal',
+        default: '',
         type: {
-          validate: (v) => ['alert', 'error', 'prompt'].includes(v),
+          validate: (v) => ['alert', 'error', 'prompt', 'loading'].includes(v),
           default: 'alert',
         }, 
       },
@@ -65,20 +75,9 @@ const renHub = (eventName, data) => { document.querySelector('.dunebody')?.dispa
         validate: (v) => v,
         default: 'OK'
       },
-      closeFrame: {
-        type: ['boolean'],
-        default: true,
-        controlButton: 'button.system.close',
-        validate: (v) => {
-          return (v === true || v > 0) ? true
-            : (v === false || v === 0) ? false
-            : null;
-        }
-      },
       returnData: {
         type: ['boolean'],
         default: true,
-        action: (...args) => renHub('returnModalData', ...args),
       },
       // HTML attributes
       attributes: {
@@ -106,17 +105,68 @@ const renHub = (eventName, data) => { document.querySelector('.dunebody')?.dispa
       replacers: {},
       defaultButtons: [
         {
-          label: 'OK',
+          label: 'Ok',
           name: 'ok',
         }
       ]
     }
-    // `<button class="popup red">OK</button>`
   }
 }
 
-/* export */ const presets = {
-  alert: {},
-  prompt: {},
-  error: {},
+export const presets = {
+  alert: {
+    title: `Alert`,
+    message: `Alert message`,
+    buttons: [
+      {
+        label: 'Ok',
+        name: 'ok',
+        color: 'blue',
+        returnData: false,
+      }
+    ],
+  },
+  prompt: {
+    awaitInput: true,
+    title: `Prompt`,
+    disableMain: true,
+    blurMain: false,
+    message: `Input required.`,
+    buttons: [
+      {
+        label: 'Ok',
+        name: 'ok',
+        color: 'green',
+        returnData: true,
+      },
+      {
+        label: 'Cancel',
+        name: 'cancel',
+        color: 'red',
+        returnData: false,
+      }
+    ],
+  },
+  error: {
+    title: `Error`,
+    message: `Error message`,
+    icon: `./assets/humanShit.png`,
+    buttons: [
+      {
+        label: 'Ok',
+        name: 'ok',
+        color: 'red',
+        returnData: false,
+      }
+    ],
+  },
+  loading: {
+    title: `Loading`,
+    draggable: false,
+    disableMain: true,
+    message: `Loading message`,
+    icon: `./assets/doubleRing.svg`,
+    buttons: [],
+    closeFrame: false,
+  },
 }

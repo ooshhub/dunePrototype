@@ -9,75 +9,10 @@
 </head>
 <body>
 <div class="dunebody">
-
-<!--   <div class="testclass error">
-    <header>
-      <span>Critical error</span>
-      <div class="controls">
-        <button class="system close">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-    </header>
-    <div class="body">
-      <section class="top">
-        <div class="error message">Something real bad happened.</div>
-      </section>
-      <section class="bottom">
-        <div class="error-icon modal-icon"><img src="./assets/humanShit.png"/></div>
-      </section>
-    </div>
-    <footer class="">
-      <button class="popup red">OK</button>
-    </footer>
-  </div>
-
-  <div class="testclass alert">
-    <header class="">
-      <span>Bad smell detected</span>
-      <div class="controls">
-        <button class="system close">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-    </header>
-    <div class="body">
-      <section class="top">
-        <div class="message alert">You smell funny.<br>Not funny like a clown, either.</div>
-      </section>
-      <section class="bottom">
-        <div class="loading-spinner modal-icon"><img class="" src="./assets/doubleRing.svg"/></div>
-      </section>
-    </div>
-    <footer class="">
-      <button class="popup green">OK</button>
-    </footer>
-  </div>
-
-  <div class="testclass query">
-    <header class="">
-      <span>Response required</span>
-      <div class="controls">
-        <button class="system close">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-    </header>
-    <div class="body">
-      <section class="top">
-        <div class="query message">Would you like a wristy?</div>
-      </section>
-      <section class="bottom">
-        <div class="modal-icon loading-spinner"><img src="./assets/doubleRing.svg"/></div>
-      </section>
-    </div>
-    <footer class="">
-      <button class="popup red">No</button>
-      <button class="popup blue">Maybe</button>
-      <button class="popup green">Yes</button>
-    </footer>
-  </div> -->
-
+  <input type="hidden" name="disable-main" value=""/>
+  <main id="stuff">
+    <a href="window.alert('hi')"><img src="./assets/tokens.png"/></a>
+  </main>
 </div>
 </body>
 
@@ -108,7 +43,7 @@
     }
 
     const elementGrab = (ev) => {
-        // ev.preventDefault();
+        ev.preventDefault();
         if (dragOptions.bound) getBounds();
         posXi = ev.clientX;
         posYi = ev.clientY;
@@ -117,7 +52,7 @@
     }
 
     const elementDrag = (ev) => {
-        // ev.preventDefault();
+        ev.preventDefault();
         target.dataset.dragging = true;
         posXf = posXi - ev.clientX;
         posYf = posYi - ev.clientY;
@@ -126,8 +61,6 @@
 
         finalLTRB[0] = dragOptions.bound ? Math.min(Math.max((target.offsetLeft - posXf), minX), maxX) : target.offsetLeft - posXf;
         finalLTRB[1] = dragOptions.bound ? Math.min(Math.max((target.offsetTop - posYf), minY), maxY) : target.offsetTop - posYf;
-
-
         Object.assign(target.style, { left: `${finalLTRB[0]}px`, top: `${finalLTRB[1]}px` });
     }
 
@@ -178,33 +111,81 @@ const bringToFront = (targetElement) => {
 
 const TE = new TemplateEngine(templates);
 
-const newFrame = (frameData={}, container = '.dunebody') => {
+const setInitialPosition = (modal, container) => {
+  const modalSize = { x: modal.offsetWidth/2, y: modal.offsetHeight/2 },
+    containerCenter = { x: container.offsetWidth/2, y: container.offsetHeight/2 },
+    numberOfModals = container.querySelectorAll('.fc-dune')?.length ?? 0,
+    offsetPixels = 10;
+  const pos = { x: Math.round(containerCenter.x - modalSize.x + numberOfModals*offsetPixels), y: Math.round(containerCenter.y - modalSize.y + numberOfModals*offsetPixels) }
+  modal.style.left = `${pos.x}px`;
+  modal.style.top = `${pos.y}px`;
+}
+
+// Goes in FrameController
+const insertModal = (frameData={}, container = '.dunebody') => {
   const frame = TE.create(frameData),
-    target = document.querySelector(container) ?? document.body;
+    target = container?.tagName ? container : document.querySelector(container) ?? document.body;
   target.append(frame);
+  setInitialPosition(frame, target);
+  frame.classList.remove('hide');
   dragElement(frame, frame.querySelector('header'));
   frame.addEventListener('mousedown', () => bringToFront(frame));
   return frame.id;
 }
 
-const newBlockingFrame = async (frameData={}, container = '.dunebody') => {
-  return new Promise(res => {
-    frameData.messageTop = `<select name="house"><option value="atreides">Atreides</option><option value="harkonnen">Harkonnen</option></select>`;
-    const frame = TE.create(frameData),
-      target = document.querySelector(container) ?? document.body;
-    target.append(frame);
-    dragElement(frame, frame.querySelector('header'));
-    frame.addEventListener('mousedown', () => bringToFront(frame));
-    // return frame.id;
-    const returnDataHandler = (ev) => {
-      if (ev.detail.id === frame.id) {
-        console.log(`correct id found`);
-        res(ev.detail);
-        target.removeEventListener('returnModalData', returnDataHandler);
-      }
+// createModal({
+  // type: string - loading, error, alert, prompt,
+  // awaitInput: boolean,
+  // awaitEvent: string,
+  // eventTimeout: milliseconds
+  // container: name of preset container in frame controller
+  // disableMain: boolean - disable screen while modal is active (default false)
+  // blurMain: boolean - blur screen while modal is active (default true, only active with disable=true)
+  // hidden: boolean - whether to keep modal hidden after appending (default false)
+  // draggable: boolean - default true
+  // otherProps: all other modal properties
+// })
+
+const destroyModal = (modalId) => {
+  console.log(`Destroying ${modalId}`);
+  document.querySelector(`#${modalId}`).remove();
+}
+
+const createModal = async (modalData={}) => {
+  const container = modalData.container || '.dunebody',
+    modalType = modalData.type ?? 'custom';
+  if (presets[modalType] || modalType === 'custom') {
+    const frameData = presets[modalType] ?? {},
+      targetContainer = container.tagName ? container : document.querySelector(container);
+    if (!targetContainer) return console.warn('Could not locate container.');
+    Object.assign(frameData, modalData);   
+    const frameId = insertModal(frameData, targetContainer);
+    // Blocking modal awaits for return data
+    if (modalData.awaitInput) {
+      return new Promise(res => {
+        const returnDataHandler = (ev) => {
+          if (ev.detail.id === frameId) {
+            console.log(`correct id found`);
+            res(ev.detail);
+            targetContainer.removeEventListener('returnModalData', returnDataHandler);
+          }
+        }
+        targetContainer.addEventListener('returnModalData', returnDataHandler);
+      });
     }
-    target.addEventListener('returnModalData', returnDataHandler);
-  });
+    else if (modalData.awaitEvent) {
+      console.log(`Creating event: ${modalData.awaitEvent}`);
+      const loadingEventHandler = () => {
+        destroyModal(frameId);
+        targetContainer.removeEventListener(modalData.awaitEvent, loadingEventHandler);
+      }
+      targetContainer.addEventListener(modalData.awaitEvent, loadingEventHandler);
+      const timer = parseInt(modalData.eventTimeout) || 5000;
+      setTimeout(() => targetContainer.dispatchEvent(new CustomEvent(modalData.awaitEvent)), timer);
+    }
+    else return frameId;
+  }
+  else console.warn(`Bad modal type: ${modalType}`);
 }
 
 </script>

@@ -4,20 +4,7 @@ import { helpers } from '../shared/helpers.mjs';
 import { SessionState } from './net/SessionState.mjs';
 import { DuneStore } from './DuneStore.mjs';
 
-// TODO: replace with DuneStore class with getters & setters to protect data structure
 // SS: try Proxy or ServiceContainer
-// const Dune = {
-// 	Houses: {},
-//   RenHub: null,
-// 	Players: {},
-// 	Layers: {},
-// 	Helpers: helpers,
-// 	Client: null,
-// 	CONFIG: null,
-// 	Session: null,
-// 	ActivePlayer: {},
-// }
-
 const Dune = new DuneStore();
 
 window.Dune = Dune;

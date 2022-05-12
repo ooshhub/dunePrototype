@@ -5,7 +5,10 @@ import { ren } from './rendererFunctions.mjs';
 import { DebugLogger, DebugReceiver } from '../shared/DebugLogger.mjs';
 import { MentatSystem } from './mentat/thufir.mjs';
 
+// this becomes RendererInterface
+
 export const renHub = new EventHub('rendererHub');
+
 const debugSources = {
   main: 1,
   server: 1,
@@ -15,15 +18,6 @@ const debugSources = {
 export const rlog = new DebugLogger('renderer', renHub, debugSources.renderer, 0);
 const debugRec = new DebugReceiver(renHub, debugSources);
 debugRec.registerHandlers();
-
-// Useful variables
-// const currentPlayer = {
-// 	pid: null,
-// 	playerName: '',
-// 	houseName: '',
-// 	houseReference: '',
-// 	hid: null,
-// };
 
 (() => {
   // Event messaging
