@@ -79,7 +79,7 @@ Passed in HBS data, serialised by Lobby class and sent to host
 				<div class="house-select">
 					<select name="house-{{this}}">
 						<option value="">Select House</option>
-						{{#each ../lobby.houses as |house houseIdx|}}<option data-color="{{house.defaultColor}}" data-mentat="{{house.mentat}}" value="{{house.id}}">{{house.name}}</option>{{/each}}
+						{{#each ../lobby.houses as |house houseIdx|}}<option data-color="{{house.defaultColor}}" data-mentat="{{house.mentat}}" value="{{house.id}}">{{house.displayName}}</option>{{/each}}
 					</select>
 				</div>
 				<div class="house-color">

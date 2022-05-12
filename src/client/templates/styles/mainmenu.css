@@ -153,6 +153,7 @@ main#mainmenu {
 		/* Lobby Generics */
 		& select {
 			@apply border-gray-600 border-[1px] text-base rounded font-mono w-min;
+			min-width: min-content;
     }
 	}
 

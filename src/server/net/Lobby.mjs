@@ -164,6 +164,7 @@ export class Lobby {
 					return {
 						id: hs,
 						name: this.#ruleset.Houses[hs].name,
+						displayName: this.#ruleset.Houses[hs].displayName,
 						defaultColor: this.#ruleset.Houses[hs].defaultColor,
 					}
 				}),
