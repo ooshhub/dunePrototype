@@ -95,14 +95,13 @@ export class StageManager {
     for (const overlay in mapOverlays) {
       // Process SVG from file
       const svgTextStream = await fetch(mapOverlays[overlay].svg).then(data => data.text());
-      const svgData = canvasUtilities.svgToData(svgTextStream, { useClassIndex: true });
+      const svgData = canvasUtilities.svgToData(svgTextStream, { useNameIndex: false });
       console.log(svgData);
 
       // Create subcontainer
       const subOverlay = new Layer(mapOverlay, overlay, true);
       subOverlay.interactiveChildren = false;
       subOverlay.interactive = true;
-      subOverlay.on('click', () => console.log(`Click ${overlay}`));
       // subOverlay.alpha = 0.1;
   
       // Create a Graphic for each shape & draw

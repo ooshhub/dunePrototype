@@ -94,12 +94,13 @@ export class CanvasUtilities {
       // console.log(`nameMap and classIndex`, nameMap, classIndex);
       let baseName = outputPath.id ? outputPath.id 
         : nameMap && typeof(classIndex) === 'number' ? nameMap.getRegionFromIndex(classIndex)
-        : classIndex ?? index;
+        : classIndex ? `_${classIndex}`
+        : `_${index}`;
       baseName = options.useClassIndex ? `${baseName}-${classIndex}` : baseName;
       // console.log(baseName);
       usedNames[baseName] = usedNames[baseName] > -1 ? usedNames[baseName] + 1 : 0;
       const nameIndex = usedNames[baseName];
-      outputPath.name = `${options.namePrefix??''}${baseName}${options.nameSuffix??''}${options.useIndex ? `-${nameIndex}` : ''}`;
+      outputPath.name = `${options.namePrefix??''}${baseName}${options.nameSuffix??''}${options.useNameIndex ? `-${nameIndex}` : ''}`;
       output.shapes.push(outputPath);
       index++;
     }
