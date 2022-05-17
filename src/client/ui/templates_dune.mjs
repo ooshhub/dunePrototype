@@ -1,5 +1,8 @@
 // Template Engine template & presets for Dune
 export const templates = {
+  classes: {
+    base: `fc-dune-modal`,
+  },
   default: {
     html: `
     <div>
@@ -53,7 +56,6 @@ export const templates = {
       },
       attributes: {},
       classes: {
-        root: 'fc-dune-modal',
         default: '',
         type: {
           validate: (v) => ['alert', 'error', 'prompt', 'loading'].includes(v),
@@ -161,12 +163,13 @@ export const presets = {
     ],
   },
   loading: {
-    title: `Loading`,
+    title: `Please wait...`,
     draggable: false,
     disableMain: true,
     message: `Loading message`,
     icon: `./assets/doubleRing.svg`,
     buttons: [],
     closeFrame: false,
+    // selfDestruct: 20000,
   },
 }

@@ -76,12 +76,24 @@ export class SocketClient {
 				}
 			}, checkTimer);
 		});
-		this.socket.on('error', msg => this.#socklog(['Error', msg], 'error'));
-		this.socket.on('reconnect_error', msg => this.#socklog(msg));
-		this.socket.on('reconnect_failed', msg => this.#socklog(msg));
+		this.socket.on('error', msg => {
+			this.#socklog(`state: ${this.#clientState}`);
+			this.#socklog(['Error', msg], 'error');
+		});
+		this.socket.on('reconnect_error', msg => {
+			this.#socklog(`state: ${this.#clientState}`);
+			this.#socklog(msg);
+		});
+		this.socket.on('reconnect_failed', msg => {
+			this.#socklog(`state: ${this.#clientState}`);
+			this.#socklog(msg);
+		});
 
 		// Connection destroyed by angry server
-		this.socket.on('deathnote', ({ msg }) => this.#triggerHub('serverKick', msg));
+		this.socket.on('deathnote', ({ msg }) => {
+			this.#socklog(`state: ${this.#clientState}, this is probably where destroy() is failing sometimes???`);
+			this.#triggerHub('serverKick', msg);
+		});
 
 		// Successful socket upgrade
 		this.socket.on('connect', () => this.#socklog(`Connection Upgraded`));

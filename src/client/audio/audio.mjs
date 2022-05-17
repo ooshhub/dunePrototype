@@ -11,5 +11,5 @@ export const initAudio = async () => {
 		src: `${audioPath}/music/prophecyTheme.mp4`,
 		preload: true
 	});
-	titleMusic.play();
+	// titleMusic.play();
 }

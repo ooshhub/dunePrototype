@@ -1,7 +1,10 @@
-import { rlog, renHub } from '../rendererHub.mjs';
+// import { rlog, renHub } from '../RendererInterface.mjs';
 import { helpers } from '../../shared/helpers.mjs';
 import { fetchAssetPath } from '../../assets/assetDirectory.mjs';
 import { ttIndex } from './tooltips.mjs';
+
+const renHub = window.Dune.renHub,
+  rlog = window.Dune.rlog;
 
 export const MentatSystem = (() => {
 

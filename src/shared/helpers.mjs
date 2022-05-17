@@ -78,13 +78,12 @@ const helpers = (() => {
   */
   // Bind all methods in a class - call at end of constructor
   const bindAll = (inputClass) => {
-    let keys = Object.keys(inputClass);
-    console.log(keys);
-    keys.forEach(k => {
-      if (typeof(k) === 'function' && !/^#.+/.test(k)) {
-        console.log(`Found private method: ${k}`);
+    const keys = Reflect.ownKeys(Reflect.getPrototypeOf(inputClass));
+    keys.forEach(key => {
+      if (typeof(inputClass[key]) === 'function' && key !== 'constructor') {
+        inputClass[key] = inputClass[key].bind(inputClass);
       }
-    })
+    });
   }
   const toArray = (inp) => Array.isArray(inp) ? inp : [inp];
   const cloneObject = (inp) => {
@@ -237,6 +236,31 @@ const helpers = (() => {
       }, timeStep);
     });
   }
+  const svgStringToData = (textStream) => {
+    const output = { svgAttributes: '', styles: [], paths: [] }
+    textStream = textStream.replace(/\n\t/g, '');
+    const styles = textStream.match(/<style.*?>(.*)<\/style>/s)?.[1] ?? '',
+      attributes = textStream.match(/<svg([^>]*)>/)?.[0] || '',
+      pathMatches = textStream.matchAll(/<(polygon|path|polyline|circle|ellipse|line|rect)([^/]*)\//gs);
+    output.svgAttributes = attributes;
+    let stylesParts = styles.split(/}/g) || [];
+    stylesParts.forEach(part => {
+      let ruleParts = part.split(/{/).filter(v=>v);
+      if (ruleParts.length === 2) output.styles.push({ selector: ruleParts[0], rule: ruleParts[1] });
+      // else console.log(`Invalid CSS rule ignored.: "${part}"`);
+    });
+    for (const path of pathMatches) {
+      // console.log(path);
+      const outputPath = { type: path[1] };
+      const attributes = path[2].matchAll(/(\w+)="([^"]*)"/g);
+      for (const attr of attributes) {
+        // if (attr[1] === 'points' || attr[1] === 'd') outputPath[attr[1]] = attr[2].split(/\s+/g).filter(v=>v);
+        outputPath[attr[1]] = attr[2];
+      }
+      output.paths.push(outputPath);
+    }
+    return output;
+  }
   
   /**
    * COLOUR FUNCTIONS
@@ -301,7 +325,7 @@ const helpers = (() => {
     timeout, watchCondition, asyncTimedLoad, parallelLoader,
     bindAll, toArray, cloneObject, generatePlayerId, generateHouseIds, generateUID,
     getObjectPath, removeCyclicReferences, flattenObjectPaths, unFlattenObjectPaths,
-    windowFade,
+    windowFade, svgStringToData,
     normaliseHsl, animationFrameBreak,
     emproper, escapeRegex, camelise, deCamelise,
     bound, isBound, randomInt,

@@ -2,191 +2,29 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" >
-  <!-- <meta http-equiv="Content-Security-Policy" content="default-src *; script-src * "> -->
-  <link rel="stylesheet" href="./fonts/fa/css/all.min.css"/>
-  <title>duneTest</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
 </head>
 <body>
-<div class="dunebody">
-  <input type="hidden" name="disable-main" value=""/>
-  <main id="stuff">
-    <a href="window.alert('hi')"><img src="./assets/tokens.png"/></a>
-  </main>
-</div>
+  <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 1920 1080" style="enable-background:new 0 0 1920 1080;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:#FF0000;}
+	.st1{fill:#00FF00;}
+	.st2{fill:#0000FF;}
+</style>
+<polygon id="Red" class="st0" points="777.57,575.1 801.96,574.17 822.83,603 816.45,638.5 797.94,664.95 786.99,690.27 
+	821.59,719.31 856.63,703.63 874.28,660.48 873.89,645.17 878.6,638.5 876.45,583.49 854.94,552.78 844.76,538.26 813.86,516.88 
+	804.84,537.28 777.77,563.57 "/>
+<polygon id="Green" class="st1" points="854.94,552.78 876.45,583.49 878.6,638.5 873.89,645.17 874.28,660.48 856.63,703.63 
+	883.31,716.19 892.72,714.23 912.73,728.35 925.68,777.39 941.77,801.33 951.97,801.72 970.02,767.59 962.33,724.78 994.34,638.5 
+	1003.36,597.31 1000.62,543.95 986.49,510.99 984.92,475.29 968.45,481.96 959.81,492.95 949.61,497.65 942.16,514.92 
+	926.86,513.35 893.51,525.51 886.05,536.89 "/>
+<polygon id="Blue" class="st2" points="854.94,552.78 886.05,536.89 893.51,525.51 926.86,513.35 942.16,514.92 949.61,497.65 
+	959.81,492.95 968.45,481.96 984.92,475.29 1003.76,467.44 1010.43,459.2 1010.03,449.79 1021.41,447.04 1039.46,431.35 
+	1051.62,398.78 1120.67,343.07 1141.86,298.74 1141.68,289.11 1110.87,279.12 1069.28,283.44 1039.85,319.53 1040.24,333.26 
+	1000.23,364.26 981.79,366.22 895.47,416.83 877.81,418.01 850.74,461.95 853.1,469.41 813.86,516.88 844.76,538.26 "/>
+</svg>
 </body>
-
-<script src="../TemplateEngine.mjs"></script>
-<script src="../templates_dune.mjs"></script>
-<script defer>
-
-  const dragElement = (dragTarget, dragHandle, options={}) => {
-
-    const target = typeof(dragTarget) === 'object' && dragTarget.tagName  ? dragTarget : document.querySelector(dragTarget),
-      handle = dragHandle ? typeof(dragHandle) === 'object' && dragHandle.tagName ? dragHandle : document.querySelector(dragHandle) : target;
-
-    let dragOptions = {
-        bound: options.bound ?? true, // set to false to disable binding the draggabale element to the container
-        boundingElement: options.boundingElement||document.documentElement,
-        mouseButtons: options.mouseButtons||[1,2,3] // mouse buttons to allow for drag
-    }
-    let posXi = 0, posXf = 0, posYi = 0, posYf = 0;
-    let minX, minY, maxX, maxY;
-    let boundWidth, boundHeight;
-    let finalLTRB = [null,null,null,null]; // left, top, right, bottom
-
-    const getBounds = () => {
-        boundWidth = dragOptions.boundingElement.clientWidth;
-        boundHeight = dragOptions.boundingElement.clientHeight;        
-        minX = 0, minY = 0, maxX = boundWidth - target.offsetWidth, maxY = boundHeight - target.offsetHeight;
-        // console.info(minX, minY, maxX, maxY);
-    }
-
-    const elementGrab = (ev) => {
-        ev.preventDefault();
-        if (dragOptions.bound) getBounds();
-        posXi = ev.clientX;
-        posYi = ev.clientY;
-        document.addEventListener('mouseup', elementRelease);
-        document.addEventListener('mousemove', elementDrag);
-    }
-
-    const elementDrag = (ev) => {
-        ev.preventDefault();
-        target.dataset.dragging = true;
-        posXf = posXi - ev.clientX;
-        posYf = posYi - ev.clientY;
-        posXi = ev.clientX;
-        posYi = ev.clientY;
-
-        finalLTRB[0] = dragOptions.bound ? Math.min(Math.max((target.offsetLeft - posXf), minX), maxX) : target.offsetLeft - posXf;
-        finalLTRB[1] = dragOptions.bound ? Math.min(Math.max((target.offsetTop - posYf), minY), maxY) : target.offsetTop - posYf;
-        Object.assign(target.style, { left: `${finalLTRB[0]}px`, top: `${finalLTRB[1]}px` });
-    }
-
-    const elementRelease = () => {
-      document.removeEventListener('mousemove', elementDrag);
-      document.removeEventListener('mouseup', elementRelease);
-      setTimeout(() => {
-        target.dataset.dragging = false;
-      }, 500);
-    }
-
-    handle.addEventListener('mousedown', (ev) => {if (dragOptions.mouseButtons.includes(ev.which)) elementGrab(ev)});
-  }
-
-  const resolveSelector = (targetElementOrSelector) => {
-  return typeof(targetElementOrSelector) === 'object' && targetElementOrSelector.tagName ? targetElementOrSelector
-  : typeof(targetElementOrSelector) === 'string' ? document.querySelector(targetElementOrSelector)
-  : null;
-}
-
-const getSiblingZindices = (targetElement, siblingFilter = '.fc-dune') => {
-  const parent = typeof(targetElement) === 'object' && targetElement.tagName ? targetElement.parentNode
-    : typeof(targetElement) === 'string' ? document.querySelector(targetElement)?.parentNode
-    : null;
-  if (!parent) {
-    console.warn(`Invalid target element:`, targetElement);
-    return [];
-  }
-  const siblings = siblingFilter ? parent.querySelectorAll(siblingFilter)
-    : parent.childNodes || [];
-  return Array.from(siblings).map(el => {
-    const style = window.getComputedStyle(el);
-    return parseInt(style.getPropertyValue('z-index')) || 0;
-  });
-}
-
-const bringToFront = (targetElement) => {
-  const target = resolveSelector(targetElement);
-  if (!target) return console.warn(`No target element found for selector "${targetElement}"`);
-  const zArray = getSiblingZindices(target);
-  target.style['z-index'] = (Math.max(...zArray) || 0) + 1;
-}
-
-// document.querySelectorAll('div.testclass').forEach(el => {
-//   dragElement(el, el.querySelector('header'));
-//   el.addEventListener('mousedown', () => bringToFront(el));
-// });
-
-const TE = new TemplateEngine(templates);
-
-const setInitialPosition = (modal, container) => {
-  const modalSize = { x: modal.offsetWidth/2, y: modal.offsetHeight/2 },
-    containerCenter = { x: container.offsetWidth/2, y: container.offsetHeight/2 },
-    numberOfModals = container.querySelectorAll('.fc-dune')?.length ?? 0,
-    offsetPixels = 10;
-  const pos = { x: Math.round(containerCenter.x - modalSize.x + numberOfModals*offsetPixels), y: Math.round(containerCenter.y - modalSize.y + numberOfModals*offsetPixels) }
-  modal.style.left = `${pos.x}px`;
-  modal.style.top = `${pos.y}px`;
-}
-
-// Goes in FrameController
-const insertModal = (frameData={}, container = '.dunebody') => {
-  const frame = TE.create(frameData),
-    target = container?.tagName ? container : document.querySelector(container) ?? document.body;
-  target.append(frame);
-  setInitialPosition(frame, target);
-  frame.classList.remove('hide');
-  dragElement(frame, frame.querySelector('header'));
-  frame.addEventListener('mousedown', () => bringToFront(frame));
-  return frame.id;
-}
-
-// createModal({
-  // type: string - loading, error, alert, prompt,
-  // awaitInput: boolean,
-  // awaitEvent: string,
-  // eventTimeout: milliseconds
-  // container: name of preset container in frame controller
-  // disableMain: boolean - disable screen while modal is active (default false)
-  // blurMain: boolean - blur screen while modal is active (default true, only active with disable=true)
-  // hidden: boolean - whether to keep modal hidden after appending (default false)
-  // draggable: boolean - default true
-  // otherProps: all other modal properties
-// })
-
-const destroyModal = (modalId) => {
-  console.log(`Destroying ${modalId}`);
-  document.querySelector(`#${modalId}`).remove();
-}
-
-const createModal = async (modalData={}) => {
-  const container = modalData.container || '.dunebody',
-    modalType = modalData.type ?? 'custom';
-  if (presets[modalType] || modalType === 'custom') {
-    const frameData = presets[modalType] ?? {},
-      targetContainer = container.tagName ? container : document.querySelector(container);
-    if (!targetContainer) return console.warn('Could not locate container.');
-    Object.assign(frameData, modalData);   
-    const frameId = insertModal(frameData, targetContainer);
-    // Blocking modal awaits for return data
-    if (modalData.awaitInput) {
-      return new Promise(res => {
-        const returnDataHandler = (ev) => {
-          if (ev.detail.id === frameId) {
-            console.log(`correct id found`);
-            res(ev.detail);
-            targetContainer.removeEventListener('returnModalData', returnDataHandler);
-          }
-        }
-        targetContainer.addEventListener('returnModalData', returnDataHandler);
-      });
-    }
-    else if (modalData.awaitEvent) {
-      console.log(`Creating event: ${modalData.awaitEvent}`);
-      const loadingEventHandler = () => {
-        destroyModal(frameId);
-        targetContainer.removeEventListener(modalData.awaitEvent, loadingEventHandler);
-      }
-      targetContainer.addEventListener(modalData.awaitEvent, loadingEventHandler);
-      const timer = parseInt(modalData.eventTimeout) || 5000;
-      setTimeout(() => targetContainer.dispatchEvent(new CustomEvent(modalData.awaitEvent)), timer);
-    }
-    else return frameId;
-  }
-  else console.warn(`Bad modal type: ${modalType}`);
-}
-
-</script>
 </html>

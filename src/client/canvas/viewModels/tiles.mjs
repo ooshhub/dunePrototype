@@ -1,17 +1,24 @@
 // background, maps and such
-import * as pixi from '../lib/pixi.mjs';
+import * as Pixi from '../lib/pixi.mjs';
 
-export class Layer extends pixi.Container {
-	constructor(stageLayer, name, allowEvents) {
+export class Layer extends Pixi.Container {
+	constructor(parentLayer, name, allowEvents) {
 		let newLayer = super();
 		Object.assign(newLayer, {
+			name: name,
 			width: window.innerWidth, 
 			height: window.innerHeight,
-			interactive: allowEvents,
-			hitArea: allowEvents ? new pixi.Rectangle(0, 0, window.innerWidth, window.innerHeight) : null
+			interactive: allowEvents ?? true,
+			sortableChildren: true,
+			hitArea: allowEvents ? new Pixi.Rectangle(0, 0, window.innerWidth, window.innerHeight) : null
 		});
 		Object.assign(this, newLayer);
-		stageLayer.addChild(this);
+		parentLayer.addChild(this);
 		window.Dune.layers[name] = this;
+	}
+
+	updateHitArea() {
+		const bounds = this.getLocalBounds();
+		this.hitArea = new Pixi.Rectangle(bounds.x, bounds.y, bounds.width, bounds.height);
 	}
 }
