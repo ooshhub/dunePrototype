@@ -87,6 +87,18 @@ input[name="unpackaged"][value="1"] ~ main {
 }
 
 /* CANVAS */
+main#gameui {
+	z-index: 10;
+
+	& #debug-menu {
+		top: 100px;
+		left: 100px;
+
+		& select {
+			border: 1px solid darkred;
+		}
+	}
+}
 main#gamecanvas {
 	position: absolute;
 	width: 100vw;
@@ -95,7 +107,7 @@ main#gamecanvas {
 	z-index: 1;
 }
 main#chat {
-	z-index: 10;
+	z-index: 11;
 	width: 30vw;
 	height: 25vh;
 }

@@ -49,11 +49,12 @@ export class RendererInterface {
     this.lobby = new LobbyFunctions(this);
 
     this.#initHandlers();
+    // this.#loadDebugMenu(); can't load yet, target layers are not loaded
 
     RendererInterface.instance = this;
   }
 
-  // Singleton check.
+  // instance check
   static get instance() { return this.#instance }
   static set instance(newInterface) { this.#instance = this.#instance ?? newInterface }
 
@@ -84,16 +85,26 @@ export class RendererInterface {
     this.renHub.for('renderer', (event, ...args) => this.renHub.trigger(event, ...args));
   }
 
+  async #loadDebugMenu() {
+    const html = await fetch('./debugMenu.html').then(data => data.text());
+    if (!html) return console.error('No DEBUG found');
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = html;
+    // console.log(wrapper);
+    document.querySelector('#gameui').append(wrapper.firstElementChild);
+    await import('./ui/debugMenu.mjs');
+  }
+
   #initHandlers() {
     /* DEBUG */
     this.renHub.on('debug', ({data}) =>  this.rlog(data, 'warn'));
+    this.renHub.on('loadDebugMenu', () => this.#loadDebugMenu());
     // Game Init listeners
     this.renHub.on('responseHtml', this.utilities.insertHtml);
     this.renHub.on('responseConfig', this.utilities.updateConfig);
     // HTML
-    // this.renHub.on('showElement', (el) => this.utilities.transitionSection(el, 'in'));
-    // this.renHub.on('hideElement', (el) => this.utilities.transitionSection(el, 'out'));
-    // this.renHub.on('fadeElement', this.utilities.transitionSection);
+    this.rendererHub.on('showElements', (...args) => this.frameControl.showElements(...args));
+    this.rendererHub.on('hideElements', (...args) => this.frameControl.hideElements(...args));
     // Modal handler
     this.renHub.on('popupMessage', (...args) => this.#modalPassthrough(...args));
     // Server connection
