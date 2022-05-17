@@ -6,18 +6,31 @@ export class FrameUtilities {
   static resolveSelectors(elementSelectors, selectAll) {
     elementSelectors = Array.isArray(elementSelectors) ? elementSelectors : [elementSelectors];
     return elementSelectors.reduce((collection, element) => {
-      if (typeof(element) === 'object' && element?.tagName) collection.push(element);
+      if (typeof(element) === 'object' && element?.tagName) {
+        collection.push(element);
+      }
       else if (typeof(element) === 'string') {
         let output = (selectAll) ? Array.from(document.querySelectorAll(element)) : [document.querySelector(element)].filter(v=>v);
         if (output && output.length !== 0) collection.push(...output)
-        else this.logger(`${this.constructor.name} Error: selector "${element}" returned no results.`);
+        else console.warn(`${this.constructor.name} Error: selector "${element}" returned no results.`);
       }
       return collection;
     }, []);
   }
 
+  static elementIsVisible(element) {
+    const styles = window.getComputedStyle(element);
+    if (styles) {
+      if (styles.getPropertyValue('display') === 'none' || styles.getPropertyValue('opacity') == 0 || element.classList.contains('hide')) {
+        return false;
+      }
+      else return true;
+    }
+    return null;
+  }
+
   static bringToFront(targetElement, siblingFilter='*') {
-    const target = this.resolveSelectors(targetElement);
+    const target = this.resolveSelectors(targetElement)?.[0];
     if (!target) return console.warn(`No target element found for selector "${targetElement}"`);
     const zArray = this.getSiblingZindices(target, siblingFilter);
     target.style['z-index'] = (Math.max(...zArray) || 0) + 1;
@@ -46,7 +59,8 @@ export class FrameUtilities {
     let dragOptions = {
         bound: options.bound ?? true, // set to false to disable binding the draggabale element to the container
         boundingElement: options.boundingElement||document.documentElement,
-        mouseButtons: options.mouseButtons||[1] // mouse buttons to allow for drag
+        mouseButtons: options.mouseButtons||[1], // mouse buttons to allow for drag
+        applyMoveCursor: options.applyMoveCursor ?? true, // disable to prevent cursor change on handle
     }
     let posXi = 0, posXf = 0, posYi = 0, posYf = 0;
     let minX, minY, maxX, maxY;
@@ -91,5 +105,6 @@ export class FrameUtilities {
     }
 
     handle.addEventListener('mousedown', (ev) => {if (dragOptions.mouseButtons.includes(ev.which)) elementGrab(ev)});
+    if (dragOptions.applyMoveCursor) dragHandle.style.cursor = 'move';
   } 
 }

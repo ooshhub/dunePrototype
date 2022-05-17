@@ -26,6 +26,7 @@ export const startLocalServer = async (serverOptions) => {
 	} else {
 		slog([`uPnP Error:`, mapping.err.message??mapping.err], 'warn');
 		// TODO: Notify host that port is not open and a uPnP port mapping could not be made.
+		
 	}
-	return localServer;
+	return { localServer, mapping }
 }

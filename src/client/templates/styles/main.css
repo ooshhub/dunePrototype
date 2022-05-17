@@ -7,18 +7,6 @@
 
 main#gameui {
   position: fixed;
-  right: 5%;
-  top: 5%;
-  -webkit-user-select: none;
-     -moz-user-select: none;
-      -ms-user-select: none;
-          user-select: none;
-}
-
-main#gameui button {
-  --tw-scale-x: 1.5;
-  --tw-scale-y: 1.5;
-  transform: var(--tw-transform);
 }
 
 /*
@@ -640,153 +628,258 @@ main#mainmenu #lobby select {
   color: rgb(29 78 216 / var(--tw-text-opacity));
 }
 
-@-webkit-keyframes fc-fadein {
+@-webkit-keyframes fc-fade-in {
   0% {
     opacity: 0.0;
-    display: block
+    pointer-events: 'none';
+    display: 'block';
+  }
+
+  60% {
+    pointer-events: '';
   }
 
   100% {
-    opacity: 1.0
+    opacity: 1.0;
   }
 }
 
-@keyframes fc-fadein {
+@keyframes fc-fade-in {
   0% {
     opacity: 0.0;
-    display: block
+    pointer-events: 'none';
+    display: 'block';
+  }
+
+  60% {
+    pointer-events: '';
   }
 
   100% {
-    opacity: 1.0
+    opacity: 1.0;
   }
 }
 
-@-webkit-keyframes fc-fadeout {
+@-webkit-keyframes fc-fade-out {
   0% {
     opacity: 1.0;
   }
 
+  40% {
+    pointer-events: none;
+  }
+
   100% {
     opacity: 0.0;
-    display: none
+    pointer-events: none;
+    display: 'none';
   }
 }
 
-@keyframes fc-fadeout {
+@keyframes fc-fade-out {
   0% {
     opacity: 1.0;
   }
 
+  40% {
+    pointer-events: none;
+  }
+
   100% {
     opacity: 0.0;
-    display: none
+    pointer-events: none;
+    display: 'none';
   }
 }
 
-.fc-fadein-slow {
-  -webkit-animation: fc-fadein 3s;
-          animation: fc-fadein 3s
+.fc-fade-in-slow {
+  -webkit-animation: forwards fc-fade-in 3s;
+          animation: forwards fc-fade-in 3s
 }
 
-.fc-fadein-normal {
-  -webkit-animation: fc-fadein 1s;
-          animation: fc-fadein 1s
+.fc-fade-in-normal {
+  -webkit-animation: forwards fc-fade-in 1s;
+          animation: forwards fc-fade-in 1s
 }
 
-.fc-fadein-fast {
-  -webkit-animation: fc-fadein 0.5s;
-          animation: fc-fadein 0.5s
+.fc-fade-in-fast {
+  -webkit-animation: forwards fc-fade-in 0.5s;
+          animation: forwards fc-fade-in 0.5s
 }
 
-.fc-fadein-snap {
-  -webkit-animation: fc-fadein 0.1s;
-          animation: fc-fadein 0.1s
+.fc-fade-in-snap {
+  -webkit-animation: forwards fc-fade-in 0.1s;
+          animation: forwards fc-fade-in 0.1s
 }
 
-.fc-fadeout-slow {
-  -webkit-animation: fc-fadein 3s;
-          animation: fc-fadein 3s
+.fc-fade-out-slow {
+  -webkit-animation: forwards fc-fade-out 3s;
+          animation: forwards fc-fade-out 3s
 }
 
-.fc-fadeout-normal {
-  -webkit-animation: fc-fadein 1s;
-          animation: fc-fadein 1s
+.fc-fade-out-normal {
+  -webkit-animation: forwards fc-fade-out 1s;
+          animation: forwards fc-fade-out 1s
 }
 
-.fc-fadeout-fast {
-  -webkit-animation: fc-fadein 0.5s;
-          animation: fc-fadein 0.5s
+.fc-fade-out-fast {
+  -webkit-animation: forwards fc-fade-out 0.5s;
+          animation: forwards fc-fade-out 0.5s
 }
 
-.fc-fadeout-snap {
-  -webkit-animation: fc-fadein 0.1s;
-          animation: fc-fadein 0.1s
+.fc-fade-out-snap {
+  -webkit-animation: forwards fc-fade-out 0.1s;
+          animation: forwards fc-fade-out 0.1s
 }
 
 /* Test popup CSS */
 
-.testclass {
+.fc-dune-modal {
   position: absolute;
-  top: 1rem;
-  margin: auto;
-  display: block;
-  width: 50%;
-  padding: 0px;
-  opacity: 1;
-  border-radius: 1rem;
-  border-width: 3px;
-  --tw-border-opacity: 1;
-  border-color: rgb(3 251 251 / var(--tw-border-opacity));
-  --tw-bg-opacity: 1;
-  background-color: rgb(204 144 71 / var(--tw-bg-opacity));
-  box-shadow: 0px 0px 10px var(--duneGreen);
-  z-index: 9999;
-}
-
-.testclass header {
-  position: relative;
-  height: 3rem;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+  padding-top: 0px;
+  padding-bottom: 0px;
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
   text-align: center;
-  font-size: 1.125rem;
-  border-radius: 1rem 1rem 0 0;
-  border-bottom: 2px solid black;
-  grid-column: 1 / 3;
-  line-height: 1.5rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  min-width: 15rem;
+  max-width: 30rem;
+  border-radius: 4px;
+  background-color: #ad9c37;
+  box-shadow: 0px 0px 12px var(--duneCyanDark);
+  border: 2px solid var(--duneCyan);
 }
 
-.testclass header .controls {
+.fc-dune-modal.alert {
+  border: 2px solid var(--duneGreen);
+}
+
+.fc-dune-modal.error {
+  border: 2px solid #dd3333;
+}
+
+.fc-dune-modal button {
+  display: inline-flex;
+  height: 1.25rem;
+  cursor: pointer;
+  align-items: center;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  --tw-bg-opacity: 1;
+  background-color: rgb(237 230 216 / var(--tw-bg-opacity));
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  padding-top: 0px;
+  padding-bottom: 0px;
+  border: 1px solid black;
+  border-radius: 3px;
+  font-variant: petite-caps;
+  box-shadow: 0px 0px 4px var(--duneBrown) inset;
+}
+
+.fc-dune-modal header {
+  position: relative;
+  height: 1.75rem;
+  vertical-align: middle;
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+  --tw-text-opacity: 1;
+  color: rgb(47 35 0 / var(--tw-text-opacity));
+}
+
+.fc-dune-modal header .controls {
   position: absolute;
   display: flex;
-  align-items: center;
+  vertical-align: middle;
   top: 50%;
   right: 1%;
   transform: translate(0%, -50%);
 }
 
-.testclass .body {
-  display: grid;
-  overflow-y: auto;
+.fc-dune-modal header .controls button {
+  margin-left: 0.25rem;
+  margin-right: 0.25rem;
+  display: flex;
+  height: 1.25rem;
+  width: 1.25rem;
+  justify-content: center;
+  vertical-align: middle;
+  color: #393939;
+  border-radius: 0.125rem;
+  font-size: 0.875rem;
+}
+
+.fc-dune-modal header .controls button.disabled {
+  pointer-events: none;
+  opacity: 0;
+}
+
+.fc-dune-modal .body {
   --tw-bg-opacity: 1;
-  background-color: rgb(237 230 216 / var(--tw-bg-opacity));
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  background-color: rgb(245 245 245 / var(--tw-bg-opacity));
   font-size: 1rem;
   line-height: 1.5rem;
   max-height: 16rem;
+  border: 1px solid black;
+  padding: 0.5rem;
+  min-height: 2rem;
 }
 
-.testclass footer {
-  margin: auto;
-  min-height: 3rem;
-  --tw-border-opacity: 1;
-  border-color: rgb(0 0 0 / var(--tw-border-opacity));
-  --tw-bg-opacity: 1;
-  background-color: rgb(204 144 71 / var(--tw-bg-opacity));
-  text-align: center;
+.fc-dune-modal .body .modal-icon img {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  margin-left: auto;
+  margin-right: auto;
+  max-height: 3rem;
+}
+
+.fc-dune-modal footer {
+  position: relative;
+  display: flex;
+  height: 1.75rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  vertical-align: middle;
+  font-size: 1.125rem;
   line-height: 2rem;
-  border-top: 2px solid black;
-  grid-column: 1 / 3;
-  border-radius: 0 0 1rem 1rem;
+}
+
+.fc-dune-modal footer button {
+  transition: color 0.5s, border 0.5s, text-shadow 1s, box-shadow 1s;
+  color: var(--duneCyanDark);
+  text-shadow: 0px 0px 12px var(--duneCyanBrighter2);
+  margin: 0px 0.5rem 0px 0.5rem;
+}
+
+.fc-dune-modal footer button:hover {
+  transition: color 0.25s, text-shadow 0.5s, box-shadow 0.05s 0.05s;
+  color: var(--duneCyan);
+  text-shadow: 0px 0px 1px #109810;
+}
+
+.fc-dune-modal footer button.green {
+  color: green;
+  text-shadow: 0px 0px 1px darkgreen;
+}
+
+.fc-dune-modal footer button.green:hover {
+  color: #1dc31d;
+  text-shadow: 0px 0px 1px #109810;
+}
+
+.fc-dune-modal footer button.red {
+  color: darkred;
+  text-shadow: 0px 0px 1px darkred;
+}
+
+.fc-dune-modal footer button.red:hover {
+  color: #c51515;
+  text-shadow: 0px 0px 1px red;
 }
 
 @font-face {
@@ -1273,6 +1366,7 @@ Ensure the default browser behavior of the `hidden` attribute.
      -moz-user-select: none;
       -ms-user-select: none;
           user-select: none;
+  overflow: hidden;
 }
 
 @media (min-height: 1200px) {
@@ -1287,6 +1381,11 @@ Ensure the default browser behavior of the `hidden` attribute.
   }
 }
 
+body {
+  width: 100%;
+  height: 100%;
+}
+
 /*  NPM unpackaged border highlight for testing multiple instances */
 
 input[name="unpackaged"][value="1"] ~ main {
@@ -1295,6 +1394,19 @@ input[name="unpackaged"][value="1"] ~ main {
 }
 
 /* CANVAS */
+
+main#gameui {
+  z-index: 10;
+}
+
+main#gameui #debug-menu {
+  top: 100px;
+  left: 100px;
+}
+
+main#gameui #debug-menu select {
+  border: 1px solid darkred;
+}
 
 main#gamecanvas {
   position: absolute;
@@ -1305,7 +1417,7 @@ main#gamecanvas {
 }
 
 main#chat {
-  z-index: 10;
+  z-index: 11;
   width: 30vw;
   height: 25vh;
 }
@@ -1370,18 +1482,13 @@ main#chat {
 
 /* Z-Indexing */
 
-.show {
-  visibility: visible;
-  opacity: 1;
-}
-
 .hide {
   visibility: hidden;
   opacity: 0;
 }
 
-.toback {
-  z-index: -1
+#mainmenu.hide {
+  display: none;
 }
 
 .disabled {
@@ -1400,6 +1507,21 @@ input.disabled {
   pointer-events: auto;
   --tw-bg-opacity: 1;
   background-color: rgb(148 163 184 / var(--tw-bg-opacity));
+}
+
+/* Main section disable and blur */
+
+main {
+  transition: filter 0.5s;
+}
+
+input[name="disable-main"].disable ~ main {
+  pointer-events:none;
+}
+
+input[name="disable-main"].blur ~ main {
+  filter: blur(3px) grayscale(50%);
+  transition: filter 0.5s
 }
 
 /* Scrollbars */
@@ -1426,7 +1548,7 @@ body {
 
 /* Neon Buttons */
 
-button {
+main button {
   margin-top: 0.25rem;
   margin-bottom: 0.25rem;
   cursor: pointer;
@@ -1436,7 +1558,7 @@ button {
   transition: color 0.5s, text-shadow 1s;
 }
 
-button.mainmenu {
+main button.mainmenu {
   border-width: 0px;
   font-size: 1.5rem;
   line-height: 2rem;
@@ -1444,7 +1566,7 @@ button.mainmenu {
   color: rgb(14 213 213 / var(--tw-text-opacity));
 }
 
-button.system {
+main button.system {
   margin-left: 0.25rem;
   margin-right: 0.25rem;
   display: flex;
@@ -1464,7 +1586,7 @@ button.system {
   box-shadow: 0px 0px 4px var(--duneBrown) inset;
 }
 
-button.expandable:hover {
+main button.expandable:hover {
   --tw-text-opacity: 1;
   color: rgb(3 251 251 / var(--tw-text-opacity));
   transition-property: color, background-color, border-color, fill, stroke, -webkit-text-decoration-color;
@@ -1476,7 +1598,7 @@ button.expandable:hover {
   transition: color 0.5s, text-shadow 1s;
 }
 
-button.neon {
+main button.neon {
   margin-left: auto;
   margin-right: auto;
   width: -webkit-max-content;
@@ -1492,7 +1614,7 @@ button.neon {
   transition: color 0.5s, border 0.5s, text-shadow 1s, box-shadow 1s;
 }
 
-button.neon.green {
+main button.neon.green {
   border-width: 2px;
   --tw-border-opacity: 1;
   border-color: rgb(50 134 0 / var(--tw-border-opacity));
@@ -1502,7 +1624,7 @@ button.neon.green {
   text-shadow: 0px 0px 0px darkgreen;
 }
 
-button.neon.red {
+main button.neon.red {
   --tw-border-opacity: 1;
   border-color: rgb(127 29 29 / var(--tw-border-opacity));
   --tw-text-opacity: 1;
@@ -1511,7 +1633,7 @@ button.neon.red {
   text-shadow: 0px 0px 8px darkred;
 }
 
-button.neon.green:hover {
+main button.neon.green:hover {
   --tw-border-opacity: 1;
   border-color: rgb(0 210 29 / var(--tw-border-opacity));
   --tw-text-opacity: 1;
@@ -1521,7 +1643,7 @@ button.neon.green:hover {
   transition: color 0.5s, border 0.5s, text-shadow 1s, box-shadow 1s;
 }
 
-button.neon.red:hover {
+main button.neon.red:hover {
   --tw-border-opacity: 1;
   border-left-color: rgb(185 28 28 / var(--tw-border-opacity));
   border-right-color: rgb(185 28 28 / var(--tw-border-opacity));

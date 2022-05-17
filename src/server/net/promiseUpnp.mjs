@@ -16,6 +16,7 @@ export const setupMapping = async (port, ttl) => {
 		console.log(`Local IPs: ${localIp}`);
 		if (!localIp.length) return { result: false, err: `Could not find a valid local IP, could not map an open port.` }
 		const currentMap = await getMapping().catch(err => console.log(`Couldn't get port mappings`, err));
+		if (!currentMap.length) return { result: false, err: `Could not reach uPnP mappings & port ${port} appears to be closed.` }
 		console.log(currentMap);
 		let isMapped;
 		currentMap.forEach(pm => {
@@ -55,7 +56,7 @@ export const checkPort = async (port) => {
 	});
 }
 
-export const getMapping = async (timer=1000) => {
+export const getMapping = async (timer=2000) => {
 	return await Promise.race([
 		new Promise((res, rej) => {
 			client.getMappings((err, response) => {
@@ -64,7 +65,7 @@ export const getMapping = async (timer=1000) => {
 			});
 		}).catch(e => {
 			console.log(`mapping error`, e);
-			return null;
+			return e;
 		}),
 		helpers.timeout(timer)
 	]);

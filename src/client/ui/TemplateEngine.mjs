@@ -3,14 +3,16 @@ export class TemplateEngine {
   #templates = {};
   #defaultTemplate = null;
 
-  #fallbackContainerClass = 'new-template-frame';
+  #baseClass = '';
 
   #parentFrameControl = null;
 
   constructor(templateData, parentController) {
     this.#parentFrameControl = parentController?.constructor?.name === 'FrameController' ? parentController : null;
-    if (!templateData || !Object.keys(templateData).length /* || !this.#parentFrameControl */) return null;
+    if (!templateData || !Object.keys(templateData).length || !this.#parentFrameControl) return null;
+    this.#baseClass = this.#parentFrameControl.modalBaseClass;
     for (const template in templateData) {
+      if (['classes', 'properties'].includes(template)) continue;
       const t = templateData[template];
       this.#templates[template] = {};
       // Construct base template properties
@@ -95,9 +97,9 @@ export class TemplateEngine {
   }
 
   #handleClasses(data, target, classConfig) {
-    let classes = target.classList?.value ?? classConfig.default ?? '';
-    classes += `${classConfig.root ?? this.#fallbackContainerClass}`;
-    if (classConfig.default) classes += ` ${classConfig.default}`;
+    let classes = target.classList?.value ?? '';
+    classes += this.#baseClass;
+    classes += classConfig.default||'';
     for (const classType in classConfig) {
       if (classType !== 'default' && data[classType]) classes += ` ${data[classType]}`;
       else if (classConfig[classType].default) classes += ` ${classConfig[classType].default}`;
@@ -133,7 +135,7 @@ export class TemplateEngine {
       const closeFrameOnClick = btn.closeFrame ?? template.properties.closeFrame?.default ?? false,
         returnDataOnClick = btn.returnData ?? template.buttons.returnData?.default ?? false;
       if (closeFrameOnClick) {
-        const targetParentClass = template.properties?.classes?.root ?? this.#fallbackContainerClass;
+        const targetParentClass = this.#baseClass;
         if (targetParentClass) newButton.addEventListener('click', (ev) => this.#closeFrame(ev, targetParentClass));
         else console.warn(`${this.constructor.name}: Bad parent class selector, closeFrame() function not applied`);
       }
@@ -144,9 +146,8 @@ export class TemplateEngine {
   }
 
   // Default behaviour is close frame on any button click. Must be overridden if not desired.
-  // Also needs to be applied to .control-close button in top right
-  #closeFrame(ev, targetParentClass) {
-    const parentFrame = targetParentClass ? ev.target.closest(`.${targetParentClass}`) : null;
+  #closeFrame(ev) {
+    const parentFrame = ev.target.closest(`.${this.#baseClass}`);
     if (parentFrame) {
       this.#parentFrameControl.destroyModal(parentFrame);
     }
@@ -154,15 +155,15 @@ export class TemplateEngine {
   }
 
   // Return data either directly through parent class, or via eventhub. Async/await version TBD
-  #returnData(targetButton, returnData, template) {
-    const targetParentClass = template.properties?.classes?.root ?? this.#fallbackContainerClass,
+  #returnData(targetButton, returnData, /* template */) {
+    const targetParentClass = this.#baseClass,
       buttonClicked = targetButton.name || targetButton.innerText;
     if (targetParentClass) {
-      targetButton.dataset.returnData = returnData;
+      // targetButton.dataset.returndata = returnData;
       targetButton.addEventListener('mouseup', (ev) => {
         const parentFrame = ev.target.closest(`.${targetParentClass}`),
           parentId = parentFrame.id;
-        let inputData = ev.target.dataset.returnData
+        let inputData = returnData
           ? (Array.from(parentFrame.querySelectorAll(['input', 'select', 'textarea']))||[]).map(el => { return { [el.name||el.tagName]: el.value } })
           : null;
         this.#parentFrameControl.eventsElement.dispatchEvent(new CustomEvent('returnModalData', { detail: { id: parentId, button: buttonClicked, data: inputData } }));
@@ -194,13 +195,11 @@ export class TemplateEngine {
     }
     // Add closeFrame function to control button
     const controlButtonClose = template.properties.closeFrame?.controlButton ? newFrame.querySelector(template.properties.closeFrame.controlButton) : null;
-    // console.info(templateData.closeFrame);
-    // console.info(this.#validateProperty(template.properties.closeFrame, templateData.closeFrame));
     if (controlButtonClose) {
       if ((this.#validateProperty(template.properties.closeFrame, templateData.closeFrame) && !templateData.closeFrame) || !template.properties.closeFrame.default) {
         controlButtonClose.classList.add('disabled');
       } else {
-        controlButtonClose.addEventListener('click', (ev) => this.#closeFrame(ev, template.properties.classes.root));
+        controlButtonClose.addEventListener('click', (ev) => this.#closeFrame(ev));
         this.#returnData(controlButtonClose, false, template);
       }
     } else console.warn(`Couldn't find control button - close`);

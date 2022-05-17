@@ -86,7 +86,7 @@ main#mainmenu {
 			grid-template-columns: 66% 34%;
 			max-height: 16rem;
 
-			& .init, {
+			& .init {
 				@apply text-center m-0 py-8;
 				grid-column: 1 / 3;
 

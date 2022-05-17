@@ -50,7 +50,7 @@ export class DuneStore {
   set config(data) { this.#config = (this.#config === null && data.PATH) ? data : this.#config }
   set session(newSession) { this.#session = (this.#session === null && newSession.constructor?.name === 'SessionState') ? newSession : this.#session }
   set renHub(newHub) { this.#eventHub = (this.#eventHub === null && newHub.constructor.name === 'EventHub') ? newHub : this.#eventHub }
-  set client(newSocket) { this.#client = (this.#client === null && newSocket.constructor.name === 'SocketClient') ? newSocket : this.#client }
+  set client(newSocket) { this.#client = (this.#client === null && newSocket?.constructor?.name === 'SocketClient') ? newSocket : this.#client }
   set map(mapData) { this.#map = (this.#map === null && mapData.id) ? mapData : this.#map }
   set logger(logFunction) { this.#logger = typeof(logFunction) === 'function' ? logFunction : console.log }
   

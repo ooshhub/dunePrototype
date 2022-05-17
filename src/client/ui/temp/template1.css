@@ -28,9 +28,27 @@
     --duneGreenBrighter: #00d21d;
 }
 
-.loading-spinner img {
-	width: 50px;
+main {
+	transition: filter 0.5s;
 }
+
+input[name="disable-main"].disable ~ main {
+	pointer-events:none;
+}
+input[name="disable-main"].blur ~ main {
+	filter: blur(3px) grayscale(50%);
+	transition: filter 0.5s
+}
+main img {
+	max-width: 1500px;
+	display: block;
+	margin: auto;
+}
+
+.fc-dune.hide {
+	opacity: 0;
+}
+
 
 .dunebody {
 	background-color: #c6af96;
@@ -46,17 +64,15 @@
   border: 2px solid var(--duneGreen);
 }
 
-.fc-dune .modal-icon img {
-	max-width: 50px;
-	max-height: 50px;
-}
 
 .fc-dune {
   position: absolute;
   user-select: none;
 	display: block;
 
+	  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 	min-width: 15rem;
+	max-width: 30rem;
   padding: 0px 3px 0px 3px;
   border-radius: 4px;
   border: 2px solid var(--duneCyan);
@@ -73,7 +89,10 @@
 	line-height: 2rem;
 }
 
-.fc-dune header { cursor: move }
+.fc-dune header {
+	cursor: move;
+	color: #2f2300;
+}
 
 .fc-dune header .controls {
   position: absolute;
@@ -93,43 +112,53 @@
   max-height: 16rem;
 	border: 1px solid black;
 	padding: 0.5rem;
+	min-height: 1rem;
 }
 
-.dunebody button {
 
+.fc-dune .modal-icon img {
+	margin: 0.5rem 0rem 0.5rem 0rem;
+	max-height: 3rem;
+}
+
+.fc-dune button {
   cursor: pointer;
 	height: 1.5rem;
 	line-height: 1rem;
 	margin: auto;
-  text-transform: uppercase;
   text-shadow: 0px 0px 12px var(--duneCyanBrighter2);
   transition: color 0.5s, text-shadow 1s;
 	background: none;
 	border: 1px solid;
 	border-radius: 3px;
+		font-variant: petite-caps;
 }
 
 
 .dunebody button.system {
+	color: #393939;
   margin-left: 0.25rem;
   margin-right: 0.25rem;
   display: flex;
-  height: 1.5rem;
-  width: 1.5rem;
+  height: 1.3rem;
+  width: 1.3rem;
   align-items: center;
   justify-content: center;
   border-radius: 0.125rem;
   font-size: 0.875rem;
-  line-height: 1.25rem;
   background-color: rgb(237 230 216 / 100);
-  color: rgb(0 0 0 / var(--tw-text-opacity));
   box-shadow: 0px 0px 4px var(--duneBrown) inset;
+}
+.dunebody button.system.disabled {
+	opacity: 0;
+	pointer-events: none;
 }
 
 button.fc-modal {
   transition: color 0.5s, border 0.5s, text-shadow 1s, box-shadow 1s;
 	color: var(--duneCyanDark);
   	text-shadow: 0px 0px 1px darkgreen;
+	margin: 0px 0.5rem 0px 0.5rem;
 	
 }
 

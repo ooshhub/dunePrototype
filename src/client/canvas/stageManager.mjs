@@ -3,10 +3,16 @@
 // Primary Pixi.js handler
 import * as Pixi from './lib/pixi.mjs';
 import { Layer, /* Background,*/ /* AnchorPoint */ } from './viewModels/tiles.mjs';
-import { renHub, rlog } from '../rendererHub.mjs';
+import { renHub, rlog, frameControl, rendererHub } from '../app.mjs';
 import { helpers } from '../../shared/helpers.mjs';
 import { PixiUiExtension } from './pixiUi.mjs';
 import { fetchAssetPath } from '../../assets/assetDirectory.mjs';
+import { CanvasUtilities as canvasUtilities } from './CanvasUtilities.mjs';
+
+window.PIXI = Pixi;
+
+// Enable DEBUG MENU
+const enableDebugMenu = 1;
 
 export class StageManager {
 
@@ -55,7 +61,115 @@ export class StageManager {
     for (const asset in flattenedAssets) this.pixiLoader.add(asset, flattenedAssets[asset]);
   }
 
+  static async #setupMapOverlay(mapDimensions) {
+
+    // Setup overlay container
+    const mapOverlay = new Layer(window.Dune.layers.background, 'mapOverlay', true);
+    mapOverlay.x = -mapDimensions.x/2;
+    mapOverlay.y = -mapDimensions.y/2;
+    mapOverlay.width = mapDimensions.x;
+    mapOverlay.height = mapDimensions.y;
+    mapOverlay.alpha = 0.1;
+    mapOverlay.filters = [new Pixi.filters.BlurFilter(16)];
+
+    mapOverlay.updateHitArea();
+
+    // TODO: get scale from SVG file
+    const svgOffset = { x: -55, y: 822 }
+    const svgScale = (mapDimensions.x/1428)*1.017;
+    const mapOverlays = {
+      sectors: {
+        svg: '../canvas/overlay/overlay_sectors.svg',
+        tint: '0x33ff88',
+      },
+      subRegions: {
+        svg: '../canvas/overlay/overlay_subRegions.svg',
+        tint: '0x0055ff',
+      },
+      regions: {
+        svg: '../canvas/overlay/overlay_regions.svg',
+        tint: '0xff5555',
+      },
+    }
+    
+    for (const overlay in mapOverlays) {
+      // Process SVG from file
+      const svgTextStream = await fetch(mapOverlays[overlay].svg).then(data => data.text());
+      const svgData = canvasUtilities.svgToData(svgTextStream, { useNameIndex: false });
+      console.log(svgData);
+
+      // Create subcontainer
+      const subOverlay = new Layer(mapOverlay, overlay, true);
+      subOverlay.interactiveChildren = false;
+      subOverlay.interactive = true;
+      // subOverlay.alpha = 0.1;
+  
+      // Create a Graphic for each shape & draw
+      await Promise.all(svgData.shapes.map(async (shape,i) => {
+        // console.log(shape);
+        const newShape = new Pixi.Graphics();
+        newShape.name = shape.name ?? `noname-${i}`;
+        // TODO: change to white line with tint
+        newShape.lineStyle({width: 90, color: mapOverlays[overlay].tint });
+        newShape.alpha = 0.7;
+        canvasUtilities.scaleAndOffsetShape(shape, { x: svgScale, y: svgScale }, svgOffset);
+        await canvasUtilities.drawPixiGraphicFromSvgData(shape, newShape);
+  
+        await subOverlay.addChild(newShape);  
+      }));
+  
+      await helpers.timeout(100);
+      // mapOverlay.updateHitArea();
+
+      // Apply hit area and event handlers
+      await Promise.all(subOverlay.children.map(overlayShape => {
+        // console.log(sector);
+        // console.log(sector.geometry.points);
+        overlayShape.interactive = true;
+        const poly = new Pixi.Polygon(...overlayShape.geometry.points);
+        poly.name = overlayShape.name;
+        // console.log(poly);
+        overlayShape.hitArea = poly;
+        const fadein = (sector) => {
+          sector.fading = 'in';
+          const fadeout = (sector) => {
+            // console.log('out');
+            sector.fading = 'out';
+            let fadingOut = setInterval(() => {
+              if (sector.fading === 'in' || sector.alpha <= 0) {
+                clearInterval(fadingOut);
+                sector.off('mouseout', () => fadeout);
+              }
+              else sector.alpha = helpers.bound(sector.alpha - 0.008, 0, 1);
+            });
+          }
+          sector.on('mouseout', () => fadeout(sector));
+          let fadingIn = setInterval(() => {
+            if (sector.fading === 'out' || sector.alpha >= 1) clearInterval(fadingIn);
+            else sector.alpha = helpers.bound(sector.alpha + 0.008, 0, 1);
+          });
+        }
+        overlayShape.on('mouseover', () => fadein(overlayShape));
+        overlayShape.on('click', (ev) => console.log(ev.target.name, ev.target));
+        overlayShape.alpha = 0;
+      }));
+      // subOverlay.updateHitArea();
+    }
+
+    await helpers.timeout(250);
+    return mapOverlay;
+  }
+
   static async setupGameBoard(data) {
+    // Throw up loading modal
+    frameControl.createModal({
+      type: 'loading',
+      title: 'Loading',
+      message: 'Setting up game...',
+      destroyOnEvent: 'loadComplete:setupBoard',
+      disableMain: true,
+    });
+
     rlog([`Received setup data from server`, data], 'info');
     window.Dune.update('all', data);
     const setupData = {
@@ -66,9 +180,6 @@ export class StageManager {
       houses:  window.Dune.houses,
       map: window.Dune.map,
     }
-    // Move this later
-    window.Dune.session.update('GAME');
-    renHub.trigger('fadeElement', ['#mainmenu', '#lobby', '#mentat-lobby'], 'out', 1);
 
     // set up Sprite asset list and build Texture data
     rlog([`stageManager setting up board from data: `, setupData]);
@@ -76,18 +187,41 @@ export class StageManager {
     await this.spriteLoader();
     // rlog(this.Textures);
 
+    await frameControl.hideElements(['main#mainmenu', '#lobby'], 'slow');
+
     // Draw & position the Board
     const stage = window.Dune.layers.stage,
       map = new Pixi.Sprite(this.Textures.map);
     map.anchor.set(0.5);
-    stage.position = { x: stage.x + (map.width/2*stage.scale.x), y: stage.y + (map.height/2*stage.scale.y) }
+    map.name = 'map';
+    const mapCentre = { x: stage.x + (window.innerWidth/2), y: stage.y + (window.innerHeight/2) };
+    stage.position = mapCentre;
+    // window.Dune.layers.background.addChild(map);
     window.Dune.layers.background.addChild(map);
 
-    // Use requestAnimationFrame to wait for board to finish drawing
-    await helpers.animationFrameBreak();
-    renHub.trigger('showElement', '#gamecanvas');
+    const mapSize = { x: map.width, y: map.height };
 
-    // Send ack to server for playerReady
+    const mapOverlay = await this.#setupMapOverlay(mapSize);
+    mapOverlay.alpha = 1;
+    mapOverlay.updateHitArea();
+    // window.Dune.layers.background.addChild(mapOverlay);
+
+    window.mapOverlay = mapOverlay;
+
+
+    // Use requestAnimationFrame to wait for board to finish drawing
+    // await helpers.animationFrameBreak();
+    await helpers.timeout(500);
+    await helpers.animationFrameBreak();
+    // Fade main sections, then remove loading modal
+
+    if (enableDebugMenu) rendererHub.trigger('loadDebugMenu');
+
+    await frameControl.showElements(['main#gamecanvas', 'main#gameui'], 'slow');
+
+    renHub.trigger('loadComplete:setupBoard');
+    window.Dune.session.update('GAME');
+
     if (data.ack?.name) { renHub.trigger(`server/${data.ack.name}`); }
 
     // DRAW UI - HOUSE LIST FROM HOUSE DATA
@@ -108,14 +242,17 @@ export class StageManager {
     $('#canvas').append(pixiApp.view);
     // Set up Stage & main Layers
 
+    
+
     window.Dune.layers.stage = pixiApp.stage;
     window.Dune.layers.stage.scale = { x: 0.17, y: 0.17 };
 
     // SET UP LAYERS
-    /* let backgroundLayer =  */new Layer(pixiApp.stage, 'background');
-    let tokenLayer = new Layer(pixiApp.stage, 'token');
+    const backgroundLayer = new Layer(pixiApp.stage, 'background');
+    backgroundLayer.sortableChildren = true;
+    
+    const tokenLayer = new Layer(pixiApp.stage, 'token');
     tokenLayer.sortableChildren = true;
-    // backgroundLayer.filters = [new Pixi.filters.BlurFilter(2)];
     this.#initCanvasHandlers();
     // Load UI extensions now
     PixiUiExtension.init();

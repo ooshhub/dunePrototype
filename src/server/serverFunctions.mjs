@@ -156,6 +156,7 @@ export const server = (() => {
 		houseIds = helpers.toArray(houseIds);
     if (Game.Core.state) {
       const gameData = {
+        players: Game.Server.getPlayerList(),
         board: Game.Core.boardState,
         houses: Game.Core.houseList,
         trays: Game.Core.trayContents,

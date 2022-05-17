@@ -1,4 +1,4 @@
-import { rlog, renHub } from '../rendererHub.mjs';
+import { rlog, renHub } from '../app.mjs';
 import { ChatMessage } from './ChatMessage.mjs';
 
 const chatBox = $('main#chat');
