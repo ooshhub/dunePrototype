@@ -2,22 +2,23 @@
 import * as convert from './Colours.mjs';
 
 // Alpha: Turn into static class instead
-const helpers = (() => {
+export class helpers {
   
-  let log;
+  static #log = null;
 
-  const setLog = (loggerLink) => {
-    log = loggerLink || console.log;
-    log('Logging set');
+  static get log() { return this.#log }
+  static set log(loggerLink) {
+    this.#log = loggerLink || console.log;
+    this.#log('Helpers logger set');
   }
 
   /* 
   // ASYNC, TIMING & PROCESS FUNCTIONS
   */
   // Simple async timeout
-  const timeout = async (ms) => new Promise(res => setTimeout(() => res(null), ms));
+  static async timeout(ms) { return new Promise(res => setTimeout(() => res(null), ms)) }
   // Simple condition watcher
-  const watchCondition = async (func, message, timeout=5000, timeStep=100) => {
+  static async watchCondition(func, message, timeout=5000, timeStep=100) {
     return new Promise(res => {
       let elapsed = 0;
       let loop = setInterval(() => {
@@ -36,13 +37,13 @@ const helpers = (() => {
   // 		{ name: myProcessName, load: myFunc(parameter), [timeout]: 8000 }
   // Returns an object with { err: 0 or 1, msg: string, stack: Error stack if applicable }
   // Timeout returns null, therefore any functions supplied as the payload CANNOT return 'null' on a success
-  const asyncTimedLoad = async (loadPart) => {
+  static async asyncTimedLoad(loadPart) {
     const defaultTimeout = 6000;
     let timer = loadPart.timeout ?? defaultTimeout;
     return new Promise(res => {
       Promise.race([
         loadPart.load,
-        timeout(timer)
+        this.timeout(timer)
       ]).then(partResult => {
         let result = (partResult === null) ? { err: 1, msg: `${loadPart.name}: timeout at ${timer}ms` }
           : (/error/i.test(partResult?.constructor?.name)) ? { err: 1, msg: `${loadPart.name}: ${partResult.message}`, stack: partResult.stack }
@@ -57,8 +58,8 @@ const helpers = (() => {
   // Load an array of async processes to load. Same input as asyncTimedLoad, but an Array of processes.
   // Returns an object { failures: integer, errs: Array of error messages & stacktraces, msgs: Array of success msgs }
   // If returnObject.failures === 0, parallel load was successful.
-  const parallelLoader = async (loaderArray) => {
-    let promiseArray = loaderArray.map(part => asyncTimedLoad(part));
+  static async parallelLoader(loaderArray) {
+    let promiseArray = loaderArray.map(part => this.asyncTimedLoad(part));
     let loaderResult = await Promise.all(promiseArray);
     let output = { failures: 0, msgs: [], errs: [] };
     loaderResult.forEach(subResult => {
@@ -77,7 +78,7 @@ const helpers = (() => {
   // DATA FUNCTIONS
   */
   // Bind all methods in a class - call at end of constructor
-  const bindAll = (inputClass) => {
+  static bindAll(inputClass) {
     const keys = Reflect.ownKeys(Reflect.getPrototypeOf(inputClass));
     keys.forEach(key => {
       if (typeof(inputClass[key]) === 'function' && key !== 'constructor') {
@@ -85,8 +86,8 @@ const helpers = (() => {
       }
     });
   }
-  const toArray = (inp) => Array.isArray(inp) ? inp : [inp];
-  const cloneObject = (inp) => {
+  static toArray(inp) { return Array.isArray(inp) ? inp : [inp] }
+  static cloneObject(inp) {
     try { return JSON.parse(JSON.stringify(inp)) }
     catch(e) { return null }
   }
@@ -96,8 +97,8 @@ const helpers = (() => {
   //  -underscore
   //  -18 alphanumeric characters made from username (or random) and Date.now()
   // is usable as object key name, and distinct from socket.io which doesn't use underscore
-  const generatePlayerId = (pName) => {
-    const randLetter = () => String.fromCharCode(Math.random() > 0.3 ? Math.ceil(Math.random()*26) + 64 : Math.ceil(Math.random()*26) + 96);
+  static generatePlayerId(pName) {
+    const randLetter = async() => String.fromCharCode(Math.random() > 0.3 ? Math.ceil(Math.random()*26) + 64 : Math.ceil(Math.random()*26) + 96);
     pName = pName || '';
     if (!pName) {
       for (let i = Math.ceil(Math.random()*3) + 4; i > 0; i--) {
@@ -113,7 +114,7 @@ const helpers = (() => {
     pid = `${pName[0]}_${pid.slice(2)}`;
     return pid;
   }
-  const generateHouseIds = (playerList) => {
+  static generateHouseIds(playerList) {
     const output = {};
     let increment = 1;
     for (let p in playerList) {
@@ -124,19 +125,19 @@ const helpers = (() => {
     }
     return output;
   }
-  const randomInt = (range=100, depth=32) => {
+  static randomInt(range=100, depth=32) {
     const max = range * 2**depth;
     let random;
     do { random = Math.floor(Math.random() * 2**depth) }
     while (random >= max);
     return random % range;
   }
-  const generateUID = (numIds = 1) => {
+  static generateUID(numIds = 1) {
     let output = [], key = '';
     const chars = '-abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_';
     let ts = Date.now();
     for (let i = 8; i > 0; i--) { output[i] = chars.charAt(ts % 64), ts = Math.floor(ts / 64) }
-    for (let j = 0; j < 12; j++) { output.push(chars.charAt(randomInt(64))) }
+    for (let j = 0; j < 12; j++) { output.push(chars.charAt(this.randomInt(64))) }
     key = output.join('');
     if (numIds > 1) {
       numIds = Math.min(32, numIds);
@@ -150,7 +151,7 @@ const helpers = (() => {
   // Convert a string path to a nested object reference
   // e.g. getObjectPath(myObj, 'config/player/playerName) returns myObj.config.player.playerName
   // Set createPath to false to disabled creating missing keys. Will return null if path not found
-  const getObjectPath = (baseObject, pathString, createPath=true) => {
+  static getObjectPath(baseObject, pathString, createPath=true) {
     let parts = pathString.split(/\/+/g);
     let objRef = (pathString) 
       ? parts.reduce((m,v) => {
@@ -164,7 +165,7 @@ const helpers = (() => {
     return objRef;
   }
   // Remove cyclic references from an object, supply stringify flag if required
-  const removeCyclicReferences = (inputObj, stringify) => {
+  static removeCyclicReferences(inputObj, stringify) {
     const getCircularReplacer = () => {
       const seen = new WeakSet();
       return (key, value) => {
@@ -183,7 +184,7 @@ const helpers = (() => {
   }
   // Flatten an object to a single level. Key names become the/original/nested/path.
   // Currently only saves String values
-  const flattenObjectPaths = (rootObject, rootPath='') => {
+  static flattenObjectPaths(rootObject, rootPath='') {
     const output = {};
     const processObject = (currentObject, currentPath) => {
       for (const key in currentObject) {
@@ -194,7 +195,7 @@ const helpers = (() => {
     }
     return processObject(rootObject, rootPath);
   }
-  const unFlattenObjectPaths = (rootObject) => {
+  static unFlattenObjectPaths(rootObject) {
     const output = {};
     for (const key in rootObject) {
       const pathArray = key.split(/\//g);
@@ -213,7 +214,7 @@ const helpers = (() => {
   /*
   // HTML / JS / CSS FUNCTIONS
   */
-  const windowFade = async (targetFrame, duration, direction, timeStep=10) => {
+  static windowFade(targetFrame, duration, direction, timeStep=10) {
     let opacityStep = timeStep/duration;
     let uOpacity = parseFloat(targetFrame.getOpacity()) ?? null;
     if (uOpacity === null) return console.log(`No opacity found on target Electron frame.`);
@@ -236,7 +237,7 @@ const helpers = (() => {
       }, timeStep);
     });
   }
-  const svgStringToData = (textStream) => {
+  static svgStringToData(textStream) {
     const output = { svgAttributes: '', styles: [], paths: [] }
     textStream = textStream.replace(/\n\t/g, '');
     const styles = textStream.match(/<style.*?>(.*)<\/style>/s)?.[1] ?? '',
@@ -265,12 +266,12 @@ const helpers = (() => {
   /**
    * COLOUR FUNCTIONS
    */
-  const satMax = 100, satMin = 40, lumMax = 80, lumMin = 10;
   // Disallow House colours too close to white
-  const normaliseHsl = (hexColor) => {
+  static normaliseHsl(hexColor) {
+    const satMax = 100, satMin = 40, lumMax = 80, lumMin = 10;
     const hsl = convert.hexToHsl(hexColor);
     if (hsl?.stack) {
-      log(`Error converting color: ${hexColor}`, hsl);
+      this.#log(`Error converting color: ${hexColor}`, hsl);
       return null;
     }
     // console.log(hsl);
@@ -279,31 +280,29 @@ const helpers = (() => {
     return convert.hslToHex(hsl);
   }
   // Promisified requestAnimationFrame to grab the next free animation cycle
-  const animationFrameBreak = async () => new Promise(res => requestAnimationFrame(() => res()));
+  static async animationFrameBreak() { return new Promise(res => requestAnimationFrame(() => res())) }
 
 
   /**
    * OTHER FUNCTIONS
    */
-  const emproper = (input) => {
+  static  emproper(input) {
     if (typeof(input) !== 'string') return;
     let words = input.replace(/_/g, ' ').trim().split(/\s+/g);
     let Words = words.map(w => `${w[0].toUpperCase()}${w.slice(1)}`);
     return Words.join(' ');
   }
-  const escapeRegex = (string) => {
-    return string.replace(/[-\\^$*+?.()|[\]{}]/g, '\\$&');
-  }
-  const camelise = (inp, options={enforceCase:true}) => {
+  static escapeRegex(string) { return string.replace(/[-\\^$*+?.()|[\]{}]/g, '\\$&') }
+  static camelise(inp, options={enforceCase:true}) {
     if (typeof(inp) !== 'string') return null;
-    const words = inp.split(/[\s_]+/g);
+    const words = inp.split(/[\s_]+/g).filter(v=>v);
     return words.map((w,i) => {
       const wPre = i > 0 ? w[0].toUpperCase() : w[0].toLowerCase();
       const wSuf = options.enforceCase ? w.slice(1).toLowerCase() : w.slice(1);
       return `${wPre}${wSuf}`;
     }).join('');
   }
-  const deCamelise = (inp, options={includeNumerals:true}) => {
+  static deCamelise(inp, options={includeNumerals:true}) {
     if (typeof(inp) !== 'string') return null;
     const rxJoins = options.includeNumerals ? /([\w])([A-Z0-9])/g : /([\w])([A-Z])/g ;
     let arr, output = inp;
@@ -313,26 +312,11 @@ const helpers = (() => {
     }
     return output;
   }
-  const bound = (inputNumber, min=0, max=Number.MAX_SAFE_INTEGER) => {
+  static bound(inputNumber, min=0, max=Number.MAX_SAFE_INTEGER) {
     return (typeof inputNumber === 'number') ? Math.max(Math.min(parseFloat(inputNumber), max), min) : NaN;
   }
-  const isBound = (inputNumber, min=0, max=Number.MAX_SAFE_INTEGER) => {
+  static isBound(inputNumber, min=0, max=Number.MAX_SAFE_INTEGER) {
     return (typeof inputNumber === 'number') ? inputNumber >= min && inputNumber <= max ? true : false : NaN;
   }
 
-  return {
-    setLog,
-    timeout, watchCondition, asyncTimedLoad, parallelLoader,
-    bindAll, toArray, cloneObject, generatePlayerId, generateHouseIds, generateUID,
-    getObjectPath, removeCyclicReferences, flattenObjectPaths, unFlattenObjectPaths,
-    windowFade, svgStringToData,
-    normaliseHsl, animationFrameBreak,
-    emproper, escapeRegex, camelise, deCamelise,
-    bound, isBound, randomInt,
-  }
-
-})();
-
-
-
-export { helpers };
+}

@@ -58,6 +58,12 @@ export class DuneStore {
   get appendFields() { return { _tray: this.#tray, _houses: this.#houses, _players: this.#players, _session: this.#session, _config: this.#config, _eventHub: this.#eventHub } }
   get blockFields() { return [] }
 
+  rx = {
+    uid: /-[A-Za-z0-9_-]{19}/,
+    pid: /[A-Za-z]_[A-Za-z0-9_-]{18}/,
+    hid: /[A-Za-z]{2}_[A-Za-z0-9_-]{17}/
+  }
+
   // Updates for dynamic game data
   // TODO: add validation to each data type
   #updateHouses(data) {
@@ -109,6 +115,38 @@ export class DuneStore {
           // console.warn(`${this.name}: Unrecognised update property/data write attempt: ${target}`);
       }
     });
+  }
+
+  // Get Player from pid, hid, playername or housename (attempt in that order)
+  getPlayer(stringSearch) {
+    if (typeof(stringSearch) !== 'string') return console.error(`getPlayer() requires one string parameter.`);
+    if (this.rx.pid.test(stringSearch)) return this.players[stringSearch] ?? null;
+    else if (this.rx.hid.test(stringSearch)) return this.players[(this.houses[stringSearch].pid||this.houses[stringSearch].lastPlayer)] ?? null;
+    else {
+      const playerData = Object.values(this.players);
+      let stringResult = playerData.find(p => p.playerName.toLowerCase() === stringSearch.trim().toLowerCase());
+      if (!stringResult) {
+        const findHouse = Object.values(this.houses).find(h => h.name === helpers.camelise(stringSearch));
+        stringResult = findHouse ? this.players[(findHouse.pid||findHouse.lastPlayer)] : null;
+      }
+      return stringResult;
+    }
+  }
+
+  // Get House from hid, pid, housename or playername (attempt in that order)
+  getHouse(stringSearch) {
+    if (typeof(stringSearch) !== 'string') return console.error(`getHouse() requires one string parameter.`);
+    if (this.rx.hid.test(stringSearch)) return this.houses[stringSearch] ?? null;
+    else if (this.rx.pid.test(stringSearch)) return Object.values(this.houses).find(house => (house.pid||house.lastPlayer) === stringSearch);
+    else {
+      const houseData = Object.values(this.houses);
+      let stringResult = houseData.find(house => house.name === helpers.camelise(stringSearch));
+      if (!stringResult) {
+        const findPlayer = Object.values(this.players).find(p => p.playerName.toLowerCase() === stringSearch.trim().toLowerCase());
+        stringResult = findPlayer ? houseData.find(house => (house.pid||house.lastPlayer) === findPlayer.pid) : null;
+      }
+      return stringResult;
+    }
   }
 
   async destroyClient() { this.#client = null }

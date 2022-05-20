@@ -2,12 +2,12 @@
 
 // Primary Pixi.js handler
 import * as Pixi from './lib/pixi.mjs';
-import { Layer, /* Background,*/ /* AnchorPoint */ } from './viewModels/tiles.mjs';
+import { Layer, OverlayContainer, OverlayLayer } from './viewModels/backgroundClasses.mjs';
 import { renHub, rlog, frameControl, rendererHub } from '../app.mjs';
 import { helpers } from '../../shared/helpers.mjs';
 import { PixiUiExtension } from './pixiUi.mjs';
 import { fetchAssetPath } from '../../assets/assetDirectory.mjs';
-import { CanvasUtilities as canvasUtilities } from './CanvasUtilities.mjs';
+// import { CanvasUtilities as canvasUtilities } from './CanvasUtilities.mjs';
 
 window.PIXI = Pixi;
 
@@ -64,14 +64,17 @@ export class StageManager {
   static async #setupMapOverlay(mapDimensions) {
 
     // Setup overlay container
-    const mapOverlay = new Layer(window.Dune.layers.background, 'mapOverlay', true);
-    mapOverlay.x = -mapDimensions.x/2;
-    mapOverlay.y = -mapDimensions.y/2;
-    mapOverlay.width = mapDimensions.x;
-    mapOverlay.height = mapDimensions.y;
+    const mapOverlay = new OverlayContainer({
+      name: `mapOverlay`,
+      x: -mapDimensions.x/2,
+      y: -mapDimensions.y/2,
+      width: mapDimensions.x,
+      height: mapDimensions.y,
+      parentLayer: window.Dune.layers.background,
+      propagateEvents: true,
+    });
     mapOverlay.alpha = 0.1;
     mapOverlay.filters = [new Pixi.filters.BlurFilter(16)];
-
     mapOverlay.updateHitArea();
 
     // TODO: get scale from SVG file
@@ -80,83 +83,108 @@ export class StageManager {
     const mapOverlays = {
       sectors: {
         svg: '../canvas/overlay/overlay_sectors.svg',
-        tint: '0x33ff88',
+        color: '0x33ff88',
+        width: 90,
+        alpha: 0.7
       },
       subRegions: {
         svg: '../canvas/overlay/overlay_subRegions.svg',
-        tint: '0x0055ff',
+        color: '0x0055ff',
+        width: 90,
+        alpha: 0.7
       },
       regions: {
         svg: '../canvas/overlay/overlay_regions.svg',
-        tint: '0xff5555',
+        color: '0xff5555',
+        width: 90,
+        alpha: 0.7
       },
     }
     
     for (const overlay in mapOverlays) {
       // Process SVG from file
-      const svgTextStream = await fetch(mapOverlays[overlay].svg).then(data => data.text());
-      const svgData = canvasUtilities.svgToData(svgTextStream, { useNameIndex: false });
-      console.log(svgData);
+      const svgText = await fetch(mapOverlays[overlay].svg).then(data => data.text());
+      const newOverlay = new OverlayLayer({
+        name: overlay,
+        svgTextStream: svgText,
+        parentContainer: mapOverlay,
+        stroke: {
+          width: mapOverlay[overlay].width,
+          color: mapOverlay[overlay].tint,
+        },
+        fill: {},
+        alpha: mapOverlay[overlay].alpha ?? 1,
+        tint: mapOverlay[overlay].tint ?? null,
+        scale: { x: svgScale, y: svgScale },
+        offset: { x: svgOffset.x, y: svgOffset.y }
+      });
+      // const svgData = canvasUtilities.svgToData(svgTextStream, { useNameIndex: false });
+      // console.log(svgData);
 
       // Create subcontainer
-      const subOverlay = new Layer(mapOverlay, overlay, true);
-      subOverlay.interactiveChildren = false;
-      subOverlay.interactive = true;
+      // const subOverlay = new Layer(mapOverlay, overlay, true);
+      // subOverlay.interactiveChildren = false;
+      // subOverlay.interactive = true;
       // subOverlay.alpha = 0.1;
   
       // Create a Graphic for each shape & draw
-      await Promise.all(svgData.shapes.map(async (shape,i) => {
-        // console.log(shape);
-        const newShape = new Pixi.Graphics();
-        newShape.name = shape.name ?? `noname-${i}`;
-        // TODO: change to white line with tint
-        newShape.lineStyle({width: 90, color: mapOverlays[overlay].tint });
-        newShape.alpha = 0.7;
-        canvasUtilities.scaleAndOffsetShape(shape, { x: svgScale, y: svgScale }, svgOffset);
-        await canvasUtilities.drawPixiGraphicFromSvgData(shape, newShape);
+      // await Promise.all(svgData.shapes.map(async (shape,i) => {
+      //   // console.log(shape);
+      //   const newShape = new Pixi.Graphics();
+      //   newShape.name = shape.name ?? `noname-${i}`;
+      //   // TODO: change to white line with tint
+      //   newShape.lineStyle({width: 90, color: mapOverlays[overlay].tint });
+      //   newShape.alpha = 0.7;
+      //   canvasUtilities.scaleAndOffsetShape(shape, { x: svgScale, y: svgScale }, svgOffset);
+      //   await canvasUtilities.drawPixiGraphicFromSvgData(shape, newShape);
   
-        await subOverlay.addChild(newShape);  
-      }));
+      //   await subOverlay.addChild(newShape);  
+      // }));
   
-      await helpers.timeout(100);
+      await helpers.timeout(200);
       // mapOverlay.updateHitArea();
 
-      // Apply hit area and event handlers
-      await Promise.all(subOverlay.children.map(overlayShape => {
-        // console.log(sector);
-        // console.log(sector.geometry.points);
-        overlayShape.interactive = true;
-        const poly = new Pixi.Polygon(...overlayShape.geometry.points);
-        poly.name = overlayShape.name;
-        // console.log(poly);
-        overlayShape.hitArea = poly;
-        const fadein = (sector) => {
-          sector.fading = 'in';
-          const fadeout = (sector) => {
-            // console.log('out');
-            sector.fading = 'out';
-            let fadingOut = setInterval(() => {
-              if (sector.fading === 'in' || sector.alpha <= 0) {
-                clearInterval(fadingOut);
-                sector.off('mouseout', () => fadeout);
-              }
-              else sector.alpha = helpers.bound(sector.alpha - 0.008, 0, 1);
-            });
-          }
-          sector.on('mouseout', () => fadeout(sector));
-          let fadingIn = setInterval(() => {
-            if (sector.fading === 'out' || sector.alpha >= 1) clearInterval(fadingIn);
-            else sector.alpha = helpers.bound(sector.alpha + 0.008, 0, 1);
-          });
-        }
-        overlayShape.on('mouseover', () => fadein(overlayShape));
-        overlayShape.on('click', (ev) => console.log(ev.target.name, ev.target));
-        overlayShape.alpha = 0;
-      }));
-      // subOverlay.updateHitArea();
+      // Create hit area polygons for all vectors in layer
+      newOverlay.createHitPolygons();
+      newOverlay.registerMouseoverEvents();
+
+      // // Apply hit area and event handlers
+      // await Promise.all(subOverlay.children.map(overlayShape => {
+      //   // console.log(sector);
+      //   // console.log(sector.geometry.points);
+      //   overlayShape.interactive = true;
+      //   const poly = new Pixi.Polygon(...overlayShape.geometry.points);
+      //   poly.name = overlayShape.name;
+      //   // console.log(poly);
+      //   overlayShape.hitArea = poly;
+      //   const fadein = (sector) => {
+      //     sector.fading = 'in';
+      //     const fadeout = (sector) => {
+      //       // console.log('out');
+      //       sector.fading = 'out';
+      //       let fadingOut = setInterval(() => {
+      //         if (sector.fading === 'in' || sector.alpha <= 0) {
+      //           clearInterval(fadingOut);
+      //           sector.off('mouseout', () => fadeout);
+      //         }
+      //         else sector.alpha = helpers.bound(sector.alpha - 0.008, 0, 1);
+      //       });
+      //     }
+      //     sector.on('mouseout', () => fadeout(sector));
+      //     let fadingIn = setInterval(() => {
+      //       if (sector.fading === 'out' || sector.alpha >= 1) clearInterval(fadingIn);
+      //       else sector.alpha = helpers.bound(sector.alpha + 0.008, 0, 1);
+      //     });
+      //   }
+      //   overlayShape.on('mouseover', () => fadein(overlayShape));
+      //   overlayShape.on('click', (ev) => console.log(ev.target.name, ev.target));
+      //   overlayShape.alpha = 0;
+      // }));
+      // // subOverlay.updateHitArea();
     }
 
     await helpers.timeout(250);
+    window.mapOverlay = mapOverlay;
     return mapOverlay;
   }
 

@@ -117,10 +117,10 @@ export class RendererInterface {
     this.renHub.on('authSuccess', (playerData) => {
       const sessionState = window.Dune.session.state;
       if (sessionState === 'GAME') {
-         this.rlog(`Attempting to restore GAME state...`);
+        //  this.rlog(`Attempting to restore GAME state...`);
         this.renHub.trigger('server/requestGameState');
       } else {
-         this.rlog(`Attempting to restore LOBBY state...`);
+        //  this.rlog(`Attempting to restore LOBBY state...`);
         this.renHub.trigger('server/requestLobby', playerData);
       }
       window.Dune.session?.setServerStatus(true, playerData.setSessionToken);

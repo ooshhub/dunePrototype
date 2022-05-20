@@ -251,7 +251,7 @@ export class SocketServer {
   getPlayerList(playerId) {
     // console.log(this.#playerList);
     let output = {};
-    if (this.#playerList[playerId]) output = helpers.removeCyclicReferences(this.#playerList[playerId]);
+    if (playerId && this.#playerList[playerId]) output = helpers.removeCyclicReferences(this.#playerList[playerId]);
     else output = helpers.removeCyclicReferences(this.#playerList);
     // console.log(output);
     return output;
@@ -285,8 +285,9 @@ export class SocketServer {
       } else {
         this.#houseList[house] = {
           name: houseList[house].name,
-          lastPlayer: pid,
-          currentPlayer: this.#playerList[pid]
+          pid: pid, // update this one if House changes hands
+          initialPlayer: pid, // probably superfluous, might be useful for continuing games, or stat tracking
+          currentPlayer: this.#playerList[pid],
         }
       }
     }

@@ -4,54 +4,6 @@ export class CanvasUtilities {
 
   constructor() { throw new Error(`${this.constructor.name} cannot be instantiated.`) }
 
-  static regionMap = {
-    getRegionFromIndex: function(index) {
-      return Object.entries(this).find(kv => (typeof(kv[1]) === 'number' && kv[1] === index) ? kv[0] : null)?.[0] ?? null;
-    },
-    polarSink: 0,
-    falseWallEast: 1,
-    minorErg: 2,
-    shieldWall: 3,
-    pastyMesa: 4,
-    garKulon: 5,
-    tueksSietch: 6,
-    falseWallSouth: 7,
-    cielagoNorth: 8,
-    cielagoDepression: 9,
-    cielagoEast: 10,
-    cielagoSouth: 11,
-    meridian: 12,
-    cielagoWest: 13,
-    windPassNorth: 14,
-    sihayaRidge: 15,
-    holeInTheRock: 16,
-    basin: 17,
-    rimWallWest: 18,
-    arrakeen: 19,
-    oldGap: 20,
-    imperialBasin: 21,
-    carthag: 22,
-    tsimpo: 23,
-    brokenLand: 24,
-    arsunt: 25,
-    haggaBasin: 26,
-    plasticBasin: 27,
-    windPass: 28,
-    greatFlat: 29,
-    greaterFlat: 30,
-    falseWallWest: 31,
-    habbanyaRidgeFlat: 32,
-    habbanyaErg: 33,
-    funeralPlain: 34,
-    bightOfTheCliff: 35,
-    sietchTabr: 36,
-    rockOutcroppings: 37,
-    habbanyaSietch: 38,
-    hargPass: 39,
-    redChasm: 40,
-    southMesa: 41,
-  }
-
   static svgToData(textStream, options = { namePrefix: '', nameSuffix: '', nameMap: null, useNameIndex: false, useClassIndex: false }) {
     const output = { styles: [], shapes: [] }
     const usedNames = {};
@@ -79,9 +31,9 @@ export class CanvasUtilities {
       return output;
     }
     const processPolygon = (inputString) => inputString.split(/(\s*,\s*|\s+)/g).reduce((acc, p) => parseFloat(p) ? acc.concat(parseFloat(p)) : acc, []);
+    //TODO: Finish off SVG parser with missing shape types
     let index = 0;
     for (const path of pathMatches) {
-      // console.log(path);
       const outputPath = { type: path[1] };
       const attributes = path[2].matchAll(/(\w+)="([^"]*)"/g);
       for (const attr of attributes) {
@@ -91,7 +43,6 @@ export class CanvasUtilities {
       }
       const nameMap = typeof(options.nameMap) === 'string' ? CanvasUtilities[options.nameMap] : options.nameMap;
       const classIndex = parseInt(outputPath.class.replace(/\D/g, ''));
-      // console.log(`nameMap and classIndex`, nameMap, classIndex);
       let baseName = outputPath.id ? outputPath.id 
         : nameMap && typeof(classIndex) === 'number' ? nameMap.getRegionFromIndex(classIndex)
         : classIndex ? `_${classIndex}`
@@ -113,14 +64,12 @@ export class CanvasUtilities {
       return (i%2 === 0) ? p*(applyScale ? scale.x : 1) + (applyOffset ? offset.x : 0) : p*(applyScale ? scale.y : 1) + (applyOffset ? offset.y : 0);
     });
     if (shape.type === 'polygon') {
-      // console.log(shape.points);
       shape.points = scaleAndOffset(shape.points);
     }
     else if (shape.type === 'path') {
       for (let i=0; i<shape.d.length; i++) {
         // Swap axis for vertical lines in scaleAndOffset()
         let axisSwap = /v/i.test(shape.d[i].type) ? true : false;
-        // console.log(shape.d[i].type);
         if (/a/i.test(shape.d[i].type)) {
           const radius = shape.d[i].points[4] ?? 0;
           shape.d[i].points = scaleAndOffset(shape.d[i].points);
@@ -133,22 +82,17 @@ export class CanvasUtilities {
       }
     }
     else if (shape.type === 'rect') {
-      // console.log(shape);
       const [sx, sy] = scaleAndOffset([shape.x, shape.y]);
       const [sw, sh] = scaleAndOffset([shape.width, shape.height], true, false);
-      // ['x','y'].forEach(attr => shape[attr] = scaleAndOffset(shape[attr]));
-      // ['width','height'].forEach(attr => scaleAndOffset(shape[attr], true, false));
       Object.assign(shape, { x: sx, y: sy, width: sw, height: sh });
     }
     return shape;
   }
 
-  static async drawPixiGraphicFromSvgData(shape, pixiGraphic) {
+  static drawPixiGraphicFromSvgData(shape, pixiGraphic) {
     const reflectControlPoint = (lastCp, lastPos, /* currentPos, relative */) => {
-      // use delta to adjust for relative coordinates
-      // const delta = { x: relative ? currentPos.x - lastPos.x : 0, y: relative ? currentPos.y - lastPos.y : 0 };
+      // Delta x/y not required, may need to adjust for absolutes???
       const reflect = [ (2*lastPos.x - lastCp.x) /* + delta.x */, (2*lastPos.y - lastCp.y)/*  + delta.y  */];
-      // console.log(delta, reflect);
       return reflect;
     }
     pixiGraphic = pixiGraphic?.constructor?.name === 'Graphics' ? pixiGraphic : null;
@@ -166,12 +110,10 @@ export class CanvasUtilities {
       };
       shape.d.forEach(command => {
         let coords = command.points ?? [];
-        // console.log(coords);
         // Handle difference between UPPER and lower
         if (/[lhcsqt]/.test(command.type)) coords = coords.map((p,i) => (i%2===0) ? p + last.x : p + last.y);
         else if (/v/.test(command.type)) coords[0] = coords[0] + last.y;
         else if (/a/.test(command.type)) coords = coords.map((p,i) => (i===4) ? p : (i%2===0) ? p + origin.x : p + origin.y);
-        // console.log(command.type, coords);
         const lowerCommand = command.type.toLowerCase();
         switch(lowerCommand) {
           case 'm': {
@@ -190,7 +132,6 @@ export class CanvasUtilities {
             break;
           }
           case 'h': {
-            // console.log(`horizontal: ${last.x},${last.y} => ${coords[0]},${last.y}`);
             pixiGraphic.lineTo(coords[0], last.y);
             Object.assign(last, { x: coords[0] });
             break;
@@ -233,9 +174,9 @@ export class CanvasUtilities {
       pixiGraphic.drawPolygon(poly);
     }
     else if (shape.type === 'rect') {
-      console.warn('RECT');
       pixiGraphic.drawRect(shape.x, shape.y, shape.width ?? 0, shape.height ?? 0);
     }
+    // TODO: Finish off svg/pixi converter with missing SVG shapes
     return pixiGraphic;
   }
 }

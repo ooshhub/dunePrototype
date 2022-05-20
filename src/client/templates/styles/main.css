@@ -403,7 +403,7 @@ main#mainmenu #lobby .body .player-list .player {
   margin: 0.25rem;
   display: grid;
   align-items: center;
-  grid-template-columns: 30% 20% 20% 20%;
+  grid-template-columns: 30% 30% 20% 10%;
   -moz-column-gap: 1%;
        column-gap: 1%;
 }

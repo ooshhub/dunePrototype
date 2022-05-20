@@ -165,7 +165,7 @@ export const server = (() => {
 			if (houseIds.length) {
 				return houseIds.map(house => {
 					if (!gameData.houses[house]) slog(`Bad target in gameState request: ${house}`);
-					else return { hid: house, map: gameData.map, board: gameData.board, houses: gameData.houses, tray: gameData.trays[house], targets: house };
+					else return { hid: house, map: gameData.map, board: gameData.board, players: gameData.players, houses: gameData.houses, tray: gameData.trays[house], targets: house };
 				});
 			} else return gameData;
 		} else return new Error(`Game Core is not ready.`);
