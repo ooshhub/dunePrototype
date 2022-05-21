@@ -63,33 +63,32 @@ export class StageManager {
 
   static async #setupMapOverlay(mapDimensions) {
 
+    // TODO: get scale from SVG file
+    const svgOffset = { x: -55, y: 822 }
+    const svgScale = (mapDimensions.x/1428)*1.017;
+
     // Setup overlay container
     const mapOverlay = new OverlayContainer({
       name: `mapOverlay`,
       x: -mapDimensions.x/2,
       y: -mapDimensions.y/2,
-      width: mapDimensions.x,
-      height: mapDimensions.y,
       parentLayer: window.Dune.layers.background,
       propagateEvents: true,
     });
     mapOverlay.alpha = 0.1;
-    mapOverlay.filters = [new Pixi.filters.BlurFilter(16)];
-    mapOverlay.updateHitArea();
+    mapOverlay.filters = [new Pixi.filters.BlurFilter(8)];
 
-    // TODO: get scale from SVG file
-    const svgOffset = { x: -55, y: 822 }
-    const svgScale = (mapDimensions.x/1428)*1.017;
+
     const mapOverlays = {
       sectors: {
         svg: '../canvas/overlay/overlay_sectors.svg',
-        color: '0x33ff88',
+        color: '0x22dd00',
         width: 90,
         alpha: 0.7
       },
       subRegions: {
         svg: '../canvas/overlay/overlay_subRegions.svg',
-        color: '0x0055ff',
+        color: '0x0022ee',
         width: 90,
         alpha: 0.7
       },
@@ -109,78 +108,23 @@ export class StageManager {
         svgTextStream: svgText,
         parentContainer: mapOverlay,
         stroke: {
-          width: mapOverlay[overlay].width,
-          color: mapOverlay[overlay].tint,
+          width: mapOverlays[overlay].width,
+          color: mapOverlays[overlay].color,
         },
-        fill: {},
-        alpha: mapOverlay[overlay].alpha ?? 1,
-        tint: mapOverlay[overlay].tint ?? null,
+        fill: {
+          color: mapOverlays[overlay].color,
+        },
+        alpha: mapOverlays[overlay].alpha ?? 1,
+        tint: mapOverlays[overlay].tint ?? null,
         scale: { x: svgScale, y: svgScale },
         offset: { x: svgOffset.x, y: svgOffset.y }
       });
-      // const svgData = canvasUtilities.svgToData(svgTextStream, { useNameIndex: false });
-      // console.log(svgData);
-
-      // Create subcontainer
-      // const subOverlay = new Layer(mapOverlay, overlay, true);
-      // subOverlay.interactiveChildren = false;
-      // subOverlay.interactive = true;
-      // subOverlay.alpha = 0.1;
-  
-      // Create a Graphic for each shape & draw
-      // await Promise.all(svgData.shapes.map(async (shape,i) => {
-      //   // console.log(shape);
-      //   const newShape = new Pixi.Graphics();
-      //   newShape.name = shape.name ?? `noname-${i}`;
-      //   // TODO: change to white line with tint
-      //   newShape.lineStyle({width: 90, color: mapOverlays[overlay].tint });
-      //   newShape.alpha = 0.7;
-      //   canvasUtilities.scaleAndOffsetShape(shape, { x: svgScale, y: svgScale }, svgOffset);
-      //   await canvasUtilities.drawPixiGraphicFromSvgData(shape, newShape);
-  
-      //   await subOverlay.addChild(newShape);  
-      // }));
   
       await helpers.timeout(200);
-      // mapOverlay.updateHitArea();
 
       // Create hit area polygons for all vectors in layer
       newOverlay.createHitPolygons();
       newOverlay.registerMouseoverEvents();
-
-      // // Apply hit area and event handlers
-      // await Promise.all(subOverlay.children.map(overlayShape => {
-      //   // console.log(sector);
-      //   // console.log(sector.geometry.points);
-      //   overlayShape.interactive = true;
-      //   const poly = new Pixi.Polygon(...overlayShape.geometry.points);
-      //   poly.name = overlayShape.name;
-      //   // console.log(poly);
-      //   overlayShape.hitArea = poly;
-      //   const fadein = (sector) => {
-      //     sector.fading = 'in';
-      //     const fadeout = (sector) => {
-      //       // console.log('out');
-      //       sector.fading = 'out';
-      //       let fadingOut = setInterval(() => {
-      //         if (sector.fading === 'in' || sector.alpha <= 0) {
-      //           clearInterval(fadingOut);
-      //           sector.off('mouseout', () => fadeout);
-      //         }
-      //         else sector.alpha = helpers.bound(sector.alpha - 0.008, 0, 1);
-      //       });
-      //     }
-      //     sector.on('mouseout', () => fadeout(sector));
-      //     let fadingIn = setInterval(() => {
-      //       if (sector.fading === 'out' || sector.alpha >= 1) clearInterval(fadingIn);
-      //       else sector.alpha = helpers.bound(sector.alpha + 0.008, 0, 1);
-      //     });
-      //   }
-      //   overlayShape.on('mouseover', () => fadein(overlayShape));
-      //   overlayShape.on('click', (ev) => console.log(ev.target.name, ev.target));
-      //   overlayShape.alpha = 0;
-      // }));
-      // // subOverlay.updateHitArea();
     }
 
     await helpers.timeout(250);

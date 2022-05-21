@@ -85,7 +85,7 @@ export class SocketServer {
           }
           // Find applicable house for a reconnecting player
           if (Object.keys(this.#houseList)?.length) {
-            // this.#slog(playerDetails.pid);
+            this.#slog(`Reconnecting pid: ${playerDetails.pid}`);
             playerDetails.hid = this.#findPlayerHouse(playerDetails.pid) ?? null;
             if (!playerDetails.hid) return this.#slog(`Reconnecting player is not in houseList. Dropping player.`);
           }
@@ -286,7 +286,7 @@ export class SocketServer {
         this.#houseList[house] = {
           name: houseList[house].name,
           pid: pid, // update this one if House changes hands
-          initialPlayer: pid, // probably superfluous, might be useful for continuing games, or stat tracking
+          lastPlayer: pid, // probably superfluous, might be useful for continuing games, or stat tracking
           currentPlayer: this.#playerList[pid],
         }
       }

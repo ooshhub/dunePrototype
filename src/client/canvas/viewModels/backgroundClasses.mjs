@@ -8,9 +8,11 @@ export class MapVector extends Pixi.Graphics {
   constructor(shapeData, overlayData) {
     super();
     this.name = shapeData.name ?? `newVector-${shapeData.index??'0'}`;
-    this.lineStyle({width: overlayData.stroke.width ?? 10, color: overlayData.stroke.color });
-    canvasUtilities.scaleAndOffsetShape(shapeData, overlayData.svgScale ?? { x: 1, y: 1 }, overlayData.svgOffset ?? { x: 0, y: 0 });
+    canvasUtilities.scaleAndOffsetShape(shapeData, overlayData.scale ?? { x: 1, y: 1 }, overlayData.offset ?? { x: 0, y: 0 });
+    this.lineStyle({ width: overlayData.stroke.width ?? 10, color: overlayData.stroke.color });
+    this.beginFill( overlayData.stroke.color, 0.7 );
     canvasUtilities.drawPixiGraphicFromSvgData(shapeData, this);
+    this.endFill();
   }
 
   createHitArea() {
@@ -61,10 +63,9 @@ export class OverlayLayer extends Pixi.Container {
       interactive: false,
     });
     const svgData = canvasUtilities.svgToData(overlayData.svgTextStream, { useNameIndex: false });
-    console.log(svgData);
+    // console.log(svgData);
     // Convert SVG shapes to Pixi graphics
     svgData.shapes.map(async (shape, i) => {
-      // console.log(shape);
       shape.index = i;
       this.addChild(new MapVector(shape, overlayData));
     });
@@ -83,8 +84,12 @@ export class OverlayLayer extends Pixi.Container {
     });
   }
 
-  checkClick(eventData) {
-    console.log(`${this.name}: Checking ${this.children.length} for click event...`, eventData);
+  async checkClick(eventPoint) {
+    console.log(`${this.name}: Checking ${this.children.length} children for click event...`, eventPoint);
+    const hits = this.children.reduce((acc, vector) => {
+      return (vector.containsPoint(eventPoint)) ? acc.concat(vector.name) : acc;
+    }, []);
+    return hits;
   }
 }
 
@@ -96,15 +101,15 @@ export class OverlayContainer extends Pixi.Container {
     super();
     Object.assign(this, {
       name: containerData.name || 'newOverlayContainer',
-      interactive: false,
+      interactive: true,
       width: containerData.width ?? 0,
       height: containerData.height ?? 0,
       position: {
-        x: containerData.x,
-        y: containerData.y,
+        x: containerData.x ?? 0,
+        y: containerData.y ?? 0, 
       }
     });
-    if (containerData.parentLayer) containerData.parentLayer.addChild?.(this);
+    if (containerData.parentLayer) containerData.parentLayer.addChild(this);
     if (containerData.propagateEvents) {
       this.propagateEvents = true;
       this.#propagateClick();
@@ -112,10 +117,14 @@ export class OverlayContainer extends Pixi.Container {
   }
 
   #propagateClick() {
-    this.on('click', (ev) => {
-      const clone = helpers.cloneObject(ev);
-      console.log(`${this.name}: Click event`, clone);
-      this.children.forEach(child => child.checkClick(clone));
+    this.on('click', async (ev) => {
+      console.info(ev);
+      const point = ev.data.getLocalPosition(this);
+      console.log(point);
+      // console.warn(ev.target.scale);
+      console.log(`${this.name}: Click event`, point);
+      const allHits = await Promise.all(this.children.map(child => child.checkClick(point)));
+      console.info(allHits);
     });
   }
 

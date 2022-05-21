@@ -101,7 +101,7 @@ main#mainmenu {
 
 				& .player {
 					@apply grid items-center m-1;
-					grid-template-columns: 30% 30% 20% 10%;
+					grid-template-columns: 35% 30% 10% 20%;
 					column-gap: 1%;
 
 					& input[type="color"] { @apply bg-dune-whiteSand; }

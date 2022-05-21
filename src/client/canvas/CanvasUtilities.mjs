@@ -14,7 +14,7 @@ export class CanvasUtilities {
     stylesParts.forEach(part => {
       let ruleParts = part.split(/{/);
       if (ruleParts.length === 2) output.styles.push({ selector: ruleParts[0], rule: ruleParts[1] });
-      else console.warn(`Invalid CSS rule ignored.`);
+      // else console.warn(`Invalid CSS rule ignored.`);
     });
     const processPath = (inputString) => {
       const output = [];
@@ -95,8 +95,8 @@ export class CanvasUtilities {
       const reflect = [ (2*lastPos.x - lastCp.x) /* + delta.x */, (2*lastPos.y - lastCp.y)/*  + delta.y  */];
       return reflect;
     }
-    pixiGraphic = pixiGraphic?.constructor?.name === 'Graphics' ? pixiGraphic : null;
-    if (!pixiGraphic) return console.error(`drawPixiFromSvg: Must supply a graphic object.`);
+    pixiGraphic = pixiGraphic?.constructor?.name === 'MapVector' ? pixiGraphic : null;
+    if (!pixiGraphic) return console.error(`drawPixiFromSvg: Must supply a MapVector object.`);
 
     if (shape.type === 'path') {
       const last = {
