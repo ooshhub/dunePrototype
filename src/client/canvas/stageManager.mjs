@@ -2,7 +2,8 @@
 
 // Primary Pixi.js handler
 import * as Pixi from './lib/pixi.mjs';
-import { Layer, OverlayContainer, OverlayLayer } from './viewModels/backgroundClasses.mjs';
+import { Layer } from './viewModels/backgroundClasses.mjs';
+import { OverlayContainer, OverlayLayer } from './overlay/OverlayClasses.mjs';
 import { renHub, rlog, frameControl, rendererHub } from '../app.mjs';
 import { helpers } from '../../shared/helpers.mjs';
 import { PixiUiExtension } from './pixiUi.mjs';

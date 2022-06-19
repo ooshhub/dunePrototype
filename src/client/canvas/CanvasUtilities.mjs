@@ -179,4 +179,10 @@ export class CanvasUtilities {
     // TODO: Finish off svg/pixi converter with missing SVG shapes
     return pixiGraphic;
   }
+
+  static getLineLength(...args) {
+    const points = Array.isArray(args[0]) ? args[0] : args;
+    if (points.length !== 4) return console.warn(`getLineLength requires 4 coordinates.`);
+    return ((points[2]-points[0])**2 + (points[3]-points[1])**2)**(1/2);
+  }
 }
