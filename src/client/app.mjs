@@ -1,6 +1,6 @@
 // Renderer entry point
 // Dependencies
-import { helpers } from '../shared/helpers.mjs';
+import { Helpers } from '../shared/Helpers.mjs';
 import { DuneStore } from './DuneStore.mjs';
 import { RendererInterface } from './RendererInterface.mjs';
 import { SessionState } from './net/SessionState.mjs';
@@ -34,7 +34,7 @@ export const frameControl = rendererInterface.frameControl;
   } else return console.error('Aborting client load due to errors.');
 
   // Check for existing session
-  await helpers.watchCondition(() => Dune.config);
+  await Helpers.watchCondition(() => Dune.config);
   Dune.session = new SessionState(Dune.config?.userSettings?.player);
   const resumeSession = sessionStorage.getItem('DuneSession');
   rlog([`Previous Session Store: `, JSON.parse(resumeSession)]);
@@ -52,11 +52,11 @@ export const frameControl = rendererInterface.frameControl;
   }
 
   // Load core modules
-  await helpers.parallelLoader([
+  await Helpers.parallelLoader([
     { name: 'initCanvas', load: (await import('./canvas/StageManager.mjs').then((v) => v.StageManager.initCanvas())) },
     { name: 'initMainMenu', load: (await import('./mainMenu/mainMenu.mjs')).initMainMenu(), },
     { name: 'initUI', load: (await import('./ui/ui.mjs')).initUi() },
-    { name: 'initMentat', load: (await import('./mentat/thufir.mjs').then(v => window.Dune.mentat = v.MentatSystem )) },
+    { name: 'initMentat', load: (await import('./mentat/MentatSystem.mjs').then(v => window.Dune.mentat = v.MentatSystem )) },
   ]).then(async (res) => {
     if (res.failures > 0) throw new Error(res.errs.join('\n'));
     rlog(res.msgs.join('\n'));
@@ -73,7 +73,7 @@ export const frameControl = rendererInterface.frameControl;
       case 'GAME':
         rlog([`Attempting to reconnect to server: `, { serverOptions: reconnectObject }]);
         renHub.trigger('joinServer', { serverOptions: reconnectObject });
-        if (await helpers.watchCondition(() => Dune.client?.socket?.connected, 'Reconnect Successful?', 5000)) {
+        if (await Helpers.watchCondition(() => Dune.client?.socket?.connected, 'Reconnect Successful?', 5000)) {
           // Reconnect successful - add GameCanvas to ignore list, as the board setup will bring that element up itself
           visibleElements = visibleElements.filter(el => !~el.indexOf('#gamecanvas'));
         } else {
@@ -95,7 +95,7 @@ export const frameControl = rendererInterface.frameControl;
 
 
   // Load other modules
-  await helpers.parallelLoader([
+  await Helpers.parallelLoader([
     { name: 'howlerAudio', load: (await import('./audio/audio.mjs')).initAudio() },
     { name: 'chatSystem', load: (await import('./chat/chat.mjs')).initChat() }
   ]).then(res => {

@@ -1,7 +1,7 @@
 import * as natuPnP from 'nat-upnp';
 import request from 'request';
 import { networkInterfaces } from 'os';
-import { helpers } from '../../shared/helpers.mjs';
+import { Helpers } from '../../shared/Helpers.mjs';
 
 const client = natuPnP.default.createClient();
 const localIp = [];
@@ -67,7 +67,7 @@ export const getMapping = async (timer=2000) => {
 			console.log(`mapping error`, e);
 			return e;
 		}),
-		helpers.timeout(timer)
+		Helpers.timeout(timer)
 	]);
 }
 

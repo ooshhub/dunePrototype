@@ -1,6 +1,6 @@
 // Round controller
 import { GameRound } from "./rounds/Round.mjs";
-import { helpers } from "../../shared/helpers.mjs";
+import { Helpers } from "../../shared/Helpers.mjs";
 // import { slog } from "../serverHub.mjs";
 
 export class RoundController {
@@ -46,7 +46,7 @@ export class RoundController {
 
   // Push to next round. Probably make private method.
   async next(roundNumber) {
-    const nextRoundIndex = helpers.isBound(roundNumber, 0, this.#rounds.length) ? roundNumber : (this.#currentRound.index + 1) % this.#rounds.length;
+    const nextRoundIndex = Helpers.isBound(roundNumber, 0, this.#rounds.length) ? roundNumber : (this.#currentRound.index + 1) % this.#rounds.length;
     const endRoundCoreUpdate = this.#currentRound?.endRound?.();
     if (endRoundCoreUpdate) await this.parentCore.update('endRound', endRoundCoreUpdate);
     this.#currentRound = this.#rounds[nextRoundIndex];

@@ -1,9 +1,9 @@
 // Main menu scripts
-import { helpers } from '../../shared/helpers.mjs';
+import { Helpers } from '../../shared/Helpers.mjs';
 import { rlog, rendererHub, frameControl } from '../app.mjs';
 
 export const initMainMenu = async () => {
-  await helpers.watchCondition(() => document.readyState);
+  await Helpers.watchCondition(() => document.readyState);
   // Main menu buttons
   $$('button.expandable').forEach(b => b.addEventListener('click', menu.toggleMenuItem));
   $$('input.toggle').forEach(t => t.value = 0);
@@ -37,7 +37,7 @@ export const initMainMenu = async () => {
     $(`input[name="${input}"]`).addEventListener('change', (ev) => {
       rendererHub.trigger('main/writeConfig', { path: `userSettings/${settingsKeys[input]}`, data: {[input]: ev.target.value||'', options: { createPath: true } } });
       if (input === 'playerName') {
-        let newId = helpers.generatePlayerId(ev.target.value);
+        let newId = Helpers.generatePlayerId(ev.target.value);
         if (newId) {
           rendererHub.trigger('main/writeConfig', { path: `userSettings/player`, data: { pid: newId } } );
           $(`input[name="pid"]`).value = newId;
@@ -108,7 +108,7 @@ const lobby = (() => {
     }
     // Colour validation for House Colour
     if (ev.target.type === 'color') {
-      let normalised = helpers.normaliseHsl(elValue);
+      let normalised = Helpers.normaliseHsl(elValue);
       update.value = normalised ?? update.value;
     }
     rendererHub.trigger('server/updateLobby', { type: updateType, data: update });

@@ -1,5 +1,5 @@
 /* */
-import { helpers } from '../../shared/helpers.mjs';
+import { Helpers } from '../../shared/Helpers.mjs';
 
 export class SessionState {
 
@@ -44,7 +44,7 @@ export class SessionState {
       },
       house: {},
     };
-    helpers.bindAll(this);
+    Helpers.bindAll(this);
     this.#logger = window.Dune?.rlog ?? this.#logger;
   }
   

@@ -1,5 +1,5 @@
 // Extra UI functionality for the canvas
-import { helpers } from "../../shared/helpers.mjs";
+import { Helpers } from "../../shared/Helpers.mjs";
 
 export class PixiUiExtension {
 
@@ -17,7 +17,7 @@ export class PixiUiExtension {
     element.addEventListener('wheel', ev => {
       ev.preventDefault();
       // console.log(frame.scale, scale);
-      let scale = helpers.bound(frame.scale.x -= (ev.deltaY/3500), scaleBounds.min, scaleBounds.max);
+      let scale = Helpers.bound(frame.scale.x -= (ev.deltaY/3500), scaleBounds.min, scaleBounds.max);
       // console.log(scale);
       const initialPos = { x: frame.x, y: frame.y };
       const initialScale = { x: frame.scale.x, y: frame.scale.y }

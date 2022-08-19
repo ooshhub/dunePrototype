@@ -1,5 +1,5 @@
 import { fetchRulesets, loadRuleset } from '../core/rulesets/list.mjs';
-import { helpers } from '../../shared/helpers.mjs';
+import { Helpers } from '../../shared/Helpers.mjs';
 import { slog } from '../serverHub.mjs';
 
 export class Lobby {
@@ -148,7 +148,7 @@ export class Lobby {
 	async #getRulesetList() {
 		let filenames = await fetchRulesets();
 		// console.log(filenames);
-		this.rulesetList = filenames.map(f => {	return { id: f, name: helpers.emproper(f)} });
+		this.rulesetList = filenames.map(f => {	return { id: f, name: Helpers.emproper(f)} });
 	}
 
 	#getLobbyData() {

@@ -1,1 +1,0 @@
-// class to represent a House

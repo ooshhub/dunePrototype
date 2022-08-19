@@ -1,6 +1,6 @@
 import * as Pixi from '../lib/pixi.mjs';
 import { CanvasUtilities } from '../CanvasUtilities.mjs';
-import { helpers } from '../../../shared/helpers.mjs';
+import { Helpers } from '../../../shared/Helpers.mjs';
 
 // Grandparent container for overlay layers. Enable/disable custom events from here
 export class OverlayContainer extends Pixi.Container {
@@ -75,17 +75,9 @@ export class OverlayLayer extends Pixi.Container {
     if (overlayData.parentContainer) overlayData.parentContainer.addChild(this);
   }
 
-  createHitPolygons() {
-    this.children.forEach(child => {
-      if (child.createHitArea) child.createHitArea();
-    });
-  }
+  createHitPolygons() { this.children.forEach(child => child.createHitArea?.()); }
 
-  registerMouseoverEvents() {
-    this.children.forEach(child => {
-      if (child.applyMouseoverEvents) child.applyMouseoverEvents();
-    });
-  }
+  registerMouseoverEvents() { this.children.forEach(child => child.applyMouseoverEvents?.()); }
 
   async checkClick(eventPoint) {
     // console.log(`${this.name}: Checking ${this.children.length} children for click event...`, eventPoint);
@@ -123,13 +115,13 @@ export class MapVector extends Pixi.Graphics {
             clearInterval(fadingOut);
             sector.off('mouseout', () => fadeout);
           }
-          else sector.alpha = helpers.bound(sector.alpha - 0.008, 0, 1);
+          else sector.alpha = Helpers.bound(sector.alpha - 0.008, 0, 1);
         });
       }
       sector.on('mouseout', () => fadeout(sector));
       let fadingIn = setInterval(() => {
         if (sector.fading === 'out' || sector.alpha >= 1) clearInterval(fadingIn);
-        else sector.alpha = helpers.bound(sector.alpha + 0.008, 0, 1);
+        else sector.alpha = Helpers.bound(sector.alpha + 0.008, 0, 1);
       });
     }
     this.on('mouseover', () => fadein(this));

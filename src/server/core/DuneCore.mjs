@@ -1,12 +1,12 @@
 // core game state maintained by server
-import { HouseList } from "./HouseList.mjs";
+import { HouseList } from "./services/HouseService.mjs";
 import { RoundController } from "./RoundController.mjs";
 import { CardDeckController } from "./CardDeckController.mjs";
-import { DuneMap } from "./DuneMap.mjs";
+import { DuneMap } from "./controllers/DuneMapController.mjs";
 import { serverHub, slog } from "../serverHub.mjs";
-import { helpers } from "../../shared/helpers.mjs";
+import { Helpers } from "../../shared/Helpers.mjs";
 import { Serialiser } from "../../shared/Serialiser.mjs";
-import { ClientPoll } from "../utils/ResponsePoll.mjs";
+import { ClientPoll } from "../net/ResponsePoll.mjs";
 
 export class DuneCore {
 
@@ -61,6 +61,7 @@ export class DuneCore {
         stormBlocked: false,
       }
     });
+    // Set up each House
     for (const house in this.#houses) {
       // slog(`Setting up ${house}...`);
       const setup = this.#houses[house].stats;
@@ -151,7 +152,7 @@ export class DuneCore {
       name: `cardOpportunity`,
       uniqueMessages: false,
       targets: this.hidList,
-      poll: { tags: helpers.toArray(tags) },
+      poll: { tags: Helpers.toArray(tags) },
       ack: { name: 'cardResponse', responseType: 'object' },
       timeout: 10000
     });
@@ -161,7 +162,7 @@ export class DuneCore {
 
   #doStormMovement() {
     // Check if Storm Control is in effect???
-    const movement = helpers.randomInt(12),
+    const movement = Helpers.randomInt(12),
       affectedSectors = Array(movement).fill().map((v,i) => (this.#stormPosition + i + 1) % this.#duneMap.stormSectors);
     this.#stormPosition = affectedSectors[movement-1];
     const tokensLost = this.#resolveStormEffects(affectedSectors);
@@ -205,7 +206,7 @@ export class DuneCore {
   // add to a house tray, hid: houseId, { type: solder/leader/etc, quantity: 1 }
   #modifyTray(hid, tokenArray) {
     if (!this.#trays[hid]) return slog(`coreError: house ${hid} does not exist`, 'error');
-    tokenArray = helpers.toArray(tokenArray);
+    tokenArray = Helpers.toArray(tokenArray);
     tokenArray.forEach(tok => {
       if (this.#trays[hid][tok.type] != null && tok.quantity > -1) {
         if (tok.type === 'leaders') {

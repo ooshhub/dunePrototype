@@ -1,5 +1,5 @@
 import * as electron from 'electron';
-import { helpers } from './shared/helpers.mjs';
+import { Helpers } from './shared/Helpers.mjs';
 import { EventHub } from './shared/EventHub.mjs';
 import { DebugLogger } from './shared/DebugLogger.mjs';
 import { initConfig } from './main/initLoader.mjs';
@@ -64,9 +64,9 @@ const startElectron = async () => {
 	});
 
 	loadingFrame.once('ready-to-show', async () => {
-		await helpers.timeout(100);
+		await Helpers.timeout(100);
 		loadingFrame.show();
-		helpers.windowFade(loadingFrame, 500);
+		Helpers.windowFade(loadingFrame, 500);
 	});
 	const mainFrame = await createWindow({
 		browserWindow: {
@@ -93,11 +93,11 @@ const startElectron = async () => {
 	mainHub.once('coreLoadComplete', () => coreLoad = 1);
 
 	mainFrame.once('ready-to-show', async () => {
-		await helpers.watchCondition(() => coreLoad, '', 1000).then(async (res) => {
+		await Helpers.watchCondition(() => coreLoad, '', 1000).then(async (res) => {
 			if (res) {
 				mainFrame.show();
 				mainFrame.focus();
-				await helpers.windowFade(mainFrame, 1000);
+				await Helpers.windowFade(mainFrame, 1000);
 				loadingFrame.destroy();
 			} else {
 				throw new Error('Core load failed.');

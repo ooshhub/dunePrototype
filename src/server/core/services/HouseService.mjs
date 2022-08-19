@@ -1,7 +1,9 @@
-import { slog } from "../serverHub.mjs";
-import { helpers } from "../../shared/helpers.mjs";
+import { slog } from "../../serverHub.mjs";
+import { Helpers } from "../../../shared/Helpers.mjs";
 
 export class HouseList {
+
+  //TODO: HouseList should be a Service, made of House models
 
 	// #houses = {};
 	
@@ -13,7 +15,7 @@ export class HouseList {
 		const trimHouseProperties = ['mentat', 'ruler'];
 
 		// Generate house ids
-		const houseIds = helpers.generateHouseIds(playerList);
+		const houseIds = Helpers.generateHouseIds(playerList);
 		const playerDots = this.#generatePlayerDots(numPlayers);
 
 		for (let player in playerList) {

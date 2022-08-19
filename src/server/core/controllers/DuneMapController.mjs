@@ -1,4 +1,4 @@
-import { helpers } from "../../shared/helpers.mjs";
+import { Helpers } from "../../../shared/Helpers.mjs";
 // import { slog } from "../serverHub.mjs";
 
 export class DuneMap {
@@ -26,12 +26,12 @@ class MapRegion {
     // TODO: still need to handle anchor coordinates for dropping tokens.
     // How to handle 6 players all moving to a single sector of a small Region???
     Object.assign(this, {
-      name: data.name || helpers.deCamelise(data.id) || `New Region`,
-      id: data.id || helpers.camelise(data.name) || 'newRegion',
+      name: data.name || Helpers.deCamelise(data.id) || `New Region`,
+      id: data.id || Helpers.camelise(data.name) || 'newRegion',
       terrain: data.terrain || 'rock',
       spiceBloom: data.spiceBloom ?? false,
-      stormSectors: helpers.toArray(data.stormSectors) || [],
-      borders: helpers.toArray(data.borders) || [],
+      stormSectors: Helpers.toArray(data.stormSectors) || [],
+      borders: Helpers.toArray(data.borders) || [],
       // Still needs: coordinates of token anchor(s)
     });
   }

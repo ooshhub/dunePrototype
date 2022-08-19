@@ -1,7 +1,7 @@
 // the window.Dune object, holds a mix of data from CONFIG reference values, to live Pixi token data
 // 
 
-import { helpers } from '../shared/helpers.mjs';
+import { Helpers } from '../shared/Helpers.mjs';
 import { Serialiser } from '../shared/Serialiser.mjs';
 
 export class DuneStore {
@@ -92,7 +92,7 @@ export class DuneStore {
   update(targetProperty, data={}) {
     if (!this.#hid && data?.hid) this.#hid = data.hid;
     // this.log([`DuneStore update: ${targetProperty}`, data]);
-    const targetArray = targetProperty === 'all' ? Object.keys(data) : helpers.toArray(targetProperty);
+    const targetArray = targetProperty === 'all' ? Object.keys(data) : Helpers.toArray(targetProperty);
     targetArray.forEach(target => {
       const dataRef = data[target] ?? data;
       switch(target) {
@@ -126,7 +126,7 @@ export class DuneStore {
       const playerData = Object.values(this.players);
       let stringResult = playerData.find(p => p.playerName.toLowerCase() === stringSearch.trim().toLowerCase());
       if (!stringResult) {
-        const findHouse = Object.values(this.houses).find(h => h.name === helpers.camelise(stringSearch));
+        const findHouse = Object.values(this.houses).find(h => h.name === Helpers.camelise(stringSearch));
         stringResult = findHouse ? this.players[(findHouse.pid||findHouse.lastPlayer)] : null;
       }
       return stringResult;
@@ -140,7 +140,7 @@ export class DuneStore {
     else if (this.rx.pid.test(stringSearch)) return Object.values(this.houses).find(house => (house.pid||house.lastPlayer) === stringSearch);
     else {
       const houseData = Object.values(this.houses);
-      let stringResult = houseData.find(house => house.name === helpers.camelise(stringSearch));
+      let stringResult = houseData.find(house => house.name === Helpers.camelise(stringSearch));
       if (!stringResult) {
         const findPlayer = Object.values(this.players).find(p => p.playerName.toLowerCase() === stringSearch.trim().toLowerCase());
         stringResult = findPlayer ? houseData.find(house => (house.pid||house.lastPlayer) === findPlayer.pid) : null;

@@ -1,5 +1,5 @@
 import { RendererInterfaceFunctions } from '../RendererInterfaceFunctions.mjs';
-import { helpers } from '../../shared/helpers.mjs';
+import { Helpers } from '../../shared/Helpers.mjs';
 import { SocketClient } from '../net/SocketClient.mjs';
 
 export class LobbyFunctions extends RendererInterfaceFunctions {
@@ -12,7 +12,7 @@ export class LobbyFunctions extends RendererInterfaceFunctions {
       this.rlog(`Closing old Client...`);
       window.Dune.client.close()
       window.Dune.destroyClient();
-      await helpers.timeout(200);
+      await Helpers.timeout(200);
     }
     const DuneClient = new SocketClient(serverOptions);
     window.Dune.client = DuneClient;
@@ -26,7 +26,7 @@ export class LobbyFunctions extends RendererInterfaceFunctions {
     if (window.Dune.client.clientState === 'INIT_LOBBY') {
       this.rlog([`Received fresh Lobby for setup`, newLobby], 'info');
       this.rendererHub.trigger('main/requestHtml', { req: 'lobby', data: newLobby });
-      let lobbyReady = await helpers.watchCondition(() => $('#lobby header'), 'Lobby HTML found', 6000);
+      let lobbyReady = await Helpers.watchCondition(() => $('#lobby header'), 'Lobby HTML found', 6000);
       if (lobbyReady) {
         this.rlog('Lobby HTML detected, bringing window up...');
         console.log(this);
@@ -40,7 +40,7 @@ export class LobbyFunctions extends RendererInterfaceFunctions {
     // Validate data
     if (houseData) window.Dune.lobby.houses = houseData;
     this.rendererHub.trigger('main/requestHtml', { req: 'lobby', data: lobbyData });
-    if (await helpers.watchCondition(() => $('.player-list'))) {
+    if (await Helpers.watchCondition(() => $('.player-list'))) {
       this.rendererHub.trigger('refreshLobby', { playerData: playerData });
       await this.frameControl.showElements(['#chat', '#lobby']);
       this.rendererHub.trigger('loadComplete:clientLobby');

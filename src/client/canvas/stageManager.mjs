@@ -5,7 +5,7 @@ import * as Pixi from './lib/pixi.mjs';
 import { Layer } from './viewModels/backgroundClasses.mjs';
 import { OverlayContainer, OverlayLayer } from './overlay/OverlayClasses.mjs';
 import { renHub, rlog, frameControl, rendererHub } from '../app.mjs';
-import { helpers } from '../../shared/helpers.mjs';
+import { Helpers } from '../../shared/Helpers.mjs';
 import { PixiUiExtension } from './pixiUi.mjs';
 import { fetchAssetPath } from '../../assets/assetDirectory.mjs';
 // import { CanvasUtilities as canvasUtilities } from './CanvasUtilities.mjs';
@@ -36,7 +36,7 @@ export class StageManager {
         let output = {};
         try { for (const asset in content) { output[asset] = new Pixi.Texture.from(content[asset].texture.baseTexture) } }
         catch(e) { rej(e) }
-        this.Textures = helpers.unFlattenObjectPaths(output);
+        this.Textures = Helpers.unFlattenObjectPaths(output);
         window.Dune.textures = this.Textures;
         res();
       });
@@ -58,7 +58,7 @@ export class StageManager {
       if (housePath) defaultAssets.tokens[house] = housePath;
     });
     // rlog(defaultAssets);
-    const flattenedAssets = helpers.flattenObjectPaths(defaultAssets);
+    const flattenedAssets = Helpers.flattenObjectPaths(defaultAssets);
     for (const asset in flattenedAssets) this.pixiLoader.add(asset, flattenedAssets[asset]);
   }
 
@@ -121,14 +121,14 @@ export class StageManager {
         offset: { x: svgOffset.x, y: svgOffset.y }
       });
   
-      await helpers.timeout(200);
+      await Helpers.timeout(200);
 
       // Create hit area polygons for all vectors in layer
       newOverlay.createHitPolygons();
       newOverlay.registerMouseoverEvents();
     }
 
-    await helpers.timeout(250);
+    await Helpers.timeout(250);
     window.mapOverlay = mapOverlay;
     return mapOverlay;
   }
@@ -183,9 +183,9 @@ export class StageManager {
 
 
     // Use requestAnimationFrame to wait for board to finish drawing
-    // await helpers.animationFrameBreak();
-    await helpers.timeout(500);
-    await helpers.animationFrameBreak();
+    // await Helpers.animationFrameBreak();
+    await Helpers.timeout(500);
+    await Helpers.animationFrameBreak();
     // Fade main sections, then remove loading modal
 
     if (enableDebugMenu) rendererHub.trigger('loadDebugMenu');
@@ -211,7 +211,7 @@ export class StageManager {
       height: windowSize.height,
       backgroundColor: this.backgroundColor
     });
-    await helpers.watchCondition(() => $('#canvas'));
+    await Helpers.watchCondition(() => $('#canvas'));
     $('#canvas').append(pixiApp.view);
     // Set up Stage & main Layers
 

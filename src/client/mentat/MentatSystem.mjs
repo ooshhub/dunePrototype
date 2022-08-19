@@ -1,5 +1,5 @@
 // import { rlog, renHub } from '../RendererInterface.mjs';
-import { helpers } from '../../shared/helpers.mjs';
+import { Helpers } from '../../shared/Helpers.mjs';
 import { fetchAssetPath } from '../../assets/assetDirectory.mjs';
 import { ttIndex } from './tooltips.mjs';
 
@@ -12,7 +12,7 @@ export const MentatSystem = (() => {
 		if (!target || !data) return rlog(`Thufir didn't understand the request: ${target}:${data}`, 'warn');
 		rlog([`Thufir received data request for ${target}`,data]);
 		// Fetch the template for the target element
-		let hbsTemplate = `mentat${helpers.emproper(target)}.hbs`;
+		let hbsTemplate = `mentat${Helpers.emproper(target)}.hbs`;
 		// Fetch the required data from the help file
 		let houseData = window.Dune.lobby.houses?.[data];
 		if (!houseData) return rlog(`No house found`, 'warn');

@@ -1,4 +1,4 @@
-import { helpers } from '../../shared/helpers.mjs';
+import { Helpers } from '../../shared/Helpers.mjs';
 
 /* TEST DATA */
 // const players = {
@@ -39,7 +39,7 @@ export class ChatMessage {
 				case 'w': {
 					const whisperTarget = (msg.match(/^("[^"]+?"|[^\s]+)/)||[])[1];
 					if (whisperTarget) {
-						const rxTarget = new RegExp(helpers.escapeRegex(whisperTarget.replace(/"/g, '')), 'i');
+						const rxTarget = new RegExp(Helpers.escapeRegex(whisperTarget.replace(/"/g, '')), 'i');
 						for (let p in players) { if (rxTarget.test(players[p].playerName)) this.target = p; }
 					}
 					if (!this.target) {

@@ -1,12 +1,12 @@
 import { slog, serverHub } from "../serverHub.mjs";
-import { helpers } from "../../shared/helpers.mjs";
+import { Helpers } from "../../shared/Helpers.mjs";
 
 export const handleChat = async (msgData) => {
 	// handle chat message
 	slog([`Chat message received: `, msgData]);
 	msgData.from = msgData.pid;
 	if (msgData.type === 'whisper') {
-		const msgSender = helpers.cloneObject(msgData);
+		const msgSender = Helpers.cloneObject(msgData);
 		msgSender.type = 'whisper-sent';
 		msgSender.targets = msgData.from;
 		msgData.targets = msgData.target;

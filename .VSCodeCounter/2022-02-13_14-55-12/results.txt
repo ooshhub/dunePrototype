@@ -168,7 +168,7 @@ Files
 | c:\Users\Oosh\Documents\GitHub\dunePrototype\src\shared\Colours.mjs                                     | JavaScript |         57 |         10 |          7 |         74 |
 | c:\Users\Oosh\Documents\GitHub\dunePrototype\src\shared\DebugLogger.mjs                                 | JavaScript |         45 |         14 |          3 |         62 |
 | c:\Users\Oosh\Documents\GitHub\dunePrototype\src\shared\EventHub.mjs                                    | JavaScript |         66 |          7 |         10 |         83 |
-| c:\Users\Oosh\Documents\GitHub\dunePrototype\src\shared\helpers.mjs                                     | JavaScript |        197 |         40 |         15 |        252 |
+| c:\Users\Oosh\Documents\GitHub\dunePrototype\src\shared\Helpers.mjs                                     | JavaScript |        197 |         40 |         15 |        252 |
 | c:\Users\Oosh\Documents\GitHub\dunePrototype\src\shared\nodeHelpers.mjs                                 | JavaScript |         36 |         10 |          6 |         52 |
 | c:\Users\Oosh\Documents\GitHub\dunePrototype\tailwind.config.cjs                                        | JavaScript |         33 |          0 |          1 |         34 |
 | c:\Users\Oosh\Documents\GitHub\dunePrototype\test.html                                                  | HTML       |         83 |          0 |          0 |         83 |

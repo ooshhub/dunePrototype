@@ -1,6 +1,6 @@
 import { TemplateEngine } from './TemplateEngine.mjs';
 import { FrameUtilities as utilities } from './FrameUtilities.mjs';
-import { helpers } from '../../shared/helpers.mjs'; 
+import { Helpers } from '../../shared/Helpers.mjs'; 
 
 export class FrameController {
 
@@ -215,7 +215,7 @@ export class FrameController {
     const targetContainer = container ? this.#containers[container] : Object.values(this.#containers)[0];
     if (!targetContainer) { return { err: `${this.constructor.name}: Error creating modal, bad container: ${container}` } }
     const frame = this.templateEngine.create(frameData);
-    frame.id = helpers.generateUID();
+    frame.id = Helpers.generateUID();
     if (!frame?.tagName) { return { err: `${this.constructor.name}: Error creating modal: bad frame data: ${frameData}` } }
     const hidden = frameData.hidden ?? this.#config.hidden ?? false,
       draggable = frameData.draggable ?? this.#config.draggable ?? true,
@@ -264,7 +264,7 @@ export class FrameController {
     const frameId = this.#insertModal(frameData, container);
     if (!frameId) return null;
     let returnData = frameId;
-    const fireEvents = helpers.toArray(frameData.fireEvents);
+    const fireEvents = Helpers.toArray(frameData.fireEvents);
     // Handle loading frame, with self-destruct on finish loading event
     if (frameData.destroyOnEvent) this.#modalDestroyOnEvent(frameId, modalData.destroyOnEvent, modalData.eventTimeout);
     // Handle data return...

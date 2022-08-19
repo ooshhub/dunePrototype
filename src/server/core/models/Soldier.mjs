@@ -1,5 +1,6 @@
-import { soldierNames } from './soldierNames.mjs';
+import { soldierNames } from '../utilities/soldierNameGenerator.mjs';
 import { slog } from '../../serverHub.mjs';
+import { Helpers } from '../../../shared/Helpers.mjs';
 
 export class Soldier {
 
@@ -7,12 +8,14 @@ export class Soldier {
 
   constructor(house) {
     this.#logger = slog;
-    if (!house || !soldierNames[house]) {
+    if (!house) {
       this.#logger(`${this.constructor.name}: Error creating soldier, house not found`);
       return {};
     }
+    const nameGeneratorGroup = soldierNames[house] ?? soldierNames.default;
     Object.assign(this, {
-      
+      id: Helpers.generateUID(),
+      name: soldierNames.gene
     })
   } 
 }

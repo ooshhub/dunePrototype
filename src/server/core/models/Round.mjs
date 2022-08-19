@@ -1,5 +1,5 @@
 import { slog } from "../../serverHub.mjs";
-import { helpers } from "../../../shared/helpers.mjs";
+import { Helpers } from "../../../shared/Helpers.mjs";
 
 export class GameRound {
 
@@ -15,9 +15,9 @@ export class GameRound {
 			id: data.id,
 			index: data.index,
 		});
-		this.#entryTasks = (helpers.toArray(data.entry))?.sort((a,b) => a.order - b.order) ?? [];
-		this.#exitTasks = helpers.toArray(data.exit)?.sort((a,b) => a.order - b.order) ?? [];
-		helpers.bindAll(this);
+		this.#entryTasks = (Helpers.toArray(data.entry))?.sort((a,b) => a.order - b.order) ?? [];
+		this.#exitTasks = Helpers.toArray(data.exit)?.sort((a,b) => a.order - b.order) ?? [];
+		Helpers.bindAll(this);
 	}
 
 	// get entryTasks() { return this.#entryTasks }

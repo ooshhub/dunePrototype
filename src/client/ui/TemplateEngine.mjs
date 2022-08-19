@@ -180,7 +180,7 @@ export class TemplateEngine {
     containerFrame.innerHTML = template.html;
     const newFrame = containerFrame.children[0];
     if (!newFrame) return console.error('Bad HTML supplied to TemplateEngine');
-    // newFrame.id = helpers.generateUID(); MOVED to framecontroller
+    // newFrame.id = Helpers.generateUID(); MOVED to framecontroller
     // Process buttons & replacers
     this.#processReplacers(templateData, newFrame, template.properties.replacers);
     // Handle HTML Attribute properties

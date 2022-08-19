@@ -1,5 +1,5 @@
 import { RendererInterfaceFunctions } from "./RendererInterfaceFunctions.mjs";
-import { helpers } from "../shared/helpers.mjs";
+import { Helpers } from "../shared/Helpers.mjs";
 
 export class RendererUtilities extends RendererInterfaceFunctions {
 
@@ -39,7 +39,7 @@ export class RendererUtilities extends RendererInterfaceFunctions {
   // Show / Hide / Fade one or more sections via selector strings
   async transitionSection(elements, direction, fadeTime=1000) {
     if (!/^(in|out)$/.test(direction)) return this.rlog(`transitionSection() Error: bad direction input "${direction}"`, 'warn');
-    elements = helpers.toArray(elements);
+    elements = Helpers.toArray(elements);
     await Promise.all(elements.map(async (el) => {
       if (!$(el)) return this.rlog(`showSection(): bad selector`, 'warn');
       if (($(el).classList?.contains('show') && direction==='in') || ($(el).classList?.contains('hide') && direction==='out')) return;

@@ -1,4 +1,4 @@
-import { helpers } from '../shared/helpers.mjs';
+import { Helpers } from '../shared/Helpers.mjs';
 
 // const assetsPrefix = 'fakepath'
 
@@ -16,9 +16,9 @@ export const fetchAssetPath = (assetPath, custom = false) => {
   if (custom) {
     // Custom graphics loader
   } else {
-    let filePath = helpers.getObjectPath(assetDirectory, assetPath, false);
+    let filePath = Helpers.getObjectPath(assetDirectory, assetPath, false);
     if (typeof(filePath) === 'object') {
-      let subTree = helpers.cloneObject(filePath);
+      let subTree = Helpers.cloneObject(filePath);
       subTree = processTree(subTree);
       return subTree;
     }

@@ -112,7 +112,7 @@ Total : 103 files,  48615 codes, 19543 comments, 5646 blanks, all 73804 lines
 | [src/shared/Colours.mjs](/src/shared/Colours.mjs) | JavaScript | 57 | 10 | 7 | 74 |
 | [src/shared/DebugLogger.mjs](/src/shared/DebugLogger.mjs) | JavaScript | 45 | 14 | 3 | 62 |
 | [src/shared/EventHub.mjs](/src/shared/EventHub.mjs) | JavaScript | 66 | 7 | 10 | 83 |
-| [src/shared/helpers.mjs](/src/shared/helpers.mjs) | JavaScript | 197 | 40 | 15 | 252 |
+| [src/shared/Helpers.mjs](/src/shared/Helpers.mjs) | JavaScript | 197 | 40 | 15 | 252 |
 | [src/shared/nodeHelpers.mjs](/src/shared/nodeHelpers.mjs) | JavaScript | 36 | 10 | 6 | 52 |
 
 [summary](results.md) / details / [diff summary](diff.md) / [diff details](diff-details.md)

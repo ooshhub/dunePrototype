@@ -1,7 +1,7 @@
 // socket.io client Class
 // TODO: rewrite
 import { io } from '../lib/socket.io.esm.min.js';
-import { helpers } from '../../shared/helpers.mjs';
+import { Helpers } from '../../shared/Helpers.mjs';
 
 export class SocketClient {
 
@@ -133,8 +133,8 @@ export class SocketClient {
 		this.#socklog(`Connecting...`);
 		this.socket.connect();
 		await Promise.race([
-			helpers.timeout(maxAttemptTime),
-			helpers.watchCondition(() => this.socket.connected)
+			Helpers.timeout(maxAttemptTime),
+			Helpers.watchCondition(() => this.socket.connected)
 		]);
 		if (!this.socket.connected) {
 			this.socket.close();

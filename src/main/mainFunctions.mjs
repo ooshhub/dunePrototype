@@ -1,5 +1,5 @@
 import { mainHub, mlog, CONFIG, electronRoot, Win } from '../main.mjs';
-import { helpers } from '../shared/helpers.mjs';
+import { Helpers } from '../shared/Helpers.mjs';
 import { helpers as nHelpers } from '../shared/nodeHelpers.mjs';
 import { getMenuItems } from '../client/mainMenu/menuItems.mjs';
 // import { startLocalServer } from '../server/net/localServer.mjs';
@@ -19,7 +19,7 @@ export const main = (() => {
       mainHub.trigger('rendererHub/killSocket');
       await killServer();
       server.local = null;
-      helpers.timeout(2000);
+      Helpers.timeout(2000);
     }
     mlog([`Starting server with options`, serverOptions], 'info');
     let serverResult = {};
@@ -41,7 +41,7 @@ export const main = (() => {
     else {
       mlog(`Server started on ${serverOptions.hostPort}...`);
       mainHub.trigger('renderer/popupMessage', { title: 'Server Init', message: `Server Created:<br> ${mappingResult.msg||mappingResult.err||''}` });
-      await helpers.timeout(500);
+      await Helpers.timeout(500);
       //// Use localhost for testing ////
       serverOptions.selfJoin = true;
       serverOptions.hostIp = CONFIG.NET.PUBLIC_IP || '';
@@ -60,7 +60,7 @@ export const main = (() => {
   */
   const renderHtml = async ({req, data}) => {
     mlog(`HTML was requested`, req);
-    req = helpers.toArray(req);
+    req = Helpers.toArray(req);
     Promise.all(req.map(async (r) => {
       let hbsPath = '', hbsData = {};
       if (r === 'canvas') hbsPath = `${CONFIG.PATH.HBS}/gameCanvas.hbs`;
@@ -94,7 +94,7 @@ export const main = (() => {
   // TODO: allow array of changes
   const modifyConfig = async ( { path, data, options={} } ) => {
     if (!data || !path) return mlog(`modifyConfig: no data received with request`, data);
-    let target = helpers.getObjectPath(CONFIG, path, options?.createPath||true);
+    let target = Helpers.getObjectPath(CONFIG, path, options?.createPath||true);
     mlog([`Writing to config...`, target, data]);
     Object.assign(target, data);
     mlog(CONFIG.userSettings);
@@ -105,7 +105,7 @@ export const main = (() => {
 
   const exitAndSave = async () => { // erm.... saveAndExit would be a more sensible name
     console.log(`Saving settings...`);
-    helpers.timeout(50);
+    Helpers.timeout(50);
     await saveConfig()
       .catch((e) => {
         electronRoot.app.exit();

@@ -1,5 +1,5 @@
 import { serverHub, slog } from '../serverHub.mjs';
-import { helpers } from '../../shared/helpers.mjs';
+import { Helpers } from '../../shared/Helpers.mjs';
 
 /*
 Request an acknowledgment from clients and collate responses
@@ -29,11 +29,11 @@ export class ClientPoll {
 
   // TODO: retry is non-functinoal
   constructor(pollData={}) {
-    this.id = helpers.generateUID();
+    this.id = Helpers.generateUID();
     Object.assign(this, {
       name: pollData.name || 'New ResPoll',
       byId: pollData.byId || 'hid',
-      targets: helpers.toArray(pollData.targets) || [],
+      targets: Helpers.toArray(pollData.targets) || [],
       uniqueMessages: pollData.unique ?? true,
       retry: pollData.retry > 0 ? pollData.retry : 0,
       timeout: pollData.timeout > 0 ? pollData.timeout : 30000,
@@ -82,7 +82,7 @@ export class ClientPoll {
     serverHub.on(this.ack.name, (...args) => { this.#ackListener(...args) });
     // Send messages to client(s) if required
     if (this.poll) {
-      const messages = helpers.toArray(this.poll);
+      const messages = Helpers.toArray(this.poll);
       messages.forEach((msg,i) => {
         Object.assign(msg, {
           ack: this.ack,
@@ -95,7 +95,7 @@ export class ClientPoll {
     // Await a result
     let result = await Promise.race([
       new Promise(res => { serverHub.once(`poll${this.id}`, (responses) => res({ res: responses })) }),
-      helpers.timeout(this.timeout)
+      Helpers.timeout(this.timeout)
     ]);
     // Remove handlers
     serverHub.off(`poll${this.id}`);

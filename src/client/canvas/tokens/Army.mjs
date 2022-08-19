@@ -1,5 +1,5 @@
 import * as Pixi from '../lib/pixi.mjs';
-import { helpers } from '../../../shared/helpers.mjs';
+import { Helpers } from '../../../shared/Helpers.mjs';
 
 export class Army extends Pixi.Sprite {
 
@@ -9,7 +9,7 @@ export class Army extends Pixi.Sprite {
     // TODO: default properties required by Sprite classs
     super(armyData);
     Object.assign(this, {
-      id: helpers.generateUID(),
+      id: Helpers.generateUID(),
       name: armyData.name || 'newArmy',
       house: armyData.house || null,
       hid: armyData.hid || null,

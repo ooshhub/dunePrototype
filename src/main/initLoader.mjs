@@ -1,5 +1,5 @@
 import * as http from 'http';
-import { helpers } from '../shared/helpers.mjs';
+import { Helpers } from '../shared/Helpers.mjs';
 import { helpers as nodeHelpers } from '../shared/nodeHelpers.mjs';
 import { mainHub, mlog, electronRoot } from '../main.mjs';
 
@@ -27,7 +27,7 @@ export const initConfig = async (configReference) => {
 	};
 	Object.assign(configReference, config);
 	if (configReference.PATH.ROOT) {
-		let loadResult = await helpers.parallelLoader([
+		let loadResult = await Helpers.parallelLoader([
 			{ name: `playerSettings`, load: getUserSettings(configReference) },
 			{ name: `netSettings`, load: getPublicIp(configReference) },
 			{ name: `electronReady`, load: electronApp.whenReady() },
@@ -56,7 +56,7 @@ const getUserSettings = async (configReference) => {
 		}
 		if (settings?.player) {
 			if (!/^[A-Za-z]_/.test(`${settings.player.pid}`)) {
-				settings.player.pid = helpers.generatePlayerId(process?.env?.USERNAME);
+				settings.player.pid = Helpers.generatePlayerId(process?.env?.USERNAME);
 				mlog(`New player ID generated: ${settings.player.id}`);
 				mainHub.trigger('saveConfig', settings);
 			}

@@ -1,7 +1,7 @@
 // socketio server Class
 import { createServer } from 'http';
 import * as socketio from 'socket.io';
-import { helpers } from '../../shared/helpers.mjs';
+import { Helpers } from '../../shared/Helpers.mjs';
 const { Server } = socketio;
 
 export class SocketServer {
@@ -154,7 +154,7 @@ export class SocketServer {
     if (!this.#playerList[playerData.pid]) return undefined;
     this.#slog(`Checking client connection for ${playerData.playerName}...`);
     return await Promise.race([
-      helpers.timeout(ackTimeout),
+      Helpers.timeout(ackTimeout),
       this.#healthCheckAck(this.#playerList[playerData.pid].socket)
     ]);
   }
@@ -226,7 +226,7 @@ export class SocketServer {
     // console.log(`Sending to client`, event, data);
     if (!data.targets) this.io.emit('message', event, data, ...args);
     else {
-      let targetIds = helpers.toArray(data.targets);
+      let targetIds = Helpers.toArray(data.targets);
       if (targetIds[0] === 'host') targetIds[0] = this.host.hid ?? this.host.pid;
       targetIds.forEach(id => {
         this.#houseList[id]?.currentPlayer.socket?.send(event, data, ...args)
@@ -251,15 +251,15 @@ export class SocketServer {
   getPlayerList(playerId) {
     // console.log(this.#playerList);
     let output = {};
-    if (playerId && this.#playerList[playerId]) output = helpers.removeCyclicReferences(this.#playerList[playerId]);
-    else output = helpers.removeCyclicReferences(this.#playerList);
+    if (playerId && this.#playerList[playerId]) output = Helpers.removeCyclicReferences(this.#playerList[playerId]);
+    else output = Helpers.removeCyclicReferences(this.#playerList);
     // console.log(output);
     return output;
   }
   getHouseList(houseId) {
     let output = {};
-    if (this.#houseList[houseId]) output = helpers.removeCyclicReferences(this.#houseList[houseId]);
-    else output = helpers.removeCyclicReferences(this.#houseList);
+    if (this.#houseList[houseId]) output = Helpers.removeCyclicReferences(this.#houseList[houseId]);
+    else output = Helpers.removeCyclicReferences(this.#houseList);
     return output;
   }
 

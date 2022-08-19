@@ -2,7 +2,9 @@
 import * as convert from './Colours.mjs';
 
 // Alpha: Turn into static class instead
-export class helpers {
+export class Helpers {
+
+  constructor() { throw new Error(`${this.constructor.name}: this class cannot be instantiated.`) }
   
   static #log = null;
 
@@ -286,7 +288,7 @@ export class helpers {
   /**
    * OTHER FUNCTIONS
    */
-  static  emproper(input) {
+  static emproper(input) {
     if (typeof(input) !== 'string') return;
     let words = input.replace(/_/g, ' ').trim().split(/\s+/g);
     let Words = words.map(w => `${w[0].toUpperCase()}${w.slice(1)}`);

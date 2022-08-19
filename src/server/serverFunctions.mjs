@@ -2,8 +2,8 @@ import { slog, serverHub } from './serverHub.mjs';
 import { Lobby } from './net/Lobby.mjs';
 import { DuneCore } from './core/DuneCore.mjs';
 import { Serialiser } from '../shared/Serialiser.mjs';
-import { ClientPoll } from './utils/ResponsePoll.mjs';
-import { helpers } from '../shared/helpers.mjs';
+import { ClientPoll } from './net/ResponsePoll.mjs';
+import { Helpers } from '../shared/Helpers.mjs';
 
 // Alpha: move most of this to ServerInterface class. Lobby can probably get its own interface.
 
@@ -153,7 +153,7 @@ export const server = (() => {
   }
 
 	const getGameState = (houseIds) => {
-		houseIds = helpers.toArray(houseIds);
+		houseIds = Helpers.toArray(houseIds);
     if (Game.Core.state) {
       const gameData = {
         players: Game.Server.getPlayerList(),
@@ -172,7 +172,7 @@ export const server = (() => {
 	}
 
   const sendGameState = (houseIds) => {
-		const targets = houseIds ? helpers.toArray(houseIds) : Game.Core.hidList;
+		const targets = houseIds ? Helpers.toArray(houseIds) : Game.Core.hidList;
 		const gameData = getGameState(targets);
 		gameData.forEach(state => serverHub.trigger('client/initGameBoard', state));
   }

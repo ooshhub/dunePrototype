@@ -60,9 +60,9 @@ const hslToHex = (hsl) => {
 	return rgb?.stack ? new Error(rgb) : rgbToHex(rgb);
 }
 
-// const color = `#991110`;
-// const hsl = hexToHsl(color);
-// console.log(hsl);
+const color = `#cc2gg4cc`;
+const hsl = hexToHsl(color);
+console.log(hsl);
 
 // const rgb = hslToRgb(hsl);
 // console.log(rgb);

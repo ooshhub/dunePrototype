@@ -81,6 +81,6 @@
  ┣ 📂shared
  ┃ ┣ 📜DebugLogger.mjs
  ┃ ┣ 📜EventHub.mjs
- ┃ ┗ 📜helpers.mjs
+ ┃ ┗ 📜Helpers.mjs
  ┣ 📜main.cjs
  ┗ 📜main.mjs

@@ -1,1 +1,0 @@
-// server model for game board & contents visible to all players
