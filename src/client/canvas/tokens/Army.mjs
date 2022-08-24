@@ -1,3 +1,7 @@
+/**
+ * Backend - an Army is any collection of Soldiers in a territory on the board
+ */
+
 import * as Pixi from '../lib/pixi.mjs';
 import { Helpers } from '../../../shared/Helpers.mjs';
 

@@ -1,48 +1,32 @@
-import { slog } from "../../serverHub.mjs";
-import { Helpers } from "../../../shared/Helpers.mjs";
+/**
+ * Logic services for backend House implementation
+ * 
+ */
 
-export class HouseList {
+export class HouseService {
 
-  //TODO: HouseList should be a Service, made of House models
+  #houseRepository = {};
 
-	// #houses = {};
-	
-	constructor(playerList, ruleset) {
-		// slog([playerList, ruleset]);
-		const numPlayers = Object.keys(playerList).length;
-		
-		// List of House properties not needed by server
-		const trimHouseProperties = ['mentat', 'ruler'];
+  constructor(houseRepository) {
+    this.#houseRepository = houseRepository;
+  }
 
-		// Generate house ids
-		const houseIds = Helpers.generateHouseIds(playerList);
-		const playerDots = this.#generatePlayerDots(numPlayers);
+  // Generate a house id for each player
+  generateHouseIds(playerList) {
+    const output = {};
+    let increment = 1;
+    for (let p in playerList) {
+      const pid = playerList[p].pid, houseInitial = playerList[p].house[0];
+      const hid = `${pid[0]}${houseInitial}_${increment}${pid.slice(2)}`.slice(0,19);
+      Object.assign(output, { [pid]: hid });
+      increment ++;
+    }
+    return output;
+  }
 
-		for (let player in playerList) {
-			const newHouse = {};
-			const houseName = playerList[player].house;
-			const targetHouse = ruleset.Houses[houseName];
-			const hid = houseIds[playerList[player].pid];
-
-			slog([`Generating House setup for player ${player}: ${houseName}`, targetHouse]);
-
-			if (!targetHouse) return new Error(`HouseList error: Could not find House "${targetHouse}"`);
-			Object.assign(newHouse, {
-				hid: hid,
-				rulesetName: houseName,
-				lastPlayer: playerList[player].pid,
-				playerDot: playerDots.shift(),
-			});
-			for (let prop in targetHouse) {
-				if (!trimHouseProperties.includes(prop)) newHouse[prop] = targetHouse[prop];
-			}
-			this[hid] = newHouse;
-		}
-	}
-
-	get list() { return this }
-
-	#generatePlayerDots(numPlayers, sectors) {
+  // Generate a player dot around the map. Represents the "angle" at which players are "sitting" around
+  // the 18 sectors. The player in front of the storm marker (clockwise) goes first on each round.
+  generatePlayerDots(numPlayers, sectors) {
 		const stormSectors = sectors ?? 18;
 		const dotProgression = stormSectors/(numPlayers);
 		const dots = [];
@@ -50,13 +34,4 @@ export class HouseList {
 		return dots;
 	}
 
-	/**
-	 * Required methods....
-	 * - return abilities by filter, e.g. applicable to current round, applicable to current player, applicable to Alliance etc.
-	 * - 
-	 * 
-	 * 
-	 * 
-	 */
-	
 }

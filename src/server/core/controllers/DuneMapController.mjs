@@ -1,7 +1,7 @@
 import { Helpers } from "../../../shared/Helpers.mjs";
 // import { slog } from "../serverHub.mjs";
 
-export class DuneMap {
+export class DuneMapController {
 
   #regions = {};
 

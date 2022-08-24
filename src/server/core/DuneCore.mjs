@@ -1,8 +1,8 @@
 // core game state maintained by server
-import { HouseList } from "./services/HouseService.mjs";
-import { RoundController } from "./RoundController.mjs";
-import { CardDeckController } from "./CardDeckController.mjs";
-import { DuneMap } from "./controllers/DuneMapController.mjs";
+import { HouseController } from "./controllers/HouseController.mjs";
+import { RoundController } from "./controllers/RoundController.mjs";
+import { CardDeckController } from "./controllers/CardDeckController.mjs";
+import { DuneMapController } from "./controllers/DuneMapController.mjs";
 import { serverHub, slog } from "../serverHub.mjs";
 import { Helpers } from "../../shared/Helpers.mjs";
 import { Serialiser } from "../../shared/Serialiser.mjs";
@@ -35,11 +35,11 @@ export class DuneCore {
 
   constructor(seed) {
     this.#setState('INIT');
-    this.#houses = new HouseList(seed.playerList, seed.ruleset);
+    this.#houses = new HouseController(seed.playerList, seed.ruleset);
     this.#roundController = new RoundController(seed.ruleset, this.houseList, this);
     this.#cards = new CardDeckController(seed.ruleset.decks, seed.serverOptions);
     this.#turnLimit = seed.turnLimit > 0 ? seed.turnLimit : 15;
-    this.#duneMap = new DuneMap();
+    this.#duneMap = new DuneMapController();
     this.#rulesetName = seed.name;
     this.name = seed.name || 'New Dune Game';
     this.host = seed.host;
