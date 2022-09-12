@@ -41,5 +41,7 @@ export class HouseController {
 
 	get list() { return this.#houseRepository.all }
 
+  get listStorm() { return HouseTransformer.transformHouses(this.#houseRepository.all) }
+
 	
 }

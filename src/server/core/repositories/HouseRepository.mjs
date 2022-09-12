@@ -9,7 +9,7 @@ import { BaseRepository } from "./BaseRepository.mjs";
 
 export class HouseRepository extends BaseRepository {
 
-  #store = {};
+  #store = [];
 
   constructor() { super() }
 
@@ -21,6 +21,10 @@ export class HouseRepository extends BaseRepository {
   }
 
   read(houseId) {
+    const house = new House();
+    house.id = houseId;
+
+    return house.get();
     return this.#store[houseId] ?? null;
   }
 
