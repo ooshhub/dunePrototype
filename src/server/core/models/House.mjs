@@ -1,21 +1,19 @@
-// TODO: Create baseModel to extend from
+import { Model } from "./Model.mjs";
 
-export class House {
-
-  // TODO: validation methods for type checking
+export class House extends Model {
 
   // Define properties and type check
-  #modelProperties = {
+  static #modelProperties = {
     hid: {
-      type: 'string:hid',
+      type: 'string:uid',
       required: true,
     },
     lastPlayer: {
-      type: 'string:pid',
+      type: 'string:uid',
       required: true,
     },
     houseDot: {
-      type: 'float',
+      type: 'number',
       required: true,
     },
     rulesetName: {
@@ -24,13 +22,9 @@ export class House {
     }
   }
 
-  constructor(houseData) {
-    for (const key in this.#modelProperties) {
-      // Do type checking with static Model methods
-      // Do required checking with static Model methods
-      // Do checking of invalid keys via static Model method
-      this[key] = houseData[key];
-    }
+  constructor(houseData = {}) {
+    super(houseData.hid, houseData, House.#modelProperties);
+    if (!this.id) throw new Error(`${this.constructor.name}: Failed to create model`);
   }
   
 }

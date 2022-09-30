@@ -7,6 +7,7 @@ import { serverHub, slog } from "../serverHub.mjs";
 import { Helpers } from "../../shared/Helpers.mjs";
 import { Serialiser } from "../../shared/Serialiser.mjs";
 import { ClientPoll } from "../net/ResponsePoll.mjs";
+import { SoldierManager } from "./managers/SoldierManager.mjs";
 
 export class DuneCore {
 
@@ -17,7 +18,8 @@ export class DuneCore {
   #validator = {}; // Validate PlayerTurn on submission
   #turnLimit = 10;
 
-  #houses = {};
+  #houses = null;
+  #soldierManager = null;
   // #playerList = {}; // Core should only interact with Houses, not directly with Players
 
   #duneMap = {};
@@ -36,6 +38,7 @@ export class DuneCore {
   constructor(seed) {
     this.#setState('INIT');
     this.#houses = new HouseController(seed.playerList, seed.ruleset);
+    this.#soldierManager = new SoldierManager();
     this.#roundController = new RoundController(seed.ruleset, this.houseList, this);
     this.#cards = new CardDeckController(seed.ruleset.decks, seed.serverOptions);
     this.#turnLimit = seed.turnLimit > 0 ? seed.turnLimit : 15;

@@ -1,3 +1,22 @@
-import { Helpers } from "./src/shared/Helpers.mjs";
+class Poo {
+  constructor() { }
 
-console.log('hi')
+  update() {
+    console.log('updating Poo');
+    this.stuff = 'bum';
+  }
+}
+
+class Wee extends Poo {
+  constructor() { super() }
+
+  update() {
+    super.update();
+    console.log('fuck');
+  }
+}
+
+const piss = new Wee();
+
+piss.update();
+console.log(piss.stuff);

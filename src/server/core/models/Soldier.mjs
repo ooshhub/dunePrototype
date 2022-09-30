@@ -3,40 +3,69 @@
  * Soldiers are revived in the Tleilaxu tanks, and don't need to be generated after game creation
  * 
  */
-
 import { NameGenerator } from '../utilities/soldierNameGenerator.mjs';
-import { slog } from '../../serverHub.mjs';
-import { Helpers } from '../../../shared/Helpers.mjs';
+import { Model } from './Model.mjs';
 
-export class Soldier {
+export class Soldier extends Model {
 
-  #logger = null;
-
-  #alive = true;
-  #deathCount = 0;
-
-  constructor({ houseName, hid, assignSoldierName }) {
-    this.#logger = slog;
-    if (!houseName || !hid) {
-      this.#logger(`${this.constructor.name}: Error creating soldier, house not found`);
-      return {};
+  // Define properties and type check
+  static #modelProperties = {
+    id: {
+      type: 'string:uid',
+      required: true,
+    },
+    name: {
+      type: 'string',
+      required: true
+    },
+    hid: {
+      type: 'string:uid',
+      required: true
+    },
+    houseName: {
+      type: 'string',
+      required: true
+    },
+    isAlive: {
+      type: 'boolean',
+      required: true,
+      default: true
+    },
+    deathCount: {
+      type: 'integer',
+      required: true,
+      default: 0,
+    },
+    isElite: {
+      type: 'boolean',
+      required: true,
+      default: false,
+    },
+    rank: {
+      type: 'integer',
+      required: true,
+      default: 0
+    },
+    history: {
+      type: 'array',
+      required: true,
+      default: [],
     }
-    Object.assign(this, {
-      id: Helpers.generateUID(),
-      hid: hid,
-      house: houseName,
-      name: assignSoldierName ?? NameGenerator.generate(houseName)
-    });
   }
 
-  get isAlive() { return this.#alive }
-  get deathCount() { return this.#deathCount }
-
-  kill() {
-    this.#deathCount ++;
-    this.#alive = 0
+  constructor(soldierData = {}, options = { autoGenerate: true }) {
+    if (options.autoGenerate) {
+      soldierData.id = Model.generateUID();
+      soldierData.name = NameGenerator.getName(soldierData.houseName);
+    }
+    super(soldierData.id, soldierData, Soldier.#modelProperties);
+    if (!this.id) throw new Error(`${this.constructor.name}: Failed to create model`);
   }
 
-  revive() { this.#alive = 1 }
+  // Pass to Model update method
+  update(updateData = {}) {
+    const result = super.update(updateData, Soldier.#modelProperties);
+    if (!result) this.logger?.(`${this.constructor.name}: update failed.`, 'warn');
+  }
 
 }
