@@ -1,4 +1,4 @@
-import { CardDeck } from "./rulesets/decks/CardDeck.mjs";
+import { CardDeck } from "../rulesets/decks/CardDeck.mjs";
 
 export class CardDeckController {
 

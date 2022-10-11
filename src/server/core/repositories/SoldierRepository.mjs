@@ -5,7 +5,7 @@ export class SoldierRepostiory extends BaseRepository {
 
   #dataStore;
 
-  constructor(soldierRepositoryData = {}) {
+  constructor(soldierRepositoryData = { name: 'SoldierRepository' }) {
     super(soldierRepositoryData);
     this.#dataStore = BaseRepository.createDataStore(soldierRepositoryData);
     this.name = soldierRepositoryData.name ?? `SoldierRepository`;
@@ -13,11 +13,13 @@ export class SoldierRepostiory extends BaseRepository {
 
   get store() { return this.#dataStore; }
 
-  all() { return Object.values(this.#dataStore); }
+  all() { this.logger(this.#dataStore.all()); return Object.values(this.#dataStore.all()); }
 
   create(soldierData = {}) {
+    this.logger([`Creating soldier`, soldierData]);
     const newSoldier = new Soldier(soldierData);
-    return newSoldier ? this.#dataStore.create(newSoldier) : null;
+    const result = newSoldier ? this.#dataStore.create(newSoldier) : null;
+    return result;
   }
 
   get(soldierId) { return soldierId ? this.#dataStore.read(soldierId) : null; }

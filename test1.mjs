@@ -1,22 +1,3 @@
-class Poo {
-  constructor() { }
+const newArr = Array(10).fill().map(() => Math.random());
 
-  update() {
-    console.log('updating Poo');
-    this.stuff = 'bum';
-  }
-}
-
-class Wee extends Poo {
-  constructor() { super() }
-
-  update() {
-    super.update();
-    console.log('fuck');
-  }
-}
-
-const piss = new Wee();
-
-piss.update();
-console.log(piss.stuff);
+console.log(newArr);

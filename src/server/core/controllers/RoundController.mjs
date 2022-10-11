@@ -1,6 +1,6 @@
 // Round controller
-import { GameRound } from "./rounds/Round.mjs";
-import { Helpers } from "../../shared/Helpers.mjs";
+import { GameRound } from "../models/Round.mjs";
+import { Helpers } from "../../../shared/Helpers.mjs";
 // import { slog } from "../serverHub.mjs";
 
 export class RoundController {

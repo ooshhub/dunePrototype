@@ -110,7 +110,7 @@ export const server = (() => {
         slog(['Lobby failed Validation', lobbyReady.message], 'warn');
         serverHub.trigger(`host/lobbyError`, lobbyReady);
       } else if (lobbyReady) {
-        initialiseGameState();
+        initialiseGameState().catch(() => slog(`DuneCore failed to create.`));
       } else {
         slog(`Something went wrong`, 'error');
       }

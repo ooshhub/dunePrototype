@@ -121,7 +121,7 @@ export class Helpers {
     let increment = 1;
     for (let p in playerList) {
       const pid = playerList[p].pid, houseInitial = playerList[p].house[0];
-      const hid = `${pid[0]}${houseInitial}_${increment}${pid.slice(2)}`.slice(0,19);
+      const hid = `${pid[0]}${houseInitial}_${increment}${pid.slice(2)}`.slice(0,20);
       Object.assign(output, { [pid]: hid });
       increment ++;
     }

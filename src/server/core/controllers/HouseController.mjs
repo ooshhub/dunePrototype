@@ -4,8 +4,8 @@ import { HouseService } from "../services/HouseService.mjs";
 
 export class HouseController {
 
-	#houseRepository = {};
-  #houseService = {};
+	#houseRepository;
+  #houseService;
 	
 	constructor(playerList, ruleset) {
     // Initialise the Repo and Service
@@ -35,13 +35,12 @@ export class HouseController {
 				lastPlayer: playerList[player].pid,
 				houseDot: playerDots.shift(),
 			});
-
 		}
 	}
 
-	get list() { return this.#houseRepository.all }
+	all() { return this.#houseRepository.all() }
 
-  get listStorm() { return HouseTransformer.transformHouses(this.#houseRepository.all) }
+  // get listStorm() { return HouseTransformer.transformHouses(this.#houseRepository.all) }
 
 	
 }

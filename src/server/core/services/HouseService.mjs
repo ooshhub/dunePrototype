@@ -5,19 +5,19 @@
 
 export class HouseService {
 
-  #houseRepository = {};
+  #houseRepository;
 
   constructor(houseRepository) {
     this.#houseRepository = houseRepository;
   }
 
   // Generate a house id for each player
-  generateHouseIds(playerList) {
+   generateHouseIds(playerList) {
     const output = {};
     let increment = 1;
     for (let p in playerList) {
       const pid = playerList[p].pid, houseInitial = playerList[p].house[0];
-      const hid = `${pid[0]}${houseInitial}_${increment}${pid.slice(2)}`.slice(0,19);
+      const hid = `${pid[0]}${houseInitial}_${increment}${pid.slice(2)}`.slice(0,20);
       Object.assign(output, { [pid]: hid });
       increment ++;
     }
@@ -33,5 +33,7 @@ export class HouseService {
 		for (let i=0; i<numPlayers; i++) { dots.push(i*dotProgression); }
 		return dots;
 	}
+
+  all() { return this.#houseRepository.all() }
 
 }

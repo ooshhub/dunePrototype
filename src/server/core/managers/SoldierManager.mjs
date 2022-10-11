@@ -1,12 +1,30 @@
 import { SoldierService } from "../services/SoldierService.mjs";
+import { BaseManager } from "./BaseManager.mjs";
 
-export class SoldierManager {
+export class SoldierManager extends BaseManager {
 
-  #service = null;
+  #service;
 
-  constructor(managerData = {}) {
+  constructor(managerData = { name: 'SoldierManager' }) {
+    super(managerData);
     this.#service = new SoldierService();
-    this.name = managerData.name ?? `SoldierManager`;
   }
-  
+
+  async initialiseGame(houseList = {}) {
+    this.logger(['initgame', houseList]);
+    return await this.#service.initAllHouseSoldiers(houseList);
+  }
+
+  async updateAndRespond(newEvent) { 
+    this.logger('updateAndRespond');
+    return await super.updateAndRespondGeneric(newEvent, this).catch(err => err);
+  }
+
+  all() { return this.#service.all(); }
+
+  get() {
+    // 
+  }
+
+
 }

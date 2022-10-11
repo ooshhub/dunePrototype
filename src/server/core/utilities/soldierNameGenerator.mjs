@@ -4,6 +4,11 @@ export class NameGenerator {
 
   constructor() { throw new Error(`${this.constructor.name} cannot be instantiated.`) }
   
+  /**
+   * Generate a Soldier name for a given house
+   * @param {string} house - must match a house from [atreides, harkonnen, emperor, beneGesserit, fremen, guild] or default will be used
+   * @returns {string}
+   */
   static generate(house) {
     if (!house || !generationData[house]) return null;
     const nameType = this.calculateWeighting(generationData[house].weight.type);

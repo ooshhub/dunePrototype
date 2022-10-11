@@ -8,6 +8,21 @@ export class House extends Model {
       type: 'string:uid',
       required: true,
     },
+    displayName: {
+      type: 'string',
+      required: true,
+    },
+    title: {
+      type: 'string',
+      required: true,
+    },
+    description: {
+      type: 'string',
+    },
+    ruler: {
+      type: 'object',
+      required: true,
+    },
     lastPlayer: {
       type: 'string:uid',
       required: true,
@@ -19,7 +34,19 @@ export class House extends Model {
     rulesetName: {
       type: 'string',
       required: true,
-    }
+    },
+    stats: {
+      type: 'object',
+      required: true
+    },
+    abilities: {
+      type: 'array',
+      required: true
+    },
+    leaders: {
+      type: 'array',
+      required: true,
+    },
   }
 
   constructor(houseData = {}) {

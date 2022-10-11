@@ -1,3 +1,4 @@
+import { slog } from "../../serverHub.mjs";
 import { JsonDataStore } from "./drivers/JsonDataStore.mjs";
 
 export class DataStoreFactory {
@@ -9,7 +10,7 @@ export class DataStoreFactory {
   static create(storeOptions, driver = 'json') {
     switch(driver) {
       case 'json':{
-        return JsonDataStore(storeOptions);
+        return new JsonDataStore(storeOptions);
       }
     }
   }

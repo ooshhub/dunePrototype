@@ -4,18 +4,20 @@
  * 
  */
 
+import { slog } from "../../serverHub.mjs";
 import { House } from "../models/House.mjs";
 import { BaseRepository } from "./BaseRepository.mjs";
 
 export class HouseRepository extends BaseRepository {
 
-  #store = [];
+  #store = {};
 
   constructor() { super() }
 
   all() { return this.#store }
 
   create(houseData) {
+    slog(houseData, 'info');
     const newHouse = new House(houseData);
     if (newHouse.hid && !this.#store[newHouse.hid]) this.#store[newHouse.hid] = newHouse;
   }
@@ -25,7 +27,7 @@ export class HouseRepository extends BaseRepository {
     house.id = houseId;
 
     return house.get();
-    return this.#store[houseId] ?? null;
+    // return this.#store[houseId] ?? null;
   }
 
   update() {}

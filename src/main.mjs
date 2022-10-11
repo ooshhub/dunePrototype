@@ -55,7 +55,7 @@ const startElectron = async () => {
 		browserWindow: {
 			width: 768,
 			height: 432,
-			resizable: false,
+			resizable: true,
 			skipTaskbar: true,
 			frame: false,
 			titleBarVisible: false,
@@ -70,9 +70,9 @@ const startElectron = async () => {
 	});
 	const mainFrame = await createWindow({
 		browserWindow: {
-			width: screen.width,
+			width: screen.height * (16/9),
 			height: screen.height,
-			resizable: false,
+			resizable: true,
 			titleBarOverlay: {
         color: '#201900',
         symbolColor: '#74b1be'
@@ -84,7 +84,7 @@ const startElectron = async () => {
 		},
 		html: `${CONFIG.PATH.HTML}/layout.html`,
 		dev: true,
-		maximize: true
+		maximize: false
 	});
 	Win.Main = mainFrame;
 	mainHub.trigger('mainWindowReady', { win: mainFrame });

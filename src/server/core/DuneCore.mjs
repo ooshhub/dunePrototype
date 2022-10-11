@@ -18,11 +18,11 @@ export class DuneCore {
   #validator = {}; // Validate PlayerTurn on submission
   #turnLimit = 10;
 
-  #houses = null;
-  #soldierManager = null;
+  #houses;
+  #soldierManager;
   // #playerList = {}; // Core should only interact with Houses, not directly with Players
 
-  #duneMap = {};
+  #duneMap;
 
   #stormPosition = 0;
   #board = {}; // Store status of all tokens on the map
@@ -39,6 +39,7 @@ export class DuneCore {
     this.#setState('INIT');
     this.#houses = new HouseController(seed.playerList, seed.ruleset);
     this.#soldierManager = new SoldierManager();
+    slog('CUNT')
     this.#roundController = new RoundController(seed.ruleset, this.houseList, this);
     this.#cards = new CardDeckController(seed.ruleset.decks, seed.serverOptions);
     this.#turnLimit = seed.turnLimit > 0 ? seed.turnLimit : 15;
@@ -46,15 +47,19 @@ export class DuneCore {
     this.#rulesetName = seed.name;
     this.name = seed.name || 'New Dune Game';
     this.host = seed.host;
-    this.#initBoardAndTrays();
+    slog('WJHAT THIE FUCKP')
+    this.#initBoardAndTrays().catch(e => slog(e, 'error'));
   }
 
   get appendFields() { return { _rulesetName: this.#rulesetName, _roundController: this.#roundController, _houses: this.#houses, _duneMap: this.#duneMap, _board: this.#board, _tanks: this.#tanks, _trays: this.#trays, _cards: this.#cards } }
 
   get nextHouse() { return this.#houseTurnOrder.shift() }
 
-  #initBoardAndTrays() {
+  async #initBoardAndTrays() {
     // Setup regions on Board from duneMap region data.
+    console.warn(this.houseList);
+    const soldierSetup = await this.#soldierManager.updateAndRespond({ event: 'initialiseGame', data: this.houseList });
+    slog(['soldiers', soldierSetup]);
     this.#duneMap.regionList.forEach(r => {
       this.#board[r] = {
         regionData: this.#duneMap.regions[r],
@@ -65,9 +70,10 @@ export class DuneCore {
       }
     });
     // Set up each House
-    for (const house in this.#houses) {
-      // slog(`Setting up ${house}...`);
-      const setup = this.#houses[house].stats;
+    for (const house in this.houseList) {
+      slog([`Processing ${house}`, this.houseList[house]], 'warn')
+      const setup = this.houseList[house].stats;
+      slog(['stats', setup]);
       // Add tokens to map region
       // TODO: deal with Fremen token placement choice as a "turn 0" before proper game start
       const placedTokens = Object.entries(setup.startingPosition.placed) ?? [];
@@ -81,6 +87,7 @@ export class DuneCore {
           startSoldiers -= placedSoldiers;
         }
       });
+      slog('done with placement')
       // Set up tray
       this.#trays[house] = { soldiers: 0, elites: 0, spice: 0, leaders: [] };
       // Add other tokens to house tray
@@ -89,7 +96,7 @@ export class DuneCore {
         { type: 'elites', quantity: setup.eliteSoldiers ?? 0 },
         { type: 'spice', quantity: setup.startingSpice }
       ];
-      this.#houses[house].leaders.forEach(leader => {
+      this.houseList[house].leaders.forEach(leader => {
         tokenArray.push({
           type: 'leaders',
           quantity: 1,
@@ -225,9 +232,9 @@ export class DuneCore {
     });
   }
 
-  get hidList() { return Object.keys(this.#houses.list) }
+  get hidList() { return Object.keys(this.#houses.all()) }
 
-  get houseList() { return this.#houses.list }
+  get houseList() { return this.#houses.all() }
 
   get boardState() { return this.#board }
 
@@ -282,7 +289,7 @@ export class DuneCore {
       ruleset: this.#rulesetName,
       map: this.#duneMap.list,
       round: this.#roundController.list,
-      houses: this.#houses.list,
+      houses: this.#houses.all(),
       cards: this.#cards.list,
     }
   }

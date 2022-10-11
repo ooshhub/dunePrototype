@@ -30,7 +30,7 @@ export class DuneStore {
   //TODO: move client to private method, is referenced a lot
   layers = {};
   lobby = {};
-  helpers = helpers;
+  // helpers = Helpers;
 
   get pid() { this.#pid = this.#config?.userSettings?.player?.pid || ''; return this.#pid }
   get hid() { return this.#hid }

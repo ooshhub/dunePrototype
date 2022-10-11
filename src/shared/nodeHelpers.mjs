@@ -2,7 +2,7 @@
 import fs from 'fs/promises';
 import * as hbs from 'handlebars';
 const handlebars = hbs.create();
-import { helpers as browserHelpers } from './Helpers.mjs';
+import { Helpers as browserHelpers } from './Helpers.mjs';
 
 export const helpers = (() => {
 

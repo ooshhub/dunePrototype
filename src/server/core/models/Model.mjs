@@ -13,7 +13,7 @@ export class Model {
       validate: function(value) { return typeof(value) === 'string'; },
       subTypes: {
         uid: {
-          validate: function(value) { return /[0-z]{20}/.test(value); }
+          validate: function(value) { return /[0-z_-]{20}/.test(value); }
         }
       }
     },
@@ -31,7 +31,15 @@ export class Model {
     },
     array: {
       validate: function(value) { return (Array.isArray(value)) }
-    }
+    },
+    object: {
+      validate: function(value) { return typeof(value) === 'object' },
+      subTypes: {
+        pure: {
+          validate: function(value) { return value.constructor.name === 'Object' }
+        },
+      },
+    },
     // TODO: rest of types
   }
 
@@ -56,7 +64,7 @@ export class Model {
         continue;
       }
       // Set to default if a default is provided and value if undefined
-      if (modelData[prop] === undefined && modelProperties[prop].default) modelData[prop] = modelProperties[prop].default;
+      if (modelData[prop] === undefined && modelProperties[prop].default != null) modelData[prop] = modelProperties[prop].default;
       const typeParts = modelProperties[prop].type?.trim().split(/\s*:\s*/g),
         nullable = /^\?/.test(modelProperties[prop].type),
         mainType = typeParts[0].replace(/^\?/, ''),
@@ -79,14 +87,14 @@ export class Model {
         if (subTypes) {
           subTypes.forEach(subType => {
             if (!errors.length) {
-              const subTypeValidator = Model.#types[subType]?.validate;
+              const subTypeValidator = Model.#types[mainType].subTypes[subType]?.validate;
               if (!subTypeValidator) {
                 if (modelProperties[prop].required) errors.push(`Validator does not exist for required subType "${subType}".`);
                 else warnings.push(`Validator does not exist for subType "${subType}".`);
               }
               else if (!subTypeValidator(modelData[prop])) {
-                if (modelProperties[prop].required) errors.push(`Required property "${prop}" failed validation for subType "${subType}".`);
-                else warnings.push(`Property "${prop}" failed validation for subType "${subType}".`);
+                if (modelProperties[prop].required) errors.push(`Required property "${prop}" failed validation for subType "${subType}" with value "${modelData[prop]}".`);
+                else warnings.push(`Property "${prop}" failed validation for subType "${subType}" with value "${modelData[prop]}".`);
               }
             }
           });
@@ -96,27 +104,31 @@ export class Model {
         output[prop] = modelData[prop];
       }
       else {
-        if (modelProperties[prop].required) errors.push(`Required property "${prop}" failed validation for main type "${modelProperties[prop].type}".`);
-        else warnings.push(`Property "${prop}" failed validation for main type "${modelProperties[prop].type}".`);
+        if (modelProperties[prop].required) errors.push(`Required property "${prop}" failed validation for main type "${modelProperties[prop].type}" with value "${modelData[prop]}".`);
+        else warnings.push(`Property "${prop}" failed validation for main type "${modelProperties[prop].type}" with value "${modelData[prop]}".`);
       }
     }
     if (errors.length) {
-      console.error(...errors);
+      slog(errors, 'error');
       return null;
     }
     if (warnings.length) {
-      console.warn(...warnings);
+      slog(warnings, 'warn');
     }
     return output;
   }
 
   constructor(id, modelData, modelProperties) {
-    if (!id || typeof(id) !== 'string') return null;
+    modelData.id = id ??
+      modelProperties.id?.auto ? Model.generateUID()
+      : modelData.id;
     const validated = Model.#validate(modelProperties, modelData);
     if (validated) {
       Object.assign(this, validated);
-      this.id = id;
-      this.logger = slog;
+      this.id = this.id ?? id;
+    }
+    if (!validated.id || typeof(validated.id) !== 'string') {
+      this.err = `${this.constructor.name}: Failed to create id.`;
     }
   }
 

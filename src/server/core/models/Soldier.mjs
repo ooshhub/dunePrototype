@@ -3,7 +3,7 @@
  * Soldiers are revived in the Tleilaxu tanks, and don't need to be generated after game creation
  * 
  */
-import { NameGenerator } from '../utilities/soldierNameGenerator.mjs';
+// import { NameGenerator } from '../utilities/soldierNameGenerator.mjs';
 import { Model } from './Model.mjs';
 
 export class Soldier extends Model {
@@ -13,6 +13,7 @@ export class Soldier extends Model {
     id: {
       type: 'string:uid',
       required: true,
+      auto: true,
     },
     name: {
       type: 'string',
@@ -53,13 +54,9 @@ export class Soldier extends Model {
     }
   }
 
-  constructor(soldierData = {}, options = { autoGenerate: true }) {
-    if (options.autoGenerate) {
-      soldierData.id = Model.generateUID();
-      soldierData.name = NameGenerator.getName(soldierData.houseName);
-    }
-    super(soldierData.id, soldierData, Soldier.#modelProperties);
-    if (!this.id) throw new Error(`${this.constructor.name}: Failed to create model`);
+  constructor(soldierData = {}) {
+    super(Model.generateUID(), soldierData, Soldier.#modelProperties);
+    if (!this.id) return new Error(`${this.constructor.name}: Failed to create model`);
   }
 
   // Pass to Model update method

@@ -9,7 +9,7 @@ export class JsonDataStore extends DataStoreInterface {
     this.driver = 'json';
   }
 
-  get store() { return this.#store }
+  all() { return this.#store }
 
   /**
    * Check an ID is a valid object key name
